@@ -1,0 +1,2114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kotoba — AI翻訳</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --ink: #1c1c1e;
+  --ink2: #48484a;
+  --ink3: #8e8e93;
+  --line: #e5e5ea;
+  --bg: #f2f2f7;
+  --surface: #ffffff;
+  --accent: #5e5ce6;
+  --accent2: #bf5af2;
+  --green: #30d158;
+  --red: #ff453a;
+  --panel-r: #f9f9fb;
+  --a: #5e5ce6;
+  --a2: #bf5af2;
+  --surf3: #e5e7ef;
+  --ok-bg: rgba(48,209,88,.1);
+  --sb: env(safe-area-inset-bottom,0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 96px;
+}
+
+/* ── Header ── */
+.hd {
+  width: 100%;
+  max-width: 880px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-mark {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+}
+.logo-name { font-size: 20px; font-weight: 600; color: var(--ink); letter-spacing: -0.5px; }
+.logo-sub  { font-size: 11px; color: var(--ink3); letter-spacing: 0.5px; text-transform: uppercase; }
+
+/* ── Main card ── */
+.card {
+  width: 100%; max-width: 880px;
+  background: var(--surface);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+}
+
+/* ── Lang bar ── */
+.lang-bar {
+  display: grid;
+  grid-template-columns: 1fr 52px 1fr;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.lang-cell {
+  display: flex; align-items: center;
+  padding: 0 20px;
+}
+.lang-cell.right { justify-content: flex-end; }
+
+.lang-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--bg);
+  border: none; border-radius: 999px;
+  padding: 7px 14px 7px 12px;
+  cursor: pointer; transition: background .15s;
+}
+.lang-pill:hover { background: #e5e5ea; }
+.lang-pill select {
+  appearance: none; border: none; background: transparent;
+  font-size: 14px; font-weight: 600; color: var(--ink);
+  cursor: pointer; padding: 0; line-height: 1;
+  max-width: 100px;
+}
+.lang-pill select:focus { outline: none; }
+.lang-pill svg { flex-shrink: 0; color: var(--ink3); }
+
+.swap-cell {
+  display: flex; align-items: center; justify-content: center;
+  border-left: 1px solid var(--line);
+  border-right: 1px solid var(--line);
+}
+.swap-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--bg); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink3); transition: all .2s;
+}
+.swap-btn:hover { background: var(--accent); color: #fff; transform: rotate(180deg); }
+
+/* ── Text panels ── */
+.panels {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 220px;
+}
+.panel { position: relative; display: flex; flex-direction: column; }
+.panel:first-child { border-right: 1px solid var(--line); }
+
+.src-ta {
+  flex: 1; width: 100%; min-height: 220px;
+  border: none; outline: none; resize: none;
+  padding: 20px 44px 20px 20px;
+  font-size: 16px; font-family: inherit;
+  color: var(--ink); line-height: 1.7;
+  background: transparent;
+}
+.src-ta::placeholder { color: #c7c7cc; }
+
+.tgt-out {
+  flex: 1; padding: 20px; min-height: 220px;
+  font-size: 16px; line-height: 1.7;
+  color: var(--ink); background: var(--panel-r);
+  white-space: pre-wrap; word-break: break-word;
+}
+.ph  { color: #c7c7cc; font-style: normal; }
+.err { color: var(--red); font-size: 13px; }
+
+.clr-x {
+  position: absolute; top: 12px; right: 12px;
+  background: none; border: none; cursor: pointer;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: #e5e5ea; color: #636366;
+  font-size: 13px; display: none;
+  align-items: center; justify-content: center;
+  line-height: 1; transition: background .15s;
+}
+.clr-x:hover { background: #c7c7cc; }
+
+/* Loading pulse */
+.pulse { display: flex; align-items: center; gap: 5px; padding: 4px 0; }
+.pulse span {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent); opacity: .3;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.pulse span:nth-child(2) { animation-delay: .2s; background: var(--accent2); }
+.pulse span:nth-child(3) { animation-delay: .4s; }
+@keyframes pulse { 0%,80%,100%{transform:scale(.8);opacity:.3} 40%{transform:scale(1.2);opacity:1} }
+
+/* ── Footer ── */
+.footers {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+.fp {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px; gap: 8px;
+}
+.fp:first-child { border-right: 1px solid var(--line); }
+.fp-left { display: flex; align-items: center; gap: 4px; }
+.fp-right { display: flex; align-items: center; gap: 4px; }
+
+.ib {
+  background: none; border: none; cursor: pointer;
+  color: var(--ink3); padding: 6px; border-radius: 8px;
+  display: flex; align-items: center; transition: all .15s;
+}
+.ib:hover { background: var(--bg); color: var(--ink); }
+.ib.playing { color: var(--accent); }
+.ib.save-btn { color: var(--accent); }
+.ib.save-btn:hover { background: #ede9fe; color: var(--accent); }
+
+.cc { font-size: 12px; color: #c7c7cc; white-space: nowrap; }
+
+/* Voice selector panel */
+.voice-panel {
+  display: none;
+  border-top: 1px solid var(--line);
+  background: var(--panel-r);
+  padding: 12px 20px 14px;
+}
+.voice-panel.open { display: block; }
+.voice-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.voice-row:last-child { margin-bottom: 0; }
+.voice-label { font-size: 12px; font-weight: 500; color: var(--ink3); width: 56px; flex-shrink: 0; }
+.voice-select {
+  flex: 1; appearance: none;
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 8px; padding: 6px 10px;
+  font-size: 13px; color: var(--ink); cursor: pointer;
+}
+.voice-select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.voice-sliders { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.slider-group { display: flex; align-items: center; gap: 8px; }
+.slider-group label { font-size: 12px; color: var(--ink3); white-space: nowrap; }
+.slider-group input[type=range] {
+  width: 80px; accent-color: var(--accent);
+}
+.slider-val { font-size: 12px; color: var(--ink2); min-width: 28px; text-align: right; }
+
+/* ── Alternatives ── */
+.alt-wrap { display: none; border-top: 1px solid var(--line); background: var(--panel-r); }
+.alt-inner { padding: 10px 20px 14px; }
+.alt-lbl {
+  font-size: 10px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--ink3); margin-bottom: 8px;
+}
+.alt-item {
+  font-size: 14px; color: var(--ink2);
+  padding: 6px 10px; border-radius: 8px; cursor: pointer;
+  transition: all .12s; border: 1px solid transparent;
+  margin-bottom: 2px;
+}
+.alt-item:hover {
+  background: #ede9fe; color: var(--accent);
+  border-color: #c4b5fd;
+}
+
+/* ── Progress bar (debounce indicator) ── */
+.progress-bar {
+  height: 2px; background: var(--line); overflow: hidden;
+}
+.progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  transition: width linear;
+}
+
+
+/* ── Stage / panel switcher ── */
+.stage {
+  width: 100%;
+  max-width: 880px;
+  position: relative;
+}
+.view-panel {
+  display: none;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity .22s ease, transform .22s ease;
+}
+.view-panel.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+.top-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.top-badge {
+  font-size: 11px;
+  color: var(--ink3);
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.75);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+.pill {
+  position: fixed;
+  bottom: max(16px, calc(var(--sb) + 10px));
+  left: 50%;
+  transform: translateX(-50%);
+  height: 52px;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.12), 0 1px 4px rgba(0,0,0,.08);
+  z-index: 200;
+}
+.pill-btn {
+  width: 52px; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  background: none; border: none; cursor: pointer;
+  color: var(--ink3); border-radius: 999px; transition: .15s;
+}
+.pill-btn:hover { color: var(--ink); background: var(--bg); }
+.pill-dots { display: flex; align-items: center; gap: 6px; padding: 0 12px; min-width: 74px; justify-content: center; }
+.pdot { width: 6px; height: 6px; border-radius: 50%; background: #d7d7dc; cursor: pointer; transition: .2s; }
+.pdot.cur { width: 18px; border-radius: 3px; background: linear-gradient(90deg, var(--a), var(--a2)); }
+
+/* ── History ── */
+.history-card {
+  width: 100%; max-width: 880px;
+  background: var(--surface);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+}
+.history-head {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.history-head-left { display:flex; flex-direction:column; gap:4px; }
+.history-title { font-size: 18px; font-weight: 600; color: var(--ink); }
+.history-sub { font-size: 12px; color: var(--ink3); }
+.history-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.hist-btn {
+  border: 1px solid var(--line); background:#fff; color: var(--ink2);
+  border-radius: 10px; padding: 9px 12px; cursor: pointer; transition: .15s; font-size: 13px;
+}
+.hist-btn:hover { background: var(--bg); color: var(--ink); }
+.hist-btn.danger { color: var(--red); }
+.history-list { padding: 14px; display: grid; gap: 12px; }
+
+.history-item-minimal { padding: 22px; }
+.history-item-minimal .history-body { padding: 0; }
+.history-item-minimal .history-cols { gap: 24px; }
+.history-item-minimal .history-text { cursor: pointer; }
+.history-empty {
+  margin: 6px; padding: 24px; border: 1px dashed #d7d7dc; border-radius: 16px;
+  color: var(--ink3); text-align: center; background: var(--panel-r);
+}
+.history-item {
+  border: 1px solid var(--line); border-radius: 16px; overflow: hidden; background: #fff;
+}
+.history-item.dragging { opacity: .42; }
+.history-item.drop-before { box-shadow: inset 0 3px 0 var(--accent); }
+.history-item.drop-after { box-shadow: inset 0 -3px 0 var(--accent); }
+.history-item.sort-disabled { cursor: default; }
+.history-item.sort-enabled { cursor: grab; }
+.history-item.sort-enabled:active { cursor: grabbing; }
+.history-meta {
+  display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  padding: 12px 14px; background: var(--panel-r); border-bottom: 1px solid var(--line);
+}
+.history-meta-left, .history-meta-right { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.history-chip {
+  font-size: 11px; color: var(--ink2); background:#fff; border:1px solid var(--line);
+  padding: 4px 8px; border-radius: 999px;
+}
+.history-date { font-size: 11px; color: var(--ink3); }
+.history-body { padding: 14px; display:grid; gap:12px; }
+.history-cols { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.history-col {
+  background: var(--panel-r); border: 1px solid var(--line); border-radius: 12px; padding: 12px;
+}
+.history-item.editing .history-col { background: #fff; }
+.history-col-label { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink3); margin-bottom: 8px; }
+.history-text { white-space: pre-wrap; word-break: break-word; font-size: 14px; line-height: 1.7; color: var(--ink); cursor:pointer; }
+.history-text:hover { color: var(--accent); }
+.history-edit-box {
+  width: 100%; min-height: 120px; resize: vertical;
+  border: 1px solid var(--line); border-radius: 10px;
+  background: #fff; color: var(--ink); padding: 10px 12px;
+  font: inherit; font-size: 14px; line-height: 1.7;
+}
+.history-edit-box:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.history-edit-hint { margin-top: 8px; font-size: 11px; color: var(--ink3); }
+.history-item.editing .history-view-mode { display:none; }
+.history-item .history-edit-mode { display:none; }
+.history-item.editing .history-edit-mode { display:grid; }
+.history-tools { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.history-tool-group { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.hist-ib {
+  background:none; border:1px solid var(--line); cursor:pointer; color: var(--ink3);
+  padding:7px 10px; border-radius: 10px; display:flex; align-items:center; gap:6px; transition:.15s;
+  font-size: 12px;
+}
+.hist-ib:hover { background: var(--bg); color: var(--ink); }
+.hist-ib.danger { color: var(--red); }
+
+
+/* ── History utilities / Word Book ── */
+.history-name-input, .wordbook-select {
+  min-width: 180px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.history-name-input:focus, .wordbook-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+.history-save-row {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.history-search-row, .wordbook-search-row {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top: 10px;
+}
+.history-search-input, .history-mode-select {
+  min-width: 180px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.history-search-input:focus, .history-mode-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+.history-select-col {
+  width: 24px; display:flex; align-items:flex-start; justify-content:center; padding-top: 4px;
+}
+.history-item-minimal .history-body.has-select {
+  grid-template-columns: 24px 1fr;
+  align-items: start;
+}
+.history-check {
+  width:16px; height:16px; accent-color: var(--accent); cursor:pointer;
+}
+.wordbook-toolbar {
+  display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  padding: 18px 20px; border-bottom: 1px solid var(--line);
+}
+.wordbook-toolbar-left, .wordbook-toolbar-right {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.wordbook-book-meta {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.wordbook-count {
+  font-size:12px; color: var(--ink3);
+}
+.wordbook-empty {
+  margin: 14px; padding: 24px; border: 1px dashed #d7d7dc; border-radius: 16px;
+  color: var(--ink3); text-align: center; background: var(--panel-r);
+}
+.wordbook-list { padding: 14px; display:grid; gap:12px; }
+.wordbook-books-wrap {
+  padding: 14px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-r);
+}
+.wordbook-books-title {
+  font-size: 11px;
+  color: var(--ink3);
+  margin-bottom: 10px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.wordbook-books {
+  display: grid;
+  gap: 10px;
+}
+.wordbook-book-card {
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background:#fff;
+  cursor: grab;
+  transition: .15s;
+}
+.wordbook-book-card:hover { background: #fcfcff; }
+.wordbook-book-card.active {
+  border-color: #c4b5fd;
+  background: #f5f3ff;
+}
+.wordbook-book-card.dragging {
+  opacity: .55;
+  cursor: grabbing;
+}
+.wordbook-book-main {
+  min-width: 0;
+  display:grid;
+  gap:4px;
+}
+.wordbook-book-name {
+  font-size: 14px;
+  color: var(--ink);
+  font-weight: 600;
+}
+.wordbook-book-meta-line {
+  font-size: 12px;
+  color: var(--ink3);
+}
+.wordbook-book-handle {
+  flex-shrink: 0;
+  color: var(--ink3);
+  font-size: 18px;
+  line-height: 1;
+  user-select: none;
+}
+.wordbook-item-tools {
+  display:flex; justify-content:flex-end; gap:8px; margin-top:10px;
+}
+.wordbook-item-delete {
+  border:1px solid var(--line); background:#fff; color: var(--red);
+  border-radius:10px; padding:7px 10px; cursor:pointer; transition:.15s; font-size:12px;
+}
+.wordbook-item-delete:hover { background: var(--bg); }
+
+/* ── Info ── */
+.info-card {
+  width: 100%; max-width: 880px;
+  background: var(--surface);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+}
+.info-head {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.info-title { font-size: 18px; font-weight: 600; color: var(--ink); }
+.info-body { padding: 18px 20px 20px; display: grid; gap: 14px; }
+.info-block {
+  background: var(--panel-r);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+}
+.info-kicker {
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 8px;
+}
+.info-name { font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+.info-copy { font-size: 14px; line-height: 1.8; color: var(--ink2); white-space: pre-wrap; }
+
+@media (max-width: 720px) {
+  .history-cols { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  body { padding: 18px 12px 92px; }
+  .hd { margin-bottom: 14px; }
+  .panels, .footers { grid-template-columns: 1fr; }
+  .panel:first-child, .fp:first-child { border-right: none; }
+  .panel:first-child { border-bottom: 1px solid var(--line); }
+  .fp:first-child { border-bottom: 1px solid var(--line); }
+}
+
+</style>
+</head>
+<body>
+
+<div class="stage">
+<div class="view-panel active" id="viewTranslate">
+<div class="hd">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="m5 8 4 4-4 4M11 12h8"/></svg>
+    </div>
+    <div>
+      <div class="logo-name">Kotoba</div>
+      <div class="logo-sub">AI Translation</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+
+  <!-- Lang bar -->
+  <div class="lang-bar">
+    <div class="lang-cell">
+      <div class="lang-pill">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+        <select id="srcLang">
+          <option value="en">英語</option>
+          <option value="ja">日本語</option>
+          <option value="zh">中国語</option>
+          <option value="ko">韓国語</option>
+          <option value="fr">フランス語</option>
+          <option value="de">ドイツ語</option>
+          <option value="es">スペイン語</option>
+          <option value="pt">ポルトガル語</option>
+          <option value="it">イタリア語</option>
+          <option value="ru">ロシア語</option>
+          <option value="ar">アラビア語</option>
+          <option value="hi">ヒンディー語</option>
+          <option value="th">タイ語</option>
+          <option value="vi">ベトナム語</option>
+          <option value="nl">オランダ語</option>
+        </select>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+    </div>
+    <div class="swap-cell">
+      <button class="swap-btn" id="swapBtn" title="入れ替え">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/></svg>
+      </button>
+    </div>
+    <div class="lang-cell right">
+      <div class="lang-pill">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+        <select id="tgtLang">
+          <option value="ja">日本語</option>
+          <option value="en">英語</option>
+          <option value="zh">中国語</option>
+          <option value="ko">韓国語</option>
+          <option value="fr">フランス語</option>
+          <option value="de">ドイツ語</option>
+          <option value="es">スペイン語</option>
+          <option value="pt">ポルトガル語</option>
+          <option value="it">イタリア語</option>
+          <option value="ru">ロシア語</option>
+          <option value="ar">アラビア語</option>
+          <option value="hi">ヒンディー語</option>
+          <option value="th">タイ語</option>
+          <option value="vi">ベトナム語</option>
+          <option value="nl">オランダ語</option>
+        </select>
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Debounce progress bar -->
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <!-- Text panels -->
+  <div class="panels">
+    <div class="panel">
+      <textarea class="src-ta" id="srcText" placeholder="ここにテキストを入力…" maxlength="5000"></textarea>
+      <button class="clr-x" id="clrBtn" style="display:none">✕</button>
+    </div>
+    <div class="panel">
+      <div class="tgt-out" id="tgtOut"><span class="ph">翻訳結果がここに表示されます</span></div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footers">
+    <div class="fp">
+      <div class="fp-left">
+        <button class="ib" id="spkSrc" title="原文を読み上げ">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        </button>
+        <button class="ib" id="cpySrc" title="原文をコピー">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+        <button class="ib" id="voiceToggle" title="音声設定">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07M4.93 19.07a10 10 0 0 1 0-14.14M8.46 15.54a5 5 0 0 1 0-7.07"/></svg>
+        </button>
+      </div>
+      <span class="cc" id="cc">0 / 5000</span>
+    </div>
+    <div class="fp">
+      <div class="fp-left">
+        <button class="ib" id="spkTgt" title="翻訳を読み上げ">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        </button>
+      </div>
+      <div class="fp-right">
+        <button class="ib save-btn" id="saveBtn" title="履歴に保存">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>
+        </button>
+        <button class="ib" id="cpyBtn" title="コピー">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voice settings panel -->
+  <div class="voice-panel" id="voicePanel">
+    <div class="voice-row">
+      <span class="voice-label">原文の声</span>
+      <select class="voice-select" id="voiceSrc"></select>
+    </div>
+    <div class="voice-row">
+      <span class="voice-label">翻訳の声</span>
+      <select class="voice-select" id="voiceTgt"></select>
+    </div>
+    <div class="voice-row" style="margin-top:6px">
+      <span class="voice-label">調整</span>
+      <div class="voice-sliders">
+        <div class="slider-group">
+          <label>速さ</label>
+          <input type="range" id="rateSlider" min="0.5" max="2" step="0.05" value="0.95">
+          <span class="slider-val" id="rateVal">0.95</span>
+        </div>
+        <div class="slider-group">
+          <label>高さ</label>
+          <input type="range" id="pitchSlider" min="0.5" max="2" step="0.05" value="1">
+          <span class="slider-val" id="pitchVal">1.00</span>
+        </div>
+        <div class="slider-group">
+          <label>音量</label>
+          <input type="range" id="volSlider" min="0" max="1" step="0.05" value="1">
+          <span class="slider-val" id="volVal">1.00</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alternatives -->
+  <div class="alt-wrap" id="altWrap">
+    <div class="alt-inner">
+      <div class="alt-lbl">代案</div>
+      <div id="altList"></div>
+    </div>
+  </div>
+
+</div><!-- /card -->
+
+
+</div>
+
+<div class="view-panel" id="viewHistory">
+  <div class="top-meta">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/><path d="M5 5h.01"/></svg>
+      </div>
+      <div>
+        <div class="logo-name">Translation History</div>
+        <div class="logo-sub">IndexedDB Archive</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="history-card">
+    <div class="history-head">
+      <div class="history-head-left">
+        <div class="history-title">翻訳履歴</div>
+        <div class="history-search-row">
+          <input id="historySearchInput" class="history-search-input" type="text" placeholder="履歴を検索">
+        </div>
+      </div>
+      <div class="history-actions">
+        <div class="history-save-row">
+          <input id="wordBookNameInput" class="history-name-input" type="text" placeholder="Word Book 名称" maxlength="80">
+          <select id="wordBookSaveMode" class="history-mode-select" aria-label="Word Book 保存形式">
+            <option value="full">全文保存</option>
+            <option value="firstline">1行抽出</option>
+            <option value="selection">選択範囲保存</option>
+          </select>
+          <button class="hist-btn" id="historySelectAllBtn" type="button">全選択</button>
+          <button class="hist-btn" id="historyDeselectAllBtn" type="button">全解除</button>
+          <button class="hist-btn" id="saveWordBookBtn" type="button">選択項目を Word Book に保存</button>
+          <button class="hist-btn danger" id="historyDeleteSelectedBtn" type="button">選択項目を削除</button>
+          <button class="hist-btn danger" id="historyClearBtn" type="button">履歴を全削除</button>
+        </div>
+      </div>
+    </div>
+    <div class="history-list" id="historyList">
+      <div class="history-empty">履歴はまだありません。</div>
+    </div>
+  </div>
+</div>
+
+<div class="view-panel" id="viewWordBook">
+  <div class="top-meta">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 0-3 3V4z"/><path d="M8 20V7a3 3 0 0 1 3-3"/></svg>
+      </div>
+      <div>
+        <div class="logo-name">Word Book</div>
+        <div class="logo-sub">IndexedDB Collection</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="history-card">
+    <div class="wordbook-toolbar">
+      <div class="wordbook-toolbar-left">
+        <select id="wordBookSelect" class="wordbook-select" aria-label="Word Book 切替"></select>
+        <div class="wordbook-book-meta">
+          <span class="history-chip" id="wordBookNameChip">未選択</span>
+          <span class="wordbook-count" id="wordBookCount" aria-hidden="true"></span>
+        </div>
+      </div>
+      <div class="wordbook-toolbar-right">
+        <input id="wordBookSearchInput" class="history-search-input" type="text" placeholder="Word Book 内を検索">
+        <button class="hist-btn" id="wordBookRenameBtn" type="button">名前変更</button>
+        <button class="hist-btn danger" id="wordBookDeleteBtn" type="button">削除</button>
+      </div>
+    </div>
+    <div class="wordbook-books-wrap">
+      <div class="wordbook-books-title">Word Book 一覧</div>
+      <div class="wordbook-books" id="wordBookBooksList">
+        <div class="wordbook-empty">Word Book はまだありません。</div>
+      </div>
+    </div>
+    <div class="wordbook-list" id="wordBookList">
+      <div class="wordbook-empty">Word Book はまだありません。</div>
+    </div>
+  </div>
+</div>
+
+<div class="view-panel" id="viewInfo">
+  <div class="top-meta">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+      </div>
+      <div>
+        <div class="logo-name">Work Information</div>
+        <div class="logo-sub">Credits & Disclaimer</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-head">
+      <div class="info-title">作品情報</div>
+    </div>
+    <div class="info-body">
+      <section class="info-block">
+        <div class="info-kicker">Copyright</div>
+        <div class="info-name">©YAHATA MASAHIRO</div>
+        <div class="info-copy">本作品および関連するデザイン、UI、記述内容の権利は、©YAHATA MASAHIRO に帰属します。</div>
+      </section>
+      <section class="info-block">
+        <div class="info-kicker">Disclaimer</div>
+        <div class="info-copy">本作品の翻訳結果、音声出力、表示内容は、利用環境や外部サービス、ブラウザ実装差異等により変動する場合があります。
+本作品の利用によって生じたいかなる損害、誤訳、解釈上の不利益についても、制作者は責任を負いません。
+重要な判断、契約、申請、法務、医療、研究等への利用に際しては、必ず利用者自身で内容確認を行ってください。</div>
+      </section>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="pill" aria-label="view switcher">
+  <button class="pill-btn" id="prevViewBtn" title="前へ">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m15 18-6-6 6-6"/></svg>
+  </button>
+  <div class="pill-dots">
+    <button class="pdot cur" type="button" data-view="0" aria-label="翻訳"></button>
+    <button class="pdot" type="button" data-view="1" aria-label="履歴"></button>
+    <button class="pdot" type="button" data-view="2" aria-label="Word Book"></button>
+    <button class="pdot" type="button" data-view="3" aria-label="作品情報"></button>
+  </div>
+  <button class="pill-btn" id="nextViewBtn" title="次へ">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m9 18 6-6-6-6"/></svg>
+  </button>
+</div>
+<script>
+const srcText    = document.getElementById('srcText');
+const tgtOut     = document.getElementById('tgtOut');
+const clrBtn     = document.getElementById('clrBtn');
+const cc         = document.getElementById('cc');
+const altWrap    = document.getElementById('altWrap');
+const altList    = document.getElementById('altList');
+const swapBtn    = document.getElementById('swapBtn');
+const srcLang    = document.getElementById('srcLang');
+const tgtLang    = document.getElementById('tgtLang');
+const spkSrc     = document.getElementById('spkSrc');
+const spkTgt     = document.getElementById('spkTgt');
+const cpyBtn     = document.getElementById('cpyBtn');
+const cpySrc     = document.getElementById('cpySrc');
+const voiceToggle= document.getElementById('voiceToggle');
+const voicePanel = document.getElementById('voicePanel');
+const voiceSrc   = document.getElementById('voiceSrc');
+const voiceTgt   = document.getElementById('voiceTgt');
+const rateSlider = document.getElementById('rateSlider');
+const pitchSlider= document.getElementById('pitchSlider');
+const volSlider  = document.getElementById('volSlider');
+const rateVal    = document.getElementById('rateVal');
+const pitchVal   = document.getElementById('pitchVal');
+const volVal     = document.getElementById('volVal');
+const progressFill= document.getElementById('progressFill');
+const viewTranslate = document.getElementById('viewTranslate');
+const viewHistory = document.getElementById('viewHistory');
+const viewWordBook = document.getElementById('viewWordBook');
+const viewInfo = document.getElementById('viewInfo');
+const prevViewBtn = document.getElementById('prevViewBtn');
+const nextViewBtn = document.getElementById('nextViewBtn');
+const historyList = document.getElementById('historyList');
+const historyDeleteSelectedBtn = document.getElementById('historyDeleteSelectedBtn');
+const historyClearBtn = document.getElementById('historyClearBtn');
+const historySearchInput = document.getElementById('historySearchInput');
+const wordBookNameInput = document.getElementById('wordBookNameInput');
+const wordBookSaveMode = document.getElementById('wordBookSaveMode');
+const saveWordBookBtn = document.getElementById('saveWordBookBtn');
+const historySelectAllBtn = document.getElementById('historySelectAllBtn');
+const historyDeselectAllBtn = document.getElementById('historyDeselectAllBtn');
+const wordBookSelect = document.getElementById('wordBookSelect');
+const wordBookSearchInput = document.getElementById('wordBookSearchInput');
+const wordBookDeleteSelectedBtn = document.getElementById('wordBookDeleteSelectedBtn');
+const wordBookList = document.getElementById('wordBookList');
+const wordBookBooksList = document.getElementById('wordBookBooksList');
+const wordBookNameChip = document.getElementById('wordBookNameChip');
+const wordBookCount = document.getElementById('wordBookCount');
+const wordBookMoveUpBtn = document.getElementById('wordBookMoveUpBtn');
+const wordBookMoveDownBtn = document.getElementById('wordBookMoveDownBtn');
+const wordBookRenameBtn = document.getElementById('wordBookRenameBtn');
+const wordBookDeleteBtn = document.getElementById('wordBookDeleteBtn');
+const saveBtn = document.getElementById('saveBtn');
+const pageDots = Array.from(document.querySelectorAll('.pdot'));
+
+let timer = null;
+let progTimer = null;
+let current = '';
+let dragHistoryId = null;
+let suppressHistoryClickUntil = 0;
+
+const NAMES = {
+  en:'英語', ja:'日本語', zh:'中国語', ko:'韓国語',
+  fr:'フランス語', de:'ドイツ語', es:'スペイン語',
+  pt:'ポルトガル語', it:'イタリア語', ru:'ロシア語',
+  ar:'アラビア語', hi:'ヒンディー語', th:'タイ語', vi:'ベトナム語', nl:'オランダ語'
+};
+const LANG_BCP = {
+  en:'en-US', ja:'ja-JP', zh:'zh-CN', ko:'ko-KR',
+  fr:'fr-FR', de:'de-DE', es:'es-ES', pt:'pt-BR', it:'it-IT', ru:'ru-RU',
+  ar:'ar-SA', hi:'hi-IN', th:'th-TH', vi:'vi-VN', nl:'nl-NL'
+};
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+// ── Progress bar (1s debounce visual) ─────────────────────────────────────
+function startProgress() {
+  progressFill.style.transition = 'none';
+  progressFill.style.width = '0%';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      progressFill.style.transition = 'width 1s linear';
+      progressFill.style.width = '100%';
+    });
+  });
+}
+function resetProgress() {
+  progressFill.style.transition = 'none';
+  progressFill.style.width = '0%';
+}
+
+// ── Translation (Google Translate unofficial API — no API key, CORS-safe) ────
+async function translate() {
+  resetProgress();
+  const text = srcText.value.trim();
+  if (!text) {
+    tgtOut.innerHTML = '<span class="ph">翻訳結果がここに表示されます</span>';
+    altWrap.style.display = 'none'; current = '';
+    return;
+  }
+  tgtOut.innerHTML = '<div class="pulse"><span></span><span></span><span></span></div>';
+  altWrap.style.display = 'none';
+
+  const sl = srcLang.value;
+  const tl = tgtLang.value;
+
+  try {
+    const url = 'https://translate.googleapis.com/translate_a/single?client=gtx&sl=' + sl + '&tl=' + tl + '&dt=t&dt=at&dt=bd&dj=1&q=' + encodeURIComponent(text);
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+
+    // Main translation: join all sentence segments
+    const sentences = data.sentences || [];
+    current = sentences.map(function(s){ return s.trans || ''; }).join('').trim();
+    if (!current) throw new Error('空の翻訳結果');
+    tgtOut.textContent = current;
+
+    // Alternatives: collect from alternative_translations and dictionary entries
+    const alts = [];
+    function pushAlt(value) {
+      const v = (value || '').trim();
+      if (!v) return;
+      if (v === current) return;
+      if (alts.indexOf(v) !== -1) return;
+      alts.push(v);
+    }
+
+    const altGroups = data.alternative_translations || [];
+    for (var i = 0; i < altGroups.length; i++) {
+      var alternatives = altGroups[i].alternative || [];
+      for (var j = 0; j < alternatives.length; j++) {
+        pushAlt(alternatives[j].word || '');
+      }
+    }
+
+    const dictGroups = data.dict || [];
+    for (var k = 0; k < dictGroups.length; k++) {
+      var terms = dictGroups[k].terms || [];
+      for (var m = 0; m < terms.length; m++) {
+        pushAlt(terms[m]);
+      }
+      var entries = dictGroups[k].entry || [];
+      for (var n = 0; n < entries.length; n++) {
+        pushAlt(entries[n].word || '');
+      }
+    }
+
+    if (alts.length) {
+      altWrap.style.display = 'block';
+      altList.innerHTML = alts.slice(0, 6).map(function(a){ return '<div class="alt-item" onclick="pickAlt(this)">' + esc(a) + '</div>'; }).join('');
+    }
+  } catch(e) {
+    tgtOut.innerHTML = '<span class="err">翻訳失敗: ' + esc(e.message) + '</span>';
+  }
+}
+
+window.pickAlt = function(el) { current = el.textContent; tgtOut.textContent = current; };
+
+
+const DB_NAME = 'kotoba_history_db';
+const DB_VERSION = 3;
+const STORE_NAME = 'translation_history';
+const WORD_BOOK_STORE_NAME = 'word_books';
+let dbPromise = null;
+let currentView = 0;
+
+function formatDate(ts) {
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2, '0');
+  return d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+
+function getVoiceName(sel) {
+  const v = getVoiceFromSelect(sel);
+  return v ? v.name : '';
+}
+
+function getVoiceSnapshot(sel, langKey) {
+  const v = getVoiceFromSelect(sel);
+  return {
+    name: v ? v.name : '',
+    lang: v ? (v.lang || (LANG_BCP[langKey] || '')) : (LANG_BCP[langKey] || ''),
+    uri: v ? (v.voiceURI || '') : ''
+  };
+}
+
+function getVoiceLabel(sel, langKey) {
+  const v = getVoiceFromSelect(sel);
+  return v ? v.name + ' (' + (v.lang || (LANG_BCP[langKey] || '')) + ')' : '自動';
+}
+
+function normalizeTextForCompare(v) {
+  return String(v || '').trim();
+}
+
+function matchesKeyword(item, keyword) {
+  const q = normalizeTextForCompare(keyword).toLowerCase();
+  if (!q) return true;
+  return [item.sourceText, item.translatedText, item.name, item.srcLang, item.tgtLang].some(v => String(v || '').toLowerCase().includes(q));
+}
+
+function extractSelectionForWordBook(item) {
+  const selection = window.getSelection ? String(window.getSelection()).trim() : '';
+  if (!selection) return null;
+  const out = { ...item };
+  let touched = false;
+  if (String(item.sourceText || '').includes(selection)) {
+    out.sourceText = selection;
+    touched = true;
+  }
+  if (String(item.translatedText || '').includes(selection)) {
+    out.translatedText = selection;
+    touched = true;
+  }
+  return touched ? out : null;
+}
+
+function firstLineText(value) {
+  const lines = String(value || '').split(/\r?\n/).map(v => v.trim()).filter(Boolean);
+  return lines[0] || String(value || '').trim();
+}
+
+function transformHistoryItemForWordBook(item, mode) {
+  const base = {
+    sourceText: item.sourceText,
+    translatedText: item.translatedText,
+    srcLang: item.srcLang,
+    tgtLang: item.tgtLang,
+    createdAt: item.createdAt
+  };
+  if (mode === 'firstline') {
+    return {
+      ...base,
+      sourceText: firstLineText(item.sourceText),
+      translatedText: firstLineText(item.translatedText)
+    };
+  }
+  if (mode === 'selection') {
+    const picked = extractSelectionForWordBook(base);
+    return picked || null;
+  }
+  return base;
+}
+
+function buildHistoryItemHTML(item) {
+  return `
+  <article class="history-item history-item-minimal sort-enabled" draggable="true" data-id="${item.id}">
+    <div class="history-body has-select">
+      <div class="history-select-col">
+        <input class="history-check" type="checkbox" data-history-select="${item.id}" aria-label="履歴 ${item.id} を選択">
+      </div>
+      <div>
+        <div class="history-cols history-view-mode">
+          <div class="history-col" data-history-side="source">
+            <div class="history-text" data-action="speak-source" data-id="${item.id}" title="クリックで発音">${esc(item.sourceText)}</div>
+          </div>
+          <div class="history-col" data-history-side="target">
+            <div class="history-text" data-action="speak-target" data-id="${item.id}" title="クリックで発音">${esc(item.translatedText)}</div>
+          </div>
+        </div>
+        <div class="history-cols history-edit-mode">
+          <div class="history-col">
+            <textarea class="history-edit-box" data-edit-source="${item.id}" aria-label="翻訳元を編集">${esc(item.sourceText)}</textarea>
+          </div>
+          <div class="history-col">
+            <textarea class="history-edit-box" data-edit-target="${item.id}" aria-label="翻訳先を編集">${esc(item.translatedText)}</textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>`;
+}
+
+function buildWordBookItemHTML(item, index) {
+  return `
+  <article class="history-item history-item-minimal" data-wordbook-entry-id="${index}">
+    <div class="history-body">
+      <div class="history-cols">
+        <div class="history-col">
+          <div class="history-text" data-action="wb-speak-source" data-index="${index}" title="クリックで発音">${esc(item.sourceText)}</div>
+        </div>
+        <div class="history-col">
+          <div class="history-text" data-action="wb-speak-target" data-index="${index}" title="クリックで発音">${esc(item.translatedText)}</div>
+        </div>
+      </div>
+    </div>
+  </article>`;
+}
+
+function openHistoryDB() {
+  if (dbPromise) return dbPromise;
+  dbPromise = new Promise((resolve, reject) => {
+    const req = indexedDB.open(DB_NAME, DB_VERSION);
+    req.onupgradeneeded = function(event) {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
+        store.createIndex('createdAt', 'createdAt', { unique: false });
+      }
+      if (!db.objectStoreNames.contains(WORD_BOOK_STORE_NAME)) {
+        const wordBookStore = db.createObjectStore(WORD_BOOK_STORE_NAME, { keyPath: 'id', autoIncrement: true });
+        wordBookStore.createIndex('createdAt', 'createdAt', { unique: false });
+        wordBookStore.createIndex('sortOrder', 'sortOrder', { unique: false });
+      }
+    };
+    req.onsuccess = function() { resolve(req.result); };
+    req.onerror = function() { reject(req.error || new Error('IndexedDB open failed')); };
+  });
+  return dbPromise;
+}
+
+async function withStore(mode, runner, storeName = STORE_NAME) {
+  const db = await openHistoryDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, mode);
+    const store = tx.objectStore(storeName);
+    let result;
+    try {
+      result = runner(store, tx, resolve, reject);
+    } catch (err) {
+      reject(err);
+      return;
+    }
+    tx.onerror = function() { reject(tx.error || new Error('IndexedDB transaction failed')); };
+    tx.oncomplete = function() { if (typeof result !== 'undefined') resolve(result); };
+  });
+}
+
+function getAllHistory() {
+  return withStore('readonly', (store, tx, resolve) => {
+    const req = store.getAll();
+    req.onsuccess = function() {
+      const rows = (req.result || []).sort((a,b) => {
+        const ao = Number.isFinite(+a.sortOrder) ? +a.sortOrder : null;
+        const bo = Number.isFinite(+b.sortOrder) ? +b.sortOrder : null;
+        if (ao !== null && bo !== null && ao !== bo) return ao - bo;
+        if (ao !== null && bo === null) return -1;
+        if (ao === null && bo !== null) return 1;
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+      resolve(rows);
+    };
+  });
+}
+
+async function addHistoryEntry(entry) {
+  const rows = await getAllHistory();
+  const maxOrder = rows.reduce((m, row) => Math.max(m, Number.isFinite(+row.sortOrder) ? +row.sortOrder : -1), -1);
+  return withStore('readwrite', (store, tx, resolve) => {
+    const req = store.add({ ...entry, sortOrder: maxOrder + 1 });
+    req.onsuccess = function() { resolve(req.result); };
+  });
+}
+
+async function reorderHistoryByIds(orderedIds) {
+  const ids = (orderedIds || []).map(v => Number(v)).filter(Boolean);
+  if (!ids.length) return;
+  const rows = await getAllHistory();
+  const rowMap = new Map(rows.map(row => [Number(row.id), row]));
+  const ordered = ids.map(id => rowMap.get(id)).filter(Boolean);
+  const rest = rows.filter(row => !ids.includes(Number(row.id)));
+  const merged = ordered.concat(rest);
+  await Promise.all(merged.map((row, index) => updateHistoryEntry(row.id, { sortOrder: index })));
+}
+
+function updateHistoryEntry(id, patch) {
+  return withStore('readwrite', (store, tx, resolve, reject) => {
+    const getReq = store.get(Number(id));
+    getReq.onsuccess = function() {
+      const row = getReq.result;
+      if (!row) { reject(new Error('History not found')); return; }
+      const putReq = store.put({ ...row, ...patch, id: row.id });
+      putReq.onsuccess = function() { resolve(row.id); };
+    };
+  });
+}
+
+function deleteHistoryEntries(ids) {
+  return Promise.all((ids || []).map(id => deleteHistoryEntry(id)));
+}
+
+function getSelectedHistoryIds() {
+  return Array.from(document.querySelectorAll('[data-history-select]:checked')).map(el => Number(el.getAttribute('data-history-select'))).filter(v => Number.isFinite(v));
+}
+
+function deleteHistoryEntry(id) {
+  return withStore('readwrite', (store, tx, resolve) => {
+    const req = store.delete(Number(id));
+    req.onsuccess = function() { resolve(true); };
+  });
+}
+
+function clearHistoryEntries() {
+  return withStore('readwrite', (store, tx, resolve) => {
+    const req = store.clear();
+    req.onsuccess = function() { resolve(true); };
+  });
+}
+
+function getAllWordBooks() {
+  return withStore('readonly', (store, tx, resolve) => {
+    const req = store.getAll();
+    req.onsuccess = function() {
+      const rows = (req.result || []).sort((a,b) => {
+        const ao = Number.isFinite(+a.sortOrder) ? +a.sortOrder : 0;
+        const bo = Number.isFinite(+b.sortOrder) ? +b.sortOrder : 0;
+        if (ao !== bo) return ao - bo;
+        return (a.createdAt || 0) - (b.createdAt || 0);
+      });
+      resolve(rows);
+    };
+  }, WORD_BOOK_STORE_NAME);
+}
+
+function addWordBook(entry) {
+  return withStore('readwrite', (store, tx, resolve) => {
+    const req = store.add(entry);
+    req.onsuccess = function() { resolve(req.result); };
+  }, WORD_BOOK_STORE_NAME);
+}
+
+function updateWordBook(id, patch) {
+  return withStore('readwrite', (store, tx, resolve, reject) => {
+    const getReq = store.get(Number(id));
+    getReq.onsuccess = function() {
+      const row = getReq.result;
+      if (!row) { reject(new Error('Word Book not found')); return; }
+      const putReq = store.put({ ...row, ...patch, id: row.id });
+      putReq.onsuccess = function() { resolve(true); };
+    };
+  }, WORD_BOOK_STORE_NAME);
+}
+
+function updateWordBookItems(id, items) {
+  return updateWordBook(id, { items: Array.isArray(items) ? items : [] });
+}
+
+function updateWordBookName(id, name) {
+  return updateWordBook(id, { name: String(name || '').trim() });
+}
+
+function deleteWordBook(id) {
+  return withStore('readwrite', (store, tx, resolve) => {
+    const req = store.delete(Number(id));
+    req.onsuccess = function() { resolve(true); };
+  }, WORD_BOOK_STORE_NAME);
+}
+
+async function normalizeWordBookOrder() {
+  const books = await getAllWordBooks();
+  await Promise.all(books.map((book, index) => updateWordBook(book.id, { sortOrder: index })));
+}
+
+async function moveWordBook(id, direction) {
+  const books = await getAllWordBooks();
+  const idx = books.findIndex(b => Number(b.id) === Number(id));
+  if (idx < 0) return;
+  const target = idx + direction;
+  if (target < 0 || target >= books.length) return;
+  const currentBook = books[idx];
+  const targetBook = books[target];
+  await Promise.all([
+    updateWordBook(currentBook.id, { sortOrder: target }),
+    updateWordBook(targetBook.id, { sortOrder: idx })
+  ]);
+  await normalizeWordBookOrder();
+}
+
+async function reorderWordBooksByIds(orderedIds) {
+  if (!Array.isArray(orderedIds) || !orderedIds.length) return;
+  await Promise.all(orderedIds.map((id, index) => updateWordBook(Number(id), { sortOrder: index })));
+  await normalizeWordBookOrder();
+}
+
+function buildWordBookBookCardHTML(book, isActive) {
+  const count = Array.isArray(book.items) ? book.items.length : 0;
+  return `
+  <article class="wordbook-book-card ${isActive ? 'active' : ''}" draggable="true" data-wordbook-book-id="${book.id}">
+    <div class="wordbook-book-main">
+      <div class="wordbook-book-name">${esc(book.name || '無題')}</div>
+      <div class="wordbook-book-meta-line">${count} item${count === 1 ? '' : 's'} ・ ${esc(formatDate(book.createdAt || Date.now()))}</div>
+    </div>
+    <div class="wordbook-book-handle" aria-hidden="true">⋮⋮</div>
+  </article>`;
+}
+
+function speakCurrentSource(text, langKey) {
+  speak(text, langKey || srcLang.value, voiceSrc);
+}
+
+function speakCurrentTarget(text, langKey) {
+  speak(text, langKey || tgtLang.value, voiceTgt);
+}
+
+async function renderHistory() {
+  if (!historyList) return;
+  try {
+    const rows = await getAllHistory();
+    const keyword = historySearchInput ? historySearchInput.value : '';
+    const filtered = rows.filter(row => matchesKeyword(row, keyword));
+    if (!rows.length) {
+      historyList.innerHTML = '<div class="history-empty">履歴はまだありません。</div>';
+      return;
+    }
+    if (!filtered.length) {
+      historyList.innerHTML = '<div class="history-empty">検索条件に一致する履歴はありません。</div>';
+      return;
+    }
+    historyList.innerHTML = filtered.map(buildHistoryItemHTML).join('');
+  } catch (err) {
+    historyList.innerHTML = '<div class="history-empty">履歴の読み込みに失敗しました: ' + esc(err.message || err) + '</div>';
+  }
+}
+
+function renderWordBookSelectOptions(books, selectedId) {
+  if (!wordBookSelect) return;
+  if (!books.length) {
+    wordBookSelect.innerHTML = '<option value="">Word Book がありません</option>';
+    wordBookSelect.value = '';
+    return;
+  }
+  wordBookSelect.innerHTML = books.map(book => `<option value="${book.id}">${esc(book.name)}</option>`).join('');
+  const picked = books.find(book => String(book.id) === String(selectedId)) || books[0];
+  wordBookSelect.value = String(picked.id);
+}
+
+async function renderWordBooks(preferredId) {
+  if (!wordBookList || !wordBookSelect) return;
+  try {
+    const books = await getAllWordBooks();
+    renderWordBookSelectOptions(books, preferredId || wordBookSelect.value);
+    if (!books.length) {
+      wordBookNameChip.textContent = '未選択';
+      wordBookCount.textContent = '';
+      if (wordBookBooksList) wordBookBooksList.innerHTML = '<div class="wordbook-empty">Word Book はまだありません。</div>';
+      wordBookList.innerHTML = '<div class="wordbook-empty">Word Book はまだありません。</div>';
+      return;
+    }
+    const active = books.find(book => String(book.id) === String(wordBookSelect.value)) || books[0];
+    wordBookSelect.value = String(active.id);
+    wordBookNameChip.textContent = active.name || '無題';
+    if (wordBookBooksList) {
+      wordBookBooksList.innerHTML = books.map(book => buildWordBookBookCardHTML(book, Number(book.id) === Number(active.id))).join('');
+    }
+    const items = Array.isArray(active.items) ? active.items : [];
+    const keyword = wordBookSearchInput ? wordBookSearchInput.value : '';
+    const filteredItems = items.map((item, index) => ({ item, index })).filter(row => matchesKeyword(row.item, keyword));
+    wordBookCount.textContent = '';
+    if (!items.length) {
+      wordBookList.innerHTML = '<div class="wordbook-empty">この Word Book に項目はありません。</div>';
+      return;
+    }
+    if (!filteredItems.length) {
+      wordBookList.innerHTML = '<div class="wordbook-empty">検索条件に一致する項目はありません。</div>';
+      return;
+    }
+    wordBookList.innerHTML = filteredItems.map(({ item, index }) => buildWordBookItemHTML(item, index)).join('');
+  } catch (err) {
+    wordBookList.innerHTML = '<div class="wordbook-empty">Word Book の読み込みに失敗しました: ' + esc(err.message || err) + '</div>';
+  }
+}
+
+async function saveSelectedHistoryToWordBook() {
+  const name = (wordBookNameInput ? wordBookNameInput.value : '').trim();
+  if (!name) {
+    alert('Word Book 名称を入力してください。');
+    if (wordBookNameInput) wordBookNameInput.focus();
+    return;
+  }
+  const checked = Array.from(document.querySelectorAll('[data-history-select]:checked')).map(el => Number(el.getAttribute('data-history-select')));
+  if (!checked.length) {
+    alert('保存する履歴を選択してください。');
+    return;
+  }
+  const rows = await getAllHistory();
+  const mode = wordBookSaveMode ? wordBookSaveMode.value : 'full';
+  const transformed = checked.map(id => rows.find(row => Number(row.id) === id)).filter(Boolean).map(item => transformHistoryItemForWordBook(item, mode)).filter(Boolean);
+  const uniqueMap = new Map();
+  transformed.forEach(item => {
+    const key = [normalizeTextForCompare(item.sourceText), normalizeTextForCompare(item.translatedText), item.srcLang || '', item.tgtLang || ''].join('||');
+    if (!uniqueMap.has(key)) uniqueMap.set(key, item);
+  });
+  const selectedItems = Array.from(uniqueMap.values());
+  if (!selectedItems.length) {
+    alert('保存対象の履歴が見つかりませんでした。');
+    return;
+  }
+  const books = await getAllWordBooks();
+  const nextOrder = books.length;
+  const newId = await addWordBook({
+    name,
+    items: selectedItems,
+    createdAt: Date.now(),
+    sortOrder: nextOrder
+  });
+  wordBookNameInput.value = '';
+  await renderWordBooks(newId);
+  switchView(2);
+}
+
+async function saveCurrentHistory(sourceText, translatedText) {
+  const s = (sourceText || '').trim();
+  const t = (translatedText || '').trim();
+  if (!s || !t) return { added: false, duplicate: false };
+  const rows = await getAllHistory();
+  const existing = rows.find(row => normalizeTextForCompare(row.sourceText) === s && normalizeTextForCompare(row.translatedText) === t && row.srcLang === srcLang.value && row.tgtLang === tgtLang.value);
+  if (existing) {
+    await updateHistoryEntry(existing.id, { createdAt: Date.now() });
+    return { added: false, duplicate: true, id: existing.id };
+  }
+  const sourceVoice = getVoiceSnapshot(voiceSrc, srcLang.value);
+  const targetVoice = getVoiceSnapshot(voiceTgt, tgtLang.value);
+  const id = await addHistoryEntry({
+    sourceText: s,
+    translatedText: t,
+    srcLang: srcLang.value,
+    tgtLang: tgtLang.value,
+    sourceVoiceName: sourceVoice.name,
+    targetVoiceName: targetVoice.name,
+    sourceVoiceLang: sourceVoice.lang,
+    targetVoiceLang: targetVoice.lang,
+    sourceVoiceURI: sourceVoice.uri,
+    targetVoiceURI: targetVoice.uri,
+    sourceVoiceLabel: getVoiceLabel(voiceSrc, srcLang.value),
+    targetVoiceLabel: getVoiceLabel(voiceTgt, tgtLang.value),
+    rate: +rateSlider.value,
+    pitch: +pitchSlider.value,
+    volume: +volSlider.value,
+    createdAt: Date.now()
+  });
+  return { added: true, duplicate: false, id };
+}
+
+function speakWithSettings(text, langKey, voiceName, rate, pitch, volume, voiceLang, voiceURI) {
+  if (!text) return;
+  if (!window.speechSynthesis) { alert('このブラウザは音声読み上げ非対応です。'); return; }
+  const bcp = LANG_BCP[langKey] || voiceLang || 'ja-JP';
+  window.speechSynthesis.cancel();
+  function fire() {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = bcp;
+    u.rate = Number.isFinite(+rate) ? +rate : +rateSlider.value;
+    u.pitch = Number.isFinite(+pitch) ? +pitch : +pitchSlider.value;
+    u.volume = Number.isFinite(+volume) ? +volume : +volSlider.value;
+    const voices = window.speechSynthesis.getVoices();
+    const baseLang = (voiceLang || bcp || '').split('-')[0];
+    let picked = null;
+    if (voiceURI) picked = voices.find(v => v.voiceURI === voiceURI) || null;
+    if (!picked && voiceName && voiceLang) picked = voices.find(v => v.name === voiceName && v.lang === voiceLang) || null;
+    if (!picked && voiceName) picked = voices.find(v => v.name === voiceName) || null;
+    if (!picked && voiceLang) picked = voices.find(v => v.lang === voiceLang) || voices.find(v => (v.lang || '').startsWith(baseLang)) || null;
+    if (!picked) picked = voices.find(v => v.lang === bcp) || voices.find(v => (v.lang || '').startsWith((bcp || '').split('-')[0])) || null;
+    if (picked) u.voice = picked;
+    window.speechSynthesis.speak(u);
+  }
+  if (window.speechSynthesis.getVoices().length > 0) fire();
+  else {
+    let done = false;
+    window.speechSynthesis.addEventListener('voiceschanged', function h() {
+      window.speechSynthesis.removeEventListener('voiceschanged', h);
+      if (!done) { done = true; fire(); }
+    });
+    setTimeout(function(){ if (!done) { done = true; fire(); } }, 400);
+  }
+}
+
+function switchView(index) {
+  const views = [viewTranslate, viewHistory, viewWordBook, viewInfo];
+  currentView = (index + views.length) % views.length;
+  views.forEach((el, i) => el.classList.toggle('active', i === currentView));
+  pageDots.forEach((dot, i) => dot.classList.toggle('cur', i === currentView));
+  if (currentView === 1) renderHistory();
+  if (currentView === 2) renderWordBooks();
+}
+
+// ── Input ──────────────────────────────────────────────────────────────────
+srcText.addEventListener('input', () => {
+  const n = srcText.value.length;
+  cc.textContent = n + ' / 5000';
+  clrBtn.style.display = n ? 'flex' : 'none';
+  clearTimeout(timer);
+  startProgress();
+  timer = setTimeout(translate, 1000);
+});
+
+clrBtn.addEventListener('click', () => {
+  srcText.value = ''; cc.textContent = '0 / 5000';
+  clrBtn.style.display = 'none'; resetProgress(); clearTimeout(timer);
+  tgtOut.innerHTML = '<span class="ph">翻訳結果がここに表示されます</span>';
+  altWrap.style.display = 'none'; current = '';
+  srcText.focus();
+});
+
+swapBtn.addEventListener('click', () => {
+  const sv=srcLang.value, tv=tgtLang.value, prev=current;
+  srcLang.value=tv; tgtLang.value=sv;
+  srcText.value=prev; cc.textContent=prev.length+' / 5000';
+  clrBtn.style.display=prev.length?'flex':'none';
+  current=''; if(prev) translate();
+});
+
+[srcLang,tgtLang].forEach(el=>el.addEventListener('change',()=>{ if(srcText.value.trim()) translate(); }));
+
+// ── Voice selector ─────────────────────────────────────────────────────────
+let allVoices = [];
+
+function populateVoiceSelects() {
+  allVoices = window.speechSynthesis.getVoices();
+  if (!allVoices.length) return;
+
+  function fillSelect(sel, langKey) {
+    const bcp = LANG_BCP[langKey] || 'ja-JP';
+    const lang2 = bcp.split('-')[0];
+    const langVoices = allVoices.filter(v => v.lang.startsWith(lang2));
+    const pool = langVoices.length ? langVoices : allVoices;
+    const prev = sel.value;
+    sel.innerHTML = pool.map((v,i)=>
+      `<option value="${i}_${v.name}">${v.name} (${v.lang})</option>`
+    ).join('');
+    // restore previous if still valid
+    if (prev && [...sel.options].find(o=>o.value===prev)) sel.value = prev;
+  }
+
+  fillSelect(voiceSrc, srcLang.value);
+  fillSelect(voiceTgt, tgtLang.value);
+}
+
+function getVoiceFromSelect(sel) {
+  const val = sel.value;
+  if (!val) return null;
+  const name = val.slice(val.indexOf('_')+1);
+  return allVoices.find(v=>v.name===name) || null;
+}
+
+if (window.speechSynthesis) {
+  window.speechSynthesis.addEventListener('voiceschanged', populateVoiceSelects);
+  setTimeout(populateVoiceSelects, 300);
+}
+
+[srcLang,tgtLang].forEach(el=>el.addEventListener('change', populateVoiceSelects));
+
+voiceToggle.addEventListener('click', () => {
+  voicePanel.classList.toggle('open');
+  voiceToggle.classList.toggle('playing', voicePanel.classList.contains('open'));
+  if (voicePanel.classList.contains('open')) populateVoiceSelects();
+});
+
+rateSlider.addEventListener('input', ()=> rateVal.textContent = (+rateSlider.value).toFixed(2));
+pitchSlider.addEventListener('input', ()=> pitchVal.textContent = (+pitchSlider.value).toFixed(2));
+volSlider.addEventListener('input', ()=> volVal.textContent = (+volSlider.value).toFixed(2));
+
+// ── Speech synthesis ────────────────────────────────────────────────────────
+function speak(text, langKey, voiceSel) {
+  if (!text) return;
+  if (!window.speechSynthesis) { alert('このブラウザは音声読み上げ非対応です。'); return; }
+  const bcp = LANG_BCP[langKey] || 'ja-JP';
+  window.speechSynthesis.cancel();
+
+  function fire() {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang   = bcp;
+    u.rate   = +rateSlider.value;
+    u.pitch  = +pitchSlider.value;
+    u.volume = +volSlider.value;
+
+    const chosen = getVoiceFromSelect(voiceSel);
+    if (chosen) {
+      u.voice = chosen;
+    } else {
+      const vs = window.speechSynthesis.getVoices();
+      const v = vs.find(v=>v.lang===bcp) || vs.find(v=>v.lang.startsWith(bcp.split('-')[0]));
+      if (v) u.voice = v;
+    }
+    u.onerror = e => console.warn('TTS:', e.error);
+    window.speechSynthesis.speak(u);
+  }
+
+  if (window.speechSynthesis.getVoices().length > 0) {
+    fire();
+  } else {
+    let done = false;
+    window.speechSynthesis.addEventListener('voiceschanged', function h() {
+      window.speechSynthesis.removeEventListener('voiceschanged', h);
+      if (!done) { done=true; fire(); }
+    });
+    setTimeout(()=>{ if(!done){done=true;fire();} }, 400);
+  }
+}
+
+spkSrc.addEventListener('click', () => speak(srcText.value.trim(), srcLang.value, voiceSrc));
+spkTgt.addEventListener('click', () => speak(current, tgtLang.value, voiceTgt));
+
+// ── Copy ────────────────────────────────────────────────────────────────────
+cpyBtn.addEventListener('click', () => {
+  if (!current) return;
+  navigator.clipboard.writeText(current).then(() => {
+    const o = cpyBtn.innerHTML;
+    cpyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#30d158" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+    setTimeout(()=> cpyBtn.innerHTML = o, 1500);
+  });
+});
+
+cpySrc.addEventListener('click', () => {
+  const txt = srcText.value.trim();
+  if (!txt) return;
+  navigator.clipboard.writeText(txt).then(() => {
+    const o = cpySrc.innerHTML;
+    cpySrc.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#30d158" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+    setTimeout(()=> cpySrc.innerHTML = o, 1500);
+  });
+});
+
+
+saveBtn.addEventListener('click', async () => {
+  const source = srcText.value.trim();
+  const translated = (current || '').trim();
+  if (!source || !translated) return;
+  const result = await saveCurrentHistory(source, translated);
+  const o = saveBtn.innerHTML;
+  saveBtn.innerHTML = result && result.duplicate
+    ? '<span style="font-size:11px;color:var(--accent);font-weight:600;">重複</span>'
+    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#30d158" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+  if (currentView === 1) await renderHistory();
+  setTimeout(() => saveBtn.innerHTML = o, 1500);
+});
+
+
+async function startHistoryInlineEdit(card, id, focusSide) {
+  if (!card) return;
+  const srcField = card.querySelector('[data-edit-source]');
+  const tgtField = card.querySelector('[data-edit-target]');
+  const sourceView = card.querySelector('[data-action="speak-source"]');
+  const targetView = card.querySelector('[data-action="speak-target"]');
+  let sourceText = sourceView ? sourceView.textContent : '';
+  let targetText = targetView ? targetView.textContent : '';
+  try {
+    const rows = await getAllHistory();
+    const item = rows.find(r => Number(r.id) === Number(id));
+    if (item) {
+      sourceText = item.sourceText || sourceText || '';
+      targetText = item.translatedText || targetText || '';
+    }
+  } catch (err) {}
+  if (srcField) srcField.value = sourceText || '';
+  if (tgtField) tgtField.value = targetText || '';
+  card.classList.add('editing');
+  const targetField = focusSide === 'target' ? (tgtField || srcField) : (srcField || tgtField);
+  if (targetField) {
+    targetField.focus();
+    const len = targetField.value.length;
+    targetField.setSelectionRange(len, len);
+  }
+}
+
+async function cancelHistoryInlineEdit(card, id) {
+  if (!card) return;
+  const rows = await getAllHistory();
+  const item = rows.find(r => Number(r.id) === Number(id));
+  const srcField = card.querySelector('[data-edit-source]');
+  const tgtField = card.querySelector('[data-edit-target]');
+  if (item) {
+    if (srcField) srcField.value = item.sourceText || '';
+    if (tgtField) tgtField.value = item.translatedText || '';
+  }
+  card.classList.remove('editing');
+}
+
+async function saveHistoryInlineEdit(card, id) {
+  if (!card) return;
+  const srcField = card.querySelector('[data-edit-source]');
+  const tgtField = card.querySelector('[data-edit-target]');
+  const nextSource = String(srcField ? srcField.value : '').trim();
+  const nextTarget = String(tgtField ? tgtField.value : '').trim();
+  if (!nextSource || !nextTarget) {
+    alert('翻訳元と翻訳先の両方を入力してください。');
+    return;
+  }
+  await updateHistoryEntry(id, { sourceText: nextSource, translatedText: nextTarget });
+  await renderHistory();
+}
+
+function getEventElement(target) {
+  if (!target) return null;
+  if (target.nodeType === 3) return target.parentElement || null;
+  return target instanceof Element ? target : null;
+}
+
+function getHistoryActionButton(target) {
+  const el = getEventElement(target);
+  return el && typeof el.closest === 'function'
+    ? el.closest('[data-action="speak-source"], [data-action="speak-target"]')
+    : null;
+}
+
+function getHistoryEditableCard(target) {
+  const el = getEventElement(target);
+  return el && typeof el.closest === 'function'
+    ? el.closest('.history-item[data-id]')
+    : null;
+}
+
+function getHistoryEditableSide(target) {
+  const el = getEventElement(target);
+  const sideEl = el && typeof el.closest === 'function' ? el.closest('[data-history-side]') : null;
+  return sideEl ? sideEl.getAttribute('data-history-side') : 'source';
+}
+
+async function interceptHistoryEditTrigger(e) {
+  const card = getHistoryEditableCard(e.target);
+  if (!card || card.classList.contains('editing')) return false;
+  const isRightMouseDown = e && (e.type === 'mousedown' || e.type === 'pointerdown') && e.button === 2;
+  const isContextMenu = e && e.type === 'contextmenu';
+  if (!isRightMouseDown && !isContextMenu) return false;
+  const id = Number(card.getAttribute('data-id') || 0);
+  if (!id) return false;
+  const side = getHistoryEditableSide(e.target);
+  suppressHistoryClickUntil = Date.now() + 500;
+  e.preventDefault();
+  e.stopPropagation();
+  if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+  await startHistoryInlineEdit(card, id, side);
+  return true;
+}
+
+historyList.addEventListener('pointerdown', (e) => {
+  interceptHistoryEditTrigger(e);
+}, true);
+
+historyList.addEventListener('mousedown', (e) => {
+  interceptHistoryEditTrigger(e);
+}, true);
+
+historyList.addEventListener('contextmenu', (e) => {
+  interceptHistoryEditTrigger(e);
+}, true);
+
+historyList.addEventListener('click', async (e) => {
+  if (Date.now() < suppressHistoryClickUntil) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+  const btn = getHistoryActionButton(e.target);
+  if (!btn) return;
+  const card = btn.closest('.history-item[data-id]');
+  if (card && card.classList.contains('editing')) return;
+  const action = btn.dataset.action;
+  const id = Number(btn.dataset.id);
+  const rows = await getAllHistory();
+  const item = rows.find(r => Number(r.id) === id);
+  if (!item) return;
+  if (action === 'speak-source') {
+    speakCurrentSource(item.sourceText, item.srcLang);
+  } else if (action === 'speak-target') {
+    speakCurrentTarget(item.translatedText, item.tgtLang);
+  }
+});
+
+historyList.addEventListener('keydown', async (e) => {
+  const field = e.target.closest('.history-edit-box');
+  if (!field) return;
+  const card = field.closest('[data-id]');
+  const id = Number(card ? card.getAttribute('data-id') : 0);
+  if (!id) return;
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    await cancelHistoryInlineEdit(card, id);
+    return;
+  }
+  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault();
+    await saveHistoryInlineEdit(card, id);
+  }
+});
+
+historyList.addEventListener('focusout', async (e) => {
+  const field = e.target.closest('.history-edit-box');
+  if (!field) return;
+  const card = field.closest('[data-id]');
+  if (!card || !card.classList.contains('editing')) return;
+  const next = e.relatedTarget;
+  if (next && card.contains(next)) return;
+  const id = Number(card.getAttribute('data-id') || 0);
+  if (!id) return;
+  await saveHistoryInlineEdit(card, id);
+});
+
+document.addEventListener('mousedown', async (e) => {
+  if (!historyList) return;
+  const editingCard = historyList.querySelector('.history-item.editing');
+  if (!editingCard) return;
+  const targetEl = getEventElement(e.target) || e.target;
+  if (targetEl && editingCard.contains(targetEl)) return;
+  const id = Number(editingCard.getAttribute('data-id') || 0);
+  if (!id) return;
+  await saveHistoryInlineEdit(editingCard, id);
+});
+
+
+if (historyList) {
+  historyList.addEventListener('dragstart', (e) => {
+    const card = e.target.closest('.history-item[data-id]');
+    if (!card || card.classList.contains('editing')) {
+      e.preventDefault();
+      return;
+    }
+    const t = getEventElement(e.target);
+    if (t && (t.closest('.history-check') || t.closest('.history-edit-box'))) {
+      e.preventDefault();
+      return;
+    }
+    dragHistoryId = card.getAttribute('data-id');
+    card.classList.add('dragging');
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(dragHistoryId || ''));
+    }
+  });
+
+  historyList.addEventListener('dragend', (e) => {
+    const card = e.target.closest('.history-item[data-id]');
+    if (card) card.classList.remove('dragging');
+    historyList.querySelectorAll('.history-item').forEach(el => el.classList.remove('drop-before', 'drop-after'));
+  });
+
+  historyList.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const target = e.target.closest('.history-item[data-id]');
+    if (!target || !dragHistoryId) return;
+    const dragging = historyList.querySelector('.history-item.dragging');
+    if (!dragging || dragging === target) return;
+    historyList.querySelectorAll('.history-item').forEach(el => el.classList.remove('drop-before', 'drop-after'));
+    const rect = target.getBoundingClientRect();
+    const after = e.clientY > rect.top + rect.height / 2;
+    target.classList.add(after ? 'drop-after' : 'drop-before');
+    if (after) target.after(dragging);
+    else target.before(dragging);
+  });
+
+  historyList.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    const orderedIds = Array.from(historyList.querySelectorAll('.history-item[data-id]')).map(el => Number(el.getAttribute('data-id'))).filter(Boolean);
+    historyList.querySelectorAll('.history-item').forEach(el => el.classList.remove('drop-before', 'drop-after', 'dragging'));
+    if (!orderedIds.length) return;
+    await reorderHistoryByIds(orderedIds);
+    dragHistoryId = null;
+    await renderHistory();
+  });
+}
+
+if (saveWordBookBtn) {
+  saveWordBookBtn.addEventListener('click', async () => {
+    try {
+      await saveSelectedHistoryToWordBook();
+    } catch (err) {
+      alert('Word Book 保存に失敗しました: ' + (err.message || err));
+    }
+  });
+}
+
+if (wordBookSelect) {
+  wordBookSelect.addEventListener('change', () => renderWordBooks(wordBookSelect.value));
+}
+
+if (wordBookBooksList) {
+  let dragBookId = null;
+
+  wordBookBooksList.addEventListener('click', async (e) => {
+    const card = e.target.closest('[data-wordbook-book-id]');
+    if (!card) return;
+    const id = card.getAttribute('data-wordbook-book-id');
+    if (!id) return;
+    if (wordBookSelect) wordBookSelect.value = String(id);
+    await renderWordBooks(id);
+  });
+
+  wordBookBooksList.addEventListener('dragstart', (e) => {
+    const card = e.target.closest('[data-wordbook-book-id]');
+    if (!card) return;
+    dragBookId = card.getAttribute('data-wordbook-book-id');
+    card.classList.add('dragging');
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', String(dragBookId || ''));
+    }
+  });
+
+  wordBookBooksList.addEventListener('dragend', (e) => {
+    const card = e.target.closest('[data-wordbook-book-id]');
+    if (card) card.classList.remove('dragging');
+  });
+
+  wordBookBooksList.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const target = e.target.closest('[data-wordbook-book-id]');
+    if (!target || !dragBookId) return;
+    const dragging = wordBookBooksList.querySelector('.wordbook-book-card.dragging');
+    if (!dragging || dragging === target) return;
+    const rect = target.getBoundingClientRect();
+    const after = e.clientY > rect.top + rect.height / 2;
+    if (after) target.after(dragging);
+    else target.before(dragging);
+  });
+
+  wordBookBooksList.addEventListener('drop', async (e) => {
+    e.preventDefault();
+    const ids = Array.from(wordBookBooksList.querySelectorAll('[data-wordbook-book-id]')).map(el => Number(el.getAttribute('data-wordbook-book-id'))).filter(Boolean);
+    if (!ids.length) return;
+    await reorderWordBooksByIds(ids);
+    const keepId = dragBookId || (wordBookSelect ? wordBookSelect.value : '');
+    dragBookId = null;
+    await renderWordBooks(keepId);
+  });
+}
+
+if (wordBookList) {
+  wordBookList.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const books = await getAllWordBooks();
+    const active = books.find(book => String(book.id) === String(wordBookSelect.value)) || books[0];
+    if (!active) return;
+    const items = Array.isArray(active.items) ? active.items : [];
+    const index = Number(btn.dataset.index);
+    const item = items[index];
+    if (!item) return;
+    if (btn.dataset.action === 'wb-speak-source') {
+      speakCurrentSource(item.sourceText, item.srcLang);
+    } else if (btn.dataset.action === 'wb-speak-target') {
+      speakCurrentTarget(item.translatedText, item.tgtLang);
+    }
+  });
+}
+
+
+if (wordBookDeleteSelectedBtn) {
+  wordBookDeleteSelectedBtn.addEventListener('click', async () => {
+    const selected = Array.from(document.querySelectorAll('[data-wordbook-item-select]:checked')).map(el => Number(el.getAttribute('data-wordbook-item-select')));
+    if (!selected.length) {
+      alert('削除する Word Book 項目を選択してください。');
+      return;
+    }
+    const books = await getAllWordBooks();
+    const active = books.find(book => String(book.id) === String(wordBookSelect.value)) || books[0];
+    if (!active) return;
+    const ok = window.confirm('選択した Word Book 項目を削除しますか？');
+    if (!ok) return;
+    const selectedSet = new Set(selected);
+    const nextItems = (Array.isArray(active.items) ? active.items : []).filter((_, index) => !selectedSet.has(index));
+    await updateWordBookItems(active.id, nextItems);
+    await renderWordBooks(active.id);
+  });
+}
+
+if (wordBookRenameBtn) {
+  wordBookRenameBtn.addEventListener('click', async () => {
+    const id = Number(wordBookSelect.value);
+    if (!id) return;
+    const books = await getAllWordBooks();
+    const active = books.find(book => Number(book.id) === id);
+    if (!active) return;
+    const nextName = window.prompt('新しい Word Book 名を入力してください。', active.name || '');
+    if (nextName === null) return;
+    const trimmed = String(nextName).trim();
+    if (!trimmed) {
+      alert('Word Book 名称を入力してください。');
+      return;
+    }
+    await updateWordBookName(id, trimmed);
+    await renderWordBooks(id);
+  });
+}
+
+if (wordBookDeleteBtn) {
+  wordBookDeleteBtn.addEventListener('click', async () => {
+    const id = Number(wordBookSelect.value);
+    if (!id) return;
+    const ok = window.confirm('選択中の Word Book を削除しますか？');
+    if (!ok) return;
+    await deleteWordBook(id);
+    await normalizeWordBookOrder();
+    await renderWordBooks();
+  });
+}
+
+if (wordBookMoveUpBtn) {
+  wordBookMoveUpBtn.addEventListener('click', async () => {
+    const id = Number(wordBookSelect.value);
+    if (!id) return;
+    await moveWordBook(id, -1);
+    await renderWordBooks(id);
+  });
+}
+
+if (wordBookMoveDownBtn) {
+  wordBookMoveDownBtn.addEventListener('click', async () => {
+    const id = Number(wordBookSelect.value);
+    if (!id) return;
+    await moveWordBook(id, 1);
+    await renderWordBooks(id);
+  });
+}
+
+
+if (historySelectAllBtn) {
+  historySelectAllBtn.addEventListener('click', () => {
+    document.querySelectorAll('[data-history-select]').forEach(el => { el.checked = true; });
+  });
+}
+
+if (historyDeselectAllBtn) {
+  historyDeselectAllBtn.addEventListener('click', () => {
+    document.querySelectorAll('[data-history-select]').forEach(el => { el.checked = false; });
+  });
+}
+
+if (historyDeleteSelectedBtn) {
+  historyDeleteSelectedBtn.addEventListener('click', async () => {
+    const ids = getSelectedHistoryIds();
+    if (!ids.length) {
+      alert('削除する履歴を選択してください。');
+      return;
+    }
+    const ok = window.confirm('選択した翻訳履歴を削除しますか？');
+    if (!ok) return;
+    await deleteHistoryEntries(ids);
+    await renderHistory();
+  });
+}
+
+if (historyClearBtn) {
+  historyClearBtn.addEventListener('click', async () => {
+    const ok = window.confirm('翻訳履歴をすべて削除しますか？');
+    if (!ok) return;
+    await clearHistoryEntries();
+    await renderHistory();
+  });
+}
+
+
+if (historySearchInput) {
+  historySearchInput.addEventListener('input', () => renderHistory());
+}
+
+if (wordBookSearchInput) {
+  wordBookSearchInput.addEventListener('input', () => renderWordBooks(wordBookSelect ? wordBookSelect.value : ''));
+}
+
+prevViewBtn.addEventListener('click', () => switchView(currentView - 1));
+nextViewBtn.addEventListener('click', () => switchView(currentView + 1));
+pageDots.forEach((dot, i) => dot.addEventListener('click', () => switchView(i)));
+
+openHistoryDB().then(async () => {
+  await renderHistory();
+  await renderWordBooks();
+}).catch(err => {
+  if (historyList) historyList.innerHTML = '<div class="history-empty">IndexedDB の初期化に失敗しました: ' + esc(err.message || err) + '</div>';
+  if (wordBookList) wordBookList.innerHTML = '<div class="wordbook-empty">IndexedDB の初期化に失敗しました: ' + esc(err.message || err) + '</div>';
+});
+
+</script>
+</body>
+</html>
