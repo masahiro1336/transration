@@ -508,6 +508,30 @@ body {
 }
 .wordbook-item-delete:hover { background: var(--bg); }
 
+/* ── How to Use ── */
+.howto-card {
+  width: 100%; max-width: 880px;
+  background: var(--surface);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+}
+.howto-head {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+}
+.howto-title { font-size: 18px; font-weight: 600; color: var(--ink); }
+.howto-body { padding: 18px 20px 20px; display: grid; gap: 14px; }
+.howto-grid { display: grid; gap: 12px; }
+.howto-block {
+  background: var(--panel-r);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+}
+.howto-step-title { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 8px; }
+.howto-copy { font-size: 14px; line-height: 1.8; color: var(--ink2); white-space: pre-wrap; }
+
 /* ── Info ── */
 .info-card {
   width: 100%; max-width: 880px;
@@ -537,6 +561,61 @@ body {
 }
 .info-name { font-size: 20px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
 .info-copy { font-size: 14px; line-height: 1.8; color: var(--ink2); white-space: pre-wrap; }
+
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.info-list {
+  display: grid;
+  gap: 10px;
+}
+.info-li {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.info-li-head {
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin-bottom:6px;
+}
+.info-num {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 11px;
+  font-weight: 600;
+}
+.info-li-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.4;
+}
+.info-li-copy {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--ink2);
+}
+.info-note {
+  font-size: 12px;
+  line-height: 1.8;
+  color: var(--ink3);
+}
+@media (max-width: 720px) {
+  .info-grid { grid-template-columns: 1fr; }
+}
 
 @media (max-width: 720px) {
   .history-cols { grid-template-columns: 1fr; }
@@ -801,6 +880,59 @@ body {
   </div>
 </div>
 
+<div class="view-panel" id="viewHowTo">
+  <div class="top-meta">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M12 3v18"/><path d="M3 12h18"/><circle cx="12" cy="12" r="8"/></svg>
+      </div>
+      <div>
+        <div class="logo-name">How to Use</div>
+        <div class="logo-sub">Guide for Users</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="howto-card">
+    <div class="howto-head">
+      <div class="howto-title">使いかた</div>
+    </div>
+    <div class="howto-body">
+      <div class="howto-grid">
+        <section class="howto-block">
+          <div class="info-kicker">1. Translation</div>
+          <div class="howto-step-title">翻訳する</div>
+          <div class="howto-copy">左側に原文を入力すると、右側に翻訳結果が表示されます。上部の言語切替から翻訳元言語と翻訳先言語を変更できます。翻訳結果は通常の確認用・下訳用として使い、公開文や正式文書では必ず見直してください。</div>
+        </section>
+
+        <section class="howto-block">
+          <div class="info-kicker">2. Speech</div>
+          <div class="howto-step-title">音声で確認する</div>
+          <div class="howto-copy">原文・翻訳文のテキストをクリックすると読み上げができます。音声設定から声種を切り替えられます。発音確認、語感確認、学習時の反復に使えます。</div>
+        </section>
+
+        <section class="howto-block">
+          <div class="info-kicker">3. History</div>
+          <div class="howto-step-title">翻訳履歴を管理する</div>
+          <div class="howto-copy">保存した翻訳は履歴画面で確認できます。検索、選択削除、ドラッグ並び替えに対応しています。履歴本文は右クリックで編集できます。外側をクリックすると編集終了になります。</div>
+        </section>
+
+        <section class="howto-block">
+          <div class="info-kicker">4. Word Book</div>
+          <div class="howto-step-title">Word Book に整理する</div>
+          <div class="howto-copy">履歴から選択した項目を Word Book に保存できます。Word Book 一覧は複数作成でき、Book 自体の並び替えと、Book 内項目の並び替えに対応しています。Word Book 項目も右クリック編集と選択削除が可能です。</div>
+        </section>
+
+        <section class="howto-block">
+          <div class="info-kicker">5. Tips</div>
+          <div class="howto-step-title">使い分ける</div>
+          <div class="howto-copy">短く確認したい内容は翻訳画面でそのまま扱い、残したい内容は履歴に保存し、あとで参照したい語句や表現は Word Book に整理すると使いやすくなります。翻訳、履歴、Word Book を役割ごとに使い分けると、学習用にも作業用にも扱いやすくなります。</div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="view-panel" id="viewInfo">
   <div class="top-meta">
     <div class="logo">
@@ -820,15 +952,45 @@ body {
     </div>
     <div class="info-body">
       <section class="info-block">
+        <div class="info-kicker">Overview</div>
+        <div class="info-name">Kotoba — AI Translation</div>
+        <div class="info-copy">本作品は、翻訳、音声確認、翻訳履歴、Word Book 整理を一体化したWebアプリケーションです。短文の理解、語彙収集、学習補助、下訳整理を、できるだけ少ない画面移動で扱えるよう構成しています。</div>
+      </section>
+
+      <section class="info-block">
+        <div class="info-kicker">Release</div>
+        <div class="info-copy">本作品は Web 公開を前提としたアプリケーションです。ブラウザ上で動作し、利用者の操作環境に応じて翻訳、音声、保存機能が利用されます。</div>
+      </section>
+
+      <section class="info-block">
+        <div class="info-kicker">Main Features</div>
+        <div class="info-copy">主な機能は、テキスト翻訳、音声読み上げ、翻訳履歴の保存・検索・編集・並び替え、Word Book の保存・検索・編集・並び替え、使いかたと作品情報の参照です。</div>
+      </section>
+
+      <section class="info-block">
+        <div class="info-kicker">Stored Data</div>
+        <div class="info-copy">翻訳履歴および Word Book の内容は、ブラウザ内の IndexedDB に保存されます。保存内容は利用端末・利用ブラウザごとに管理されるため、ブラウザ削除、ストレージ初期化、別端末利用などにより失われる場合があります。</div>
+      </section>
+
+      <section class="info-block">
         <div class="info-kicker">Copyright</div>
         <div class="info-name">©YAHATA MASAHIRO</div>
-        <div class="info-copy">本作品および関連するデザイン、UI、記述内容の権利は、©YAHATA MASAHIRO に帰属します。</div>
+        <div class="info-copy">本作品のデザイン、UI、画面構成、表示表現、独自の情報整理方法および制作物としての構成は、©YAHATA MASAHIRO に帰属します。</div>
       </section>
+
+      <section class="info-block">
+        <div class="info-kicker">Third-Party Rights</div>
+        <div class="info-copy">本作品内で言及される第三者ライセンス名、規格名、制度名、団体名、ブラウザ名、ライブラリ名、API 名、サービス名、商標等は、各権利者または運営主体に帰属します。本作品の存在は、第三者の原典、サービス、ライブラリ、ライセンス本文に対する再許諾や権利移転を意味しません。</div>
+      </section>
+
+      <section class="info-block">
+        <div class="info-kicker">Translation & Speech Notice</div>
+        <div class="info-copy">翻訳結果および音声出力は、外部サービス仕様、ブラウザ実装差異、通信状況、端末環境等により変動する場合があります。表示結果や音声結果の完全性、正確性、継続性は保証されません。</div>
+      </section>
+
       <section class="info-block">
         <div class="info-kicker">Disclaimer</div>
-        <div class="info-copy">本作品の翻訳結果、音声出力、表示内容は、利用環境や外部サービス、ブラウザ実装差異等により変動する場合があります。
-本作品の利用によって生じたいかなる損害、誤訳、解釈上の不利益についても、制作者は責任を負いません。
-重要な判断、契約、申請、法務、医療、研究等への利用に際しては、必ず利用者自身で内容確認を行ってください。</div>
+        <div class="info-copy">本作品の利用によって生じたいかなる損害、誤訳、誤解、解釈上の不利益、保存データの消失、業務停止、機会損失についても、制作者は責任を負いません。契約、法務、医療、申請、公的提出、研究成果確定などの用途では、必ず利用者自身で内容確認と再検証を行ってください。</div>
       </section>
     </div>
   </div>
@@ -843,7 +1005,8 @@ body {
     <button class="pdot cur" type="button" data-view="0" aria-label="翻訳"></button>
     <button class="pdot" type="button" data-view="1" aria-label="履歴"></button>
     <button class="pdot" type="button" data-view="2" aria-label="Word Book"></button>
-    <button class="pdot" type="button" data-view="3" aria-label="作品情報"></button>
+    <button class="pdot" type="button" data-view="3" aria-label="使いかた"></button>
+    <button class="pdot" type="button" data-view="4" aria-label="作品情報"></button>
   </div>
   <button class="pill-btn" id="nextViewBtn" title="次へ">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m9 18 6-6-6-6"/></svg>
@@ -877,6 +1040,7 @@ const progressFill= document.getElementById('progressFill');
 const viewTranslate = document.getElementById('viewTranslate');
 const viewHistory = document.getElementById('viewHistory');
 const viewWordBook = document.getElementById('viewWordBook');
+const viewHowTo = document.getElementById('viewHowTo');
 const viewInfo = document.getElementById('viewInfo');
 const prevViewBtn = document.getElementById('prevViewBtn');
 const nextViewBtn = document.getElementById('nextViewBtn');
@@ -1633,7 +1797,7 @@ function speakWithSettings(text, langKey, voiceName, rate, pitch, volume, voiceL
 }
 
 function switchView(index) {
-  const views = [viewTranslate, viewHistory, viewWordBook, viewInfo];
+  const views = [viewTranslate, viewHistory, viewWordBook, viewHowTo, viewInfo];
   currentView = (index + views.length) % views.length;
   views.forEach((el, i) => el.classList.toggle('active', i === currentView));
   pageDots.forEach((dot, i) => dot.classList.toggle('cur', i === currentView));
