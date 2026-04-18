@@ -187,6 +187,15 @@ body {
 
 .cc { font-size: 12px; color: #c7c7cc; white-space: nowrap; }
 
+.save-destination-select {
+  min-width: 160px; max-width: 220px;
+  border: 1px solid var(--line);
+  background: #fff; color: var(--ink2);
+  border-radius: 10px; padding: 8px 12px;
+  font-size: 12px;
+}
+.save-destination-select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
 /* Voice selector panel */
 .voice-panel {
   display: none;
@@ -316,6 +325,71 @@ body {
 .history-title { font-size: 18px; font-weight: 600; color: var(--ink); }
 .history-sub { font-size: 12px; color: var(--ink3); }
 .history-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.history-layout-tools, .wordbook-layout-tools {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.history-sort-select, .history-column-toggle, .wordbook-sort-select, .wordbook-column-toggle {
+  min-width: 140px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.history-sort-select:focus, .history-column-toggle:focus, .wordbook-sort-select:focus, .wordbook-column-toggle:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+.history-layout-note {
+  font-size: 11px; color: var(--ink3);
+}
+.history-list.cols-1 .history-item-minimal .history-body.has-select,
+.wordbook-list.cols-1 .history-item-minimal .history-body.has-select {
+  grid-template-columns: 24px 1fr;
+}
+.history-list.cols-2, .history-list.cols-3, .history-list.cols-4,
+.wordbook-list.cols-2, .wordbook-list.cols-3, .wordbook-list.cols-4,
+.wordbook-books.cols-2, .wordbook-books.cols-3, .wordbook-books.cols-4 {
+  grid-template-columns: repeat(var(--hist-grid-cols, 1), minmax(0, 1fr));
+  align-items: start;
+}
+.history-list.cols-2 { --hist-grid-cols: 2; }
+.history-list.cols-3 { --hist-grid-cols: 3; }
+.history-list.cols-4 { --hist-grid-cols: 4; }
+.wordbook-list.cols-2 { --hist-grid-cols: 2; }
+.wordbook-list.cols-3 { --hist-grid-cols: 3; }
+.wordbook-list.cols-4 { --hist-grid-cols: 4; }
+.wordbook-books.cols-2 { --hist-grid-cols: 2; }
+.wordbook-books.cols-3 { --hist-grid-cols: 3; }
+.wordbook-books.cols-4 { --hist-grid-cols: 4; }
+.history-list.cols-2 .history-item-minimal .history-cols,
+.history-list.cols-3 .history-item-minimal .history-cols,
+.history-list.cols-4 .history-item-minimal .history-cols,
+.wordbook-list.cols-2 .history-item-minimal .history-cols,
+.wordbook-list.cols-3 .history-item-minimal .history-cols,
+.wordbook-list.cols-4 .history-item-minimal .history-cols {
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.history-list.cols-2 .history-item-minimal,
+.history-list.cols-3 .history-item-minimal,
+.history-list.cols-4 .history-item-minimal,
+.wordbook-list.cols-2 .history-item-minimal,
+.wordbook-list.cols-3 .history-item-minimal,
+.wordbook-list.cols-4 .history-item-minimal {
+  padding: 16px;
+}
+.history-list.sort-locked .history-item.sort-enabled,
+.wordbook-list.sort-locked .history-item.sort-enabled,
+.wordbook-books.sort-locked .wordbook-book-card {
+  cursor: default;
+}
+.history-list.sort-locked .history-item.sort-enabled:active,
+.wordbook-list.sort-locked .history-item.sort-enabled:active,
+.wordbook-books.sort-locked .wordbook-book-card:active {
+  cursor: default;
+}
 .hist-btn {
   border: 1px solid var(--line); background:#fff; color: var(--ink2);
   border-radius: 10px; padding: 9px 12px; cursor: pointer; transition: .15s; font-size: 13px;
@@ -713,6 +787,10 @@ body {
 
 @media (max-width: 720px) {
   .history-cols { grid-template-columns: 1fr; }
+  .history-list.cols-2, .history-list.cols-3, .history-list.cols-4,
+.wordbook-list.cols-2, .wordbook-list.cols-3, .wordbook-list.cols-4,
+.wordbook-books.cols-2, .wordbook-books.cols-3, .wordbook-books.cols-4,
+.quiz-review-list.cols-2, .quiz-review-list.cols-3, .quiz-review-list.cols-4 { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
   body { padding: 18px 12px 92px; }
@@ -723,6 +801,189 @@ body {
   .fp:first-child { border-bottom: 1px solid var(--line); }
 }
 
+
+/* ── Docs layout ── */
+.doc-hero {
+  display:grid;
+  gap:14px;
+  padding:22px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:linear-gradient(180deg,#ffffff 0%, #fafafe 100%);
+}
+.doc-eyebrow {
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--accent);
+  font-weight:700;
+}
+.doc-hero-title {
+  font-size:28px;
+  line-height:1.2;
+  color:var(--ink);
+  font-weight:700;
+  letter-spacing:-.03em;
+}
+.doc-hero-copy {
+  font-size:14px;
+  line-height:1.9;
+  color:var(--ink2);
+}
+.doc-chip-row {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.doc-chip {
+  display:inline-flex;
+  align-items:center;
+  padding:6px 11px;
+  border-radius:999px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink2);
+  font-size:12px;
+}
+.doc-grid-2 {
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:14px;
+}
+.doc-section {
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:#fff;
+  padding:18px;
+  display:grid;
+  gap:12px;
+}
+.doc-section-title {
+  font-size:18px;
+  color:var(--ink);
+  font-weight:650;
+  letter-spacing:-.02em;
+}
+.doc-section-copy {
+  font-size:14px;
+  line-height:1.9;
+  color:var(--ink2);
+}
+.doc-list {
+  display:grid;
+  gap:10px;
+}
+.doc-list-item {
+  display:grid;
+  gap:4px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:var(--panel-r);
+}
+.doc-list-kicker {
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ink3);
+}
+.doc-list-title {
+  font-size:14px;
+  font-weight:600;
+  color:var(--ink);
+}
+.doc-list-copy {
+  font-size:13px;
+  line-height:1.8;
+  color:var(--ink2);
+}
+.doc-callout {
+  display:grid;
+  gap:6px;
+  padding:14px 16px;
+  border:1px solid #ddd6fe;
+  background:#f5f3ff;
+  border-radius:16px;
+}
+.doc-callout.warn {
+  border-color:#fde68a;
+  background:#fffbeb;
+}
+.doc-callout-title {
+  font-size:13px;
+  font-weight:600;
+  color:var(--ink);
+}
+.doc-callout-copy {
+  font-size:13px;
+  line-height:1.8;
+  color:var(--ink2);
+}
+.doc-steps {
+  display:grid;
+  gap:12px;
+}
+.doc-step {
+  display:grid;
+  grid-template-columns: 32px 1fr;
+  gap:12px;
+  align-items:flex-start;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff;
+}
+.doc-step-num {
+  width:32px;
+  height:32px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:linear-gradient(135deg, var(--accent), var(--accent2));
+  color:#fff;
+  font-size:12px;
+  font-weight:700;
+}
+.doc-step-title {
+  font-size:15px;
+  font-weight:650;
+  color:var(--ink);
+  margin-bottom:4px;
+}
+.doc-step-copy {
+  font-size:13px;
+  line-height:1.85;
+  color:var(--ink2);
+}
+.doc-mini-grid {
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap:10px;
+}
+.doc-mini-card {
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  padding:14px;
+  display:grid;
+  gap:6px;
+}
+.doc-mini-label {
+  font-size:10px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ink3);
+}
+.doc-mini-value {
+  font-size:14px;
+  line-height:1.8;
+  color:var(--ink);
+}
+@media (max-width: 720px) {
+  .doc-grid-2, .doc-mini-grid { grid-template-columns:1fr; }
+  .doc-hero-title { font-size:24px; }
+}
 
 /* ── Search ── */
 .search-card {
@@ -810,6 +1071,243 @@ body {
   .search-mode-tab .tab-label { display:none; }
   .search-mode-tab { padding:10px 6px; }
   .search-open-cards { grid-template-columns:1fr; }
+}
+
+
+
+/* ── Quiz ── */
+.quiz-card {
+  width: 100%; max-width: 880px;
+  background: var(--surface);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04);
+}
+.quiz-head {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line);
+  display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+}
+.quiz-title { font-size: 18px; font-weight: 600; color: var(--ink); }
+.quiz-sub { font-size: 12px; color: var(--ink3); margin-top:4px; }
+.quiz-body { padding: 18px 20px 20px; display:grid; gap:16px; }
+.quiz-toolbar, .quiz-settings-row, .quiz-filter-row, .quiz-stat-row {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.quiz-select, .quiz-order-select {
+  min-width: 170px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.quiz-select:focus, .quiz-order-select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: -1px;
+}
+.quiz-chip {
+  display:inline-flex; align-items:center; gap:6px;
+  border:1px solid var(--line); background:#fff; color:var(--ink2);
+  border-radius:999px; padding:7px 11px; font-size:12px;
+}
+.quiz-chip strong { color: var(--ink); }
+.quiz-check {
+  display:inline-flex; align-items:center; gap:6px;
+  border:1px solid var(--line); background:#fff; color:var(--ink2);
+  border-radius:999px; padding:7px 11px; font-size:12px; cursor:pointer;
+}
+.quiz-review {
+  border:1px solid var(--line);
+  border-radius:16px;
+  overflow:hidden;
+  background:var(--panel-r);
+}
+.quiz-review-head {
+  display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+  padding:10px 14px; background:#fff; border-bottom:1px solid var(--line);
+}
+.quiz-review-title { font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink3); }
+.quiz-review-list {
+  padding:12px;
+  display:grid;
+  gap:10px;
+  grid-template-columns: 1fr;
+}
+.quiz-review-list.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.quiz-review-list.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.quiz-review-list.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.quiz-review-item {
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px;
+  background:#fff;
+  min-width: 0;
+}
+.quiz-review-list.cols-3 .quiz-review-item,
+.quiz-review-list.cols-4 .quiz-review-item {
+  padding: 10px;
+}
+.quiz-review-list.cols-4 .quiz-review-source { font-size: 13px; }
+.quiz-review-list.cols-4 .quiz-review-target { font-size: 12px; }
+.quiz-review-top {
+  display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; flex-wrap:wrap;
+}
+.quiz-mark-pill {
+  min-width:32px; height:32px; border-radius:999px;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:15px; font-weight:700; border:1px solid var(--line); background:#fff; color:var(--ink3);
+}
+.quiz-mark-pill.o { border-color:#b7ebc6; background:#eefbf2; color:#2d8a4d; }
+.quiz-mark-pill.d { border-color:#f6d998; background:#fff8e6; color:#b7791f; }
+.quiz-mark-pill.x { border-color:#f0b2ac; background:#fff0ef; color:#c24138; }
+.quiz-review-source { font-size:14px; color:var(--ink); line-height:1.7; font-weight:600; cursor:pointer; }
+.quiz-review-target { font-size:13px; color:var(--ink2); line-height:1.7; margin-top:4px; cursor:pointer; }
+.quiz-review-source:hover, .quiz-review-target:hover { color: var(--accent); }
+.quiz-review-mark-actions { display:flex; align-items:center; gap:6px; margin-left:auto; }
+.quiz-review-mark-btn {
+  border:1px solid var(--line); background:#fff; color:var(--ink3);
+  border-radius:999px; min-width:28px; height:28px; padding:0 8px; cursor:pointer; transition:.15s;
+}
+.quiz-review-mark-btn:hover { background:var(--bg); color:var(--ink); }
+.quiz-review-mark-btn.active-o { border-color:#86efac; background:#f0fdf4; color:#15803d; }
+.quiz-review-mark-btn.active-d { border-color:#fde68a; background:#fffbeb; color:#b45309; }
+.quiz-review-mark-btn.active-x { border-color:#fca5a5; background:#fef2f2; color:#b91c1c; }
+.quiz-empty {
+  padding:24px; border:1px dashed #d7d7dc; border-radius:16px;
+  color:var(--ink3); text-align:center; background:var(--panel-r);
+}
+.quiz-shell {
+  position: fixed; inset: 0; display: none; z-index: 1000;
+  background: rgba(12, 15, 23, 0.62); backdrop-filter: blur(8px);
+}
+.quiz-shell.open { display:block; }
+.quiz-win {
+  position:absolute; left:50%; top:50%; transform:translate(-50%, -50%);
+  width:min(960px, calc(100vw - 28px)); height:min(78vh, 760px);
+  min-width:320px;
+  background:#fff; border:1px solid var(--line); border-radius:22px;
+  box-shadow:0 24px 80px rgba(0,0,0,.25);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.quiz-win.max {
+  width:100vw; height:100dvh; border-radius:0;
+}
+.quiz-modal-head {
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:12px 16px; border-bottom:1px solid var(--line); background:#fff; flex-wrap:wrap;
+}
+.quiz-modal-left, .quiz-modal-right {
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.quiz-modal-pill {
+  display:inline-flex; align-items:center; gap:6px;
+  border:1px solid var(--line); background:var(--panel-r); color:var(--ink2);
+  border-radius:999px; padding:6px 10px; font-size:12px;
+}
+.quiz-screen {
+  flex:1; display:grid; place-items:center; position:relative;
+  padding:30px 24px; background:linear-gradient(180deg, #fff, var(--panel-r)); cursor:pointer;
+}
+.quiz-big {
+  font-size:clamp(28px, 5vw, 72px); line-height:1.2; color:var(--ink);
+  font-weight:600; text-align:center; white-space:pre-wrap; word-break:break-word;
+  max-width: 92%;
+}
+.quiz-tag-row {
+  min-height:50px; padding:10px 16px; border-bottom:1px solid var(--line);
+  display:flex; gap:8px; flex-wrap:wrap; align-items:center; background:#fff;
+}
+.quiz-mark-bar {
+  position:absolute; right:16px; bottom:16px;
+  display:flex; align-items:center; gap:10px;
+  padding:12px 14px; border-radius:18px;
+  border:1px solid var(--line); background:rgba(255,255,255,.94);
+  box-shadow:0 8px 28px rgba(0,0,0,.12);
+}
+.quiz-mark-btn {
+  min-width:58px; min-height:48px; border-radius:14px; border:1px solid var(--line);
+  background:#fff; color:var(--ink2); cursor:pointer; font-size:18px; font-weight:700;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+}
+.quiz-mark-btn small { font-size:9px; color:var(--ink3); font-weight:600; }
+.quiz-mark-btn.o { border-color:#b7ebc6; background:#eefbf2; color:#2d8a4d; }
+.quiz-mark-btn.d { border-color:#f6d998; background:#fff8e6; color:#b7791f; }
+.quiz-mark-btn.x { border-color:#f0b2ac; background:#fff0ef; color:#c24138; }
+.quiz-filter-btn {
+  border:1px solid var(--line); background:#fff; color:var(--ink2);
+  border-radius:999px; padding:7px 11px; font-size:12px; cursor:pointer;
+}
+.quiz-filter-btn.active { border-color:#c4b5fd; background:#f5f3ff; color:var(--accent); }
+@media (max-width: 720px) {
+  .quiz-mark-bar { left:12px; right:12px; justify-content:center; }
+  .quiz-mark-btn { min-width:52px; }
+}
+
+
+
+/* ── Internal Search Window ── */
+.iwin-shell {
+  position:fixed; z-index:1100;
+  top:80px; right:16px;
+  width:min(800px,72vw);
+  height:min(72vh,760px);
+  min-width:380px; min-height:260px;
+  display:none; flex-direction:column;
+  background:linear-gradient(160deg,rgba(255,255,255,.96) 0%,rgba(249,249,251,.98) 100%), var(--surface);
+  border:1px solid var(--line);
+  border-radius:20px;
+  box-shadow:0 24px 80px rgba(0,0,0,.22), 0 0 0 1px rgba(255,255,255,.45);
+  overflow:hidden; resize:both;
+}
+.iwin-shell.open { display:flex; }
+.iwin-shell.iwin-max {
+  left:0!important; top:0!important; right:auto!important;
+  width:100vw!important; height:100dvh!important;
+  max-width:100vw!important; max-height:100dvh!important;
+  border-radius:0!important; resize:none;
+}
+.iwin-head {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+  padding:9px 12px; border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.9); cursor:move; flex:0 0 auto; flex-wrap:wrap;
+}
+.iwin-head-left { display:flex; align-items:center; gap:7px; flex:1 1 auto; min-width:0; }
+.iwin-head-right { display:flex; align-items:center; gap:5px; flex:0 0 auto; }
+.iwin-query-wrap { flex:1 1 auto; min-width:0; position:relative; }
+.iwin-query {
+  width:100%; background:#fff; color:var(--ink); border:1px solid var(--line);
+  border-radius:8px; padding:6px 36px 6px 10px; font:inherit; font-size:12.5px; outline:none;
+}
+.iwin-query:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(94,92,230,.12); }
+.iwin-query-run {
+  position:absolute; right:4px; top:50%; transform:translateY(-50%);
+  width:26px; height:26px; border-radius:6px; border:none; background:#ede9fe;
+  color:var(--accent); cursor:pointer; font-size:13px; display:grid; place-items:center;
+}
+.iwin-query-run:hover { background:var(--accent); color:#fff; }
+.iwin-mode-tabs { display:flex; gap:3px; flex:0 0 auto; flex-wrap:wrap; }
+.iwin-mode-tab {
+  padding:4px 9px; border-radius:6px; border:1px solid transparent; background:transparent;
+  color:var(--ink3); font-size:10.5px; font-weight:700; cursor:pointer; transition:.13s; white-space:nowrap;
+}
+.iwin-mode-tab:hover { color:var(--ink); background:rgba(0,0,0,.04); }
+.iwin-mode-tab.on { border-color:#d9d2ff; background:#ede9fe; color:var(--accent); }
+.iwin-body { flex:1 1 auto; min-height:0; position:relative; background:#fff; }
+.iwin-frame { width:100%; height:100%; border:none; background:#fff; }
+.iwin-empty {
+  position:absolute; inset:0; display:grid; place-items:center; background:var(--bg);
+  color:var(--ink3); font-size:13px; text-align:center; padding:24px;
+}
+.iwin-empty-icon { font-size:40px; margin-bottom:12px; opacity:.5; }
+.iwin-hint {
+  font-size:10.5px; color:var(--ink3); padding:5px 12px; border-top:1px solid var(--line);
+  background:rgba(255,255,255,.7); flex:0 0 auto;
+}
+@media (max-width:700px) {
+  .iwin-shell { width:96vw!important; right:2vw; min-width:0; }
+  .iwin-mode-tabs { display:none; }
 }
 
 </style>
@@ -924,7 +1422,10 @@ body {
         </button>
       </div>
       <div class="fp-right">
-        <button class="ib save-btn" id="saveBtn" title="履歴に保存">
+        <select id="translateSaveTarget" class="save-destination-select" aria-label="翻訳の保存先" title="保存先">
+          <option value="history">翻訳履歴に保存</option>
+        </select>
+        <button class="ib save-btn" id="saveBtn" title="翻訳履歴に保存">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/></svg>
         </button>
         <button class="ib" id="cpyBtn" title="コピー">
@@ -998,6 +1499,21 @@ body {
         <div class="history-title">翻訳履歴</div>
         <div class="history-search-row">
           <input id="historySearchInput" class="history-search-input" type="text" placeholder="履歴を検索">
+          <div class="history-layout-tools">
+            <select id="historySortSelect" class="history-sort-select" aria-label="履歴の並び替え">
+              <option value="manual">手動順</option>
+              <option value="newest">新しい順</option>
+              <option value="oldest">古い順</option>
+              <option value="source">原文A→Z</option>
+              <option value="target">訳文A→Z</option>
+            </select>
+            <select id="historyColumnsSelect" class="history-column-toggle" aria-label="履歴の列表示">
+              <option value="1">1列表示</option>
+              <option value="2">2列表示</option>
+              <option value="3">3列表示</option>
+              <option value="4">4列表示</option>
+            </select>
+          </div>
         </div>
       </div>
       <div class="history-actions">
@@ -1010,7 +1526,11 @@ body {
           </select>
           <button class="hist-btn" id="historySelectAllBtn" type="button">全選択</button>
           <button class="hist-btn" id="historyDeselectAllBtn" type="button">全解除</button>
-          <button class="hist-btn" id="saveWordBookBtn" type="button">選択項目を Word Book に保存</button>
+          <button class="hist-btn" id="saveWordBookBtn" type="button">新規 Word Book に保存</button>
+          <select id="historyWordBookTargetSelect" class="history-mode-select" aria-label="履歴から操作する Word Book"></select>
+          <button class="hist-btn" id="openSelectedWordBookBtn" type="button">開く</button>
+          <button class="hist-btn" id="appendToSelectedWordBookBtn" type="button">開いている Word Book に追加</button>
+          <button class="hist-btn danger" id="removeFromSelectedWordBookBtn" type="button">開いている Word Book から削除</button>
           <button class="hist-btn danger" id="historyDeleteSelectedBtn" type="button">選択項目を削除</button>
           <button class="hist-btn danger" id="historyClearBtn" type="button">履歴を全削除</button>
         </div>
@@ -1042,6 +1562,25 @@ body {
         <div class="wordbook-book-meta">
           <span class="history-chip" id="wordBookNameChip">未選択</span>
           <span class="wordbook-count" id="wordBookCount" aria-hidden="true"></span>
+        </div>
+        <div class="wordbook-layout-tools">
+          <select id="wordBookBooksSortSelect" class="wordbook-sort-select" aria-label="Word Book 一覧の並び替え">
+            <option value="manual">Book手動順</option>
+            <option value="newest">Book新しい順</option>
+            <option value="oldest">Book古い順</option>
+            <option value="name">Book名A→Z</option>
+          </select>
+          <select id="wordBookItemsSortSelect" class="wordbook-sort-select" aria-label="Word Book 項目の並び替え">
+            <option value="manual">項目手動順</option>
+            <option value="source">原文A→Z</option>
+            <option value="target">訳文A→Z</option>
+          </select>
+          <select id="wordBookColumnsSelect" class="wordbook-column-toggle" aria-label="Word Book の列表示">
+            <option value="1">1列表示</option>
+            <option value="2">2列表示</option>
+            <option value="3">3列表示</option>
+            <option value="4">4列表示</option>
+          </select>
         </div>
       </div>
       <div class="wordbook-toolbar-right">
@@ -1132,6 +1671,154 @@ body {
   </div>
 </div>
 
+
+<div class="view-panel" id="viewQuiz">
+  <div class="top-meta">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M9 3h6l1 4h3v4c0 5-3.5 9-7 10-3.5-1-7-5-7-10V7h3l1-4z"/><path d="M9 11h6"/><path d="M12 8v6"/></svg>
+      </div>
+      <div>
+        <div class="logo-name">Quiz</div>
+        <div class="logo-sub">History / Word Book Practice</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-head">
+      <div>
+        <div class="quiz-title">クイズ</div>
+        <div class="quiz-sub">翻訳履歴、または選択中の Word Book から出題します。</div>
+      </div>
+      <div class="quiz-toolbar">
+        <button class="hist-btn" id="quizStartBtn" type="button">クイズ開始</button>
+        <button class="hist-btn" id="quizStartWeakBtn" type="button">△✕だけ出題</button>
+        <button class="hist-btn danger" id="quizClearMarksBtn" type="button">評価をクリア</button>
+      </div>
+    </div>
+    <div class="quiz-body">
+      <div class="quiz-settings-row">
+        <select id="quizSourceSelect" class="quiz-select" aria-label="クイズ出題元">
+          <option value="history">翻訳履歴</option>
+        </select>
+        <label class="quiz-check"><input type="checkbox" id="quizShuffleCheck" checked> シャッフル</label>
+        <label class="quiz-check"><input type="checkbox" id="quizLoopCheck"> ループ</label>
+        <span class="quiz-chip">項目数 <strong id="quizPoolCount">0</strong></span>
+        <span class="quiz-chip">現在の出題元 <strong id="quizSourceLabel">翻訳履歴</strong></span>
+      </div>
+
+      <div class="quiz-settings-row">
+        <span class="quiz-chip">表示順</span>
+        <select id="quizOrder1" class="quiz-order-select" aria-label="1段目">
+          <option value="source">原文</option>
+          <option value="target">訳文</option>
+        </select>
+        <select id="quizOrder2" class="quiz-order-select" aria-label="2段目">
+          <option value="target">訳文</option>
+          <option value="source">原文</option>
+        </select>
+      </div>
+
+      <div class="quiz-stat-row">
+        <span class="quiz-chip">○ <strong id="quizCountO">0</strong></span>
+        <span class="quiz-chip">△ <strong id="quizCountD">0</strong></span>
+        <span class="quiz-chip">✕ <strong id="quizCountX">0</strong></span>
+      </div>
+
+      <div class="quiz-review">
+        <div class="quiz-review-head">
+          <div class="quiz-review-title">評価一覧</div>
+          <div class="quiz-filter-row">
+            <select id="quizReviewColumnsSelect" class="quiz-order-select" aria-label="クイズ評価一覧の列表示">
+              <option value="1">1列表示</option>
+              <option value="2">2列表示</option>
+              <option value="3">3列表示</option>
+              <option value="4">4列表示</option>
+            </select>
+            <button class="quiz-filter-btn active" data-quiz-filter="all" type="button">すべて</button>
+            <button class="quiz-filter-btn" data-quiz-filter="o" type="button">○</button>
+            <button class="quiz-filter-btn" data-quiz-filter="d" type="button">△</button>
+            <button class="quiz-filter-btn" data-quiz-filter="x" type="button">✕</button>
+          </div>
+        </div>
+        <div class="quiz-review-list" id="quizReviewList">
+          <div class="quiz-empty">クイズ評価はまだありません。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="iwin-shell" id="iwinShell" aria-label="内部検索ウィンドウ">
+  <div class="iwin-head" id="iwinHead">
+    <div class="iwin-head-left">
+      <div class="iwin-query-wrap">
+        <input type="text" class="iwin-query" id="iwinQuery" placeholder="検索語を入力…"/>
+        <button class="iwin-query-run" id="iwinRun" title="検索">⌕</button>
+      </div>
+      <div class="iwin-mode-tabs" id="iwinModeTabs">
+        <button class="iwin-mode-tab on" data-imode="general" type="button">一般</button>
+        <button class="iwin-mode-tab" data-imode="ai" type="button">AI</button>
+        <button class="iwin-mode-tab" data-imode="image" type="button">画像</button>
+        <button class="iwin-mode-tab" data-imode="pinterest" type="button">Pinterest</button>
+        <button class="iwin-mode-tab" data-imode="youtube" type="button">YouTube</button>
+        <button class="iwin-mode-tab" data-imode="dict" type="button">辞書</button>
+        <button class="iwin-mode-tab" data-imode="example" type="button">例文</button>
+        <button class="iwin-mode-tab" data-imode="phrase" type="button">熟語</button>
+        <button class="iwin-mode-tab" data-imode="etymology" type="button">語源</button>
+        <button class="iwin-mode-tab" data-imode="chatgpt" type="button">GPT</button>
+      </div>
+    </div>
+    <div class="iwin-head-right">
+      <button class="hist-btn" id="iwinOpenTab" type="button" title="新しいタブで開く">↗</button>
+      <button class="hist-btn" id="iwinMax" type="button" title="最大化">⛶</button>
+      <button class="hist-btn danger" id="iwinClose" type="button" title="閉じる">✕</button>
+    </div>
+  </div>
+  <div class="iwin-body">
+    <div class="iwin-empty" id="iwinEmpty">
+      <div>
+        <div class="iwin-empty-icon">🔎</div>
+        <div style="font-weight:700;margin-bottom:6px">内部検索</div>
+        <div style="font-size:12px;line-height:1.7">クイズ中の🔎ボタンまたは G キーで、<br>現在表示中の語句を検索できます。</div>
+      </div>
+    </div>
+    <iframe class="iwin-frame" id="iwinFrame" src="about:blank" title="Search"></iframe>
+  </div>
+  <div class="iwin-hint" id="iwinHint">Googleが埋め込みを拒否する場合は ↗ で新しいタブへ</div>
+</div>
+
+<div class="quiz-shell" id="quizShell" aria-hidden="true">
+  <div class="quiz-win" id="quizWin">
+    <div class="quiz-modal-head">
+      <div class="quiz-modal-left">
+        <span class="quiz-modal-pill" id="quizStagePill">原文</span>
+        <span class="quiz-modal-pill" id="quizIndexPill">1 / 1</span>
+        <span class="quiz-modal-pill" id="quizSourcePill">翻訳履歴</span>
+      </div>
+      <div class="quiz-modal-right">
+        <button class="hist-btn" id="quizPrevBtn" type="button">前へ</button>
+        <button class="hist-btn" id="quizNextBtn" type="button">次へ</button>
+        <button class="hist-btn" id="btnQuizSearch" type="button">🔎 検索</button>
+        <button class="hist-btn" id="quizMaxBtn" type="button">最大化</button>
+        <button class="hist-btn danger" id="quizCloseBtn" type="button">閉じる</button>
+      </div>
+    </div>
+    <div class="quiz-tag-row" id="quizTagRow"></div>
+    <div class="quiz-screen" id="quizScreen">
+      <div class="quiz-big" id="quizBigText">Ready</div>
+      <div class="quiz-mark-bar">
+        <button class="quiz-mark-btn" id="quizMarkO" type="button">○<small>1</small></button>
+        <button class="quiz-mark-btn" id="quizMarkD" type="button">△<small>2</small></button>
+        <button class="quiz-mark-btn" id="quizMarkX" type="button">✕<small>3</small></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <div class="view-panel" id="viewHowTo">
   <div class="top-meta">
     <div class="logo">
@@ -1150,37 +1837,95 @@ body {
       <div class="howto-title">使いかた</div>
     </div>
     <div class="howto-body">
-      <div class="howto-grid">
-        <section class="howto-block">
-          <div class="info-kicker">1. Translation</div>
-          <div class="howto-step-title">翻訳する</div>
-          <div class="howto-copy">左側に原文を入力すると、右側に翻訳結果が表示されます。上部の言語切替から翻訳元言語と翻訳先言語を変更できます。翻訳結果は通常の確認用・下訳用として使い、公開文や正式文書では必ず見直してください。</div>
+      <section class="doc-hero">
+        <div class="doc-eyebrow">Quick Start</div>
+        <div class="doc-hero-title">Kotoba は、翻訳して終わらず、残して、育てて、もう一度使うための画面です。</div>
+        <div class="doc-hero-copy">このページでは、使う順番がそのまま読めるように構成しています。最初は <strong>翻訳 → 保存 → 整理 → クイズ / 再検索</strong> の流れだけ押さえると迷いません。</div>
+        <div class="doc-chip-row">
+          <span class="doc-chip">1. Translate</span>
+          <span class="doc-chip">2. Save</span>
+          <span class="doc-chip">3. Organize</span>
+          <span class="doc-chip">4. Review</span>
+        </div>
+      </section>
+
+      <div class="doc-grid-2">
+        <section class="doc-section">
+          <div class="doc-section-title">最初の3ステップ</div>
+          <div class="doc-steps">
+            <div class="doc-step">
+              <div class="doc-step-num">1</div>
+              <div>
+                <div class="doc-step-title">翻訳する</div>
+                <div class="doc-step-copy">左に原文を入力すると、右に訳文が表示されます。上部の言語切替で翻訳元と翻訳先を変えられます。下訳や意味確認の入口として使うのが基本です。</div>
+              </div>
+            </div>
+            <div class="doc-step">
+              <div class="doc-step-num">2</div>
+              <div>
+                <div class="doc-step-title">保存先を選んで残す</div>
+                <div class="doc-step-copy">保存先を <strong>翻訳履歴</strong> または <strong>既存 Word Book</strong> から選べます。あとで整理したいときは履歴へ、すぐ単語帳化したいときは Word Book へ直接保存すると分かりやすいです。</div>
+              </div>
+            </div>
+            <div class="doc-step">
+              <div class="doc-step-num">3</div>
+              <div>
+                <div class="doc-step-title">クリックで聞く、ダブルクリックで調べる</div>
+                <div class="doc-step-copy">クイズ・履歴・Word Book・評価一覧では、単語をクリックすると発音、ダブルクリックすると内部検索を開けます。読む・聞く・調べるを一続きで行えます。</div>
+              </div>
+            </div>
+          </div>
         </section>
 
-        <section class="howto-block">
-          <div class="info-kicker">2. Speech</div>
-          <div class="howto-step-title">音声で確認する</div>
-          <div class="howto-copy">原文・翻訳文のテキストをクリックすると読み上げができます。音声設定から声種を切り替えられます。発音確認、語感確認、学習時の反復に使えます。</div>
-        </section>
-
-        <section class="howto-block">
-          <div class="info-kicker">3. History</div>
-          <div class="howto-step-title">翻訳履歴を管理する</div>
-          <div class="howto-copy">保存した翻訳は履歴画面で確認できます。検索、選択削除、ドラッグ並び替えに対応しています。履歴本文は右クリックで編集できます。外側をクリックすると編集終了になります。</div>
-        </section>
-
-        <section class="howto-block">
-          <div class="info-kicker">4. Word Book</div>
-          <div class="howto-step-title">Word Book に整理する</div>
-          <div class="howto-copy">履歴から選択した項目を Word Book に保存できます。Word Book 一覧は複数作成でき、Book 自体の並び替えと、Book 内項目の並び替えに対応しています。Word Book 項目も右クリック編集と選択削除が可能です。</div>
-        </section>
-
-        <section class="howto-block">
-          <div class="info-kicker">5. Tips</div>
-          <div class="howto-step-title">使い分ける</div>
-          <div class="howto-copy">短く確認したい内容は翻訳画面でそのまま扱い、残したい内容は履歴に保存し、あとで参照したい語句や表現は Word Book に整理すると使いやすくなります。翻訳、履歴、Word Book を役割ごとに使い分けると、学習用にも作業用にも扱いやすくなります。</div>
+        <section class="doc-section">
+          <div class="doc-section-title">画面ごとの役割</div>
+          <div class="doc-list">
+            <div class="doc-list-item">
+              <div class="doc-list-kicker">Translation</div>
+              <div class="doc-list-title">その場で訳して保存先を決める</div>
+              <div class="doc-list-copy">翻訳確認、音声確認、保存先指定を行う起点です。</div>
+            </div>
+            <div class="doc-list-item">
+              <div class="doc-list-kicker">History</div>
+              <div class="doc-list-title">あとで見返す素材置き場</div>
+              <div class="doc-list-copy">新しい順・古い順・文字順の並び替えと列表示で一覧性を上げられます。</div>
+            </div>
+            <div class="doc-list-item">
+              <div class="doc-list-kicker">Word Book</div>
+              <div class="doc-list-title">必要な語句だけを残す単語帳</div>
+              <div class="doc-list-copy">Book ごとの整理、既存 Book への追加、不要項目の削除に向きます。</div>
+            </div>
+            <div class="doc-list-item">
+              <div class="doc-list-kicker">Quiz</div>
+              <div class="doc-list-title">評価しながら覚える</div>
+              <div class="doc-list-copy">○△✕ 評価、内部検索、発音確認を一画面で回せます。</div>
+            </div>
+          </div>
         </section>
       </div>
+
+      <section class="doc-section">
+        <div class="doc-section-title">おすすめの使い分け</div>
+        <div class="doc-mini-grid">
+          <div class="doc-mini-card">
+            <div class="doc-mini-label">Quick Check</div>
+            <div class="doc-mini-value">短文確認や一時的な下訳は、翻訳して履歴へ保存。</div>
+          </div>
+          <div class="doc-mini-card">
+            <div class="doc-mini-label">Vocabulary</div>
+            <div class="doc-mini-value">残したい単語や言い回しは、直接 Word Book に保存。</div>
+          </div>
+          <div class="doc-mini-card">
+            <div class="doc-mini-label">Review</div>
+            <div class="doc-mini-value">覚え直したい語句はクイズで ○△✕ を付けて再検索。</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="doc-callout warn">
+        <div class="doc-callout-title">確認しておきたいこと</div>
+        <div class="doc-callout-copy">翻訳結果は確認用・学習用・整理用として使い、契約・法務・医療・申請などの高リスク用途では必ず原文確認と再検証を行ってください。</div>
+      </section>
     </div>
   </div>
 </div>
@@ -1192,135 +1937,122 @@ body {
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><circle cx="12" cy="12" r="8"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
       </div>
       <div>
-        <div class="logo-name">Product Information</div>
-        <div class="logo-sub">Mission · Trust · Release Info</div>
+        <div class="logo-name">Site Information</div>
+        <div class="logo-sub">Purpose · Trust · Release Info</div>
       </div>
     </div>
   </div>
 
   <div class="info-card">
     <div class="info-head">
-      <div class="info-title">製品情報</div>
+      <div class="info-title">サイト情報</div>
     </div>
     <div class="info-body">
-      <section class="info-block info-hero">
-        <div class="info-kicker">Mission</div>
-        <div class="info-name">Kotoba — Translation Workspace</div>
-        <div class="info-copy">Kotoba は、翻訳・保存・再検索・語句整理を一つの流れにまとめるための翻訳ワークスペースです。単に訳文を出すための画面ではなく、下訳確認、語彙収集、履歴管理、Word Book 整理、外部検索への接続までを、できるだけ少ない画面移動で扱えるよう設計しています。</div>
-        <div class="info-badge-row">
-          <span class="info-chip">Translation</span>
-          <span class="info-chip">History</span>
-          <span class="info-chip">Word Book</span>
-          <span class="info-chip">Search Launcher</span>
-          <span class="info-chip">Speech Support</span>
+      <section class="doc-hero">
+        <div class="doc-eyebrow">Overview</div>
+        <div class="doc-hero-title">Kotoba は、翻訳結果を「あとで使える知識」に変えるための translation workspace です。</div>
+        <div class="doc-hero-copy">このサイトでは、1ページの中で <strong>入力・保存・整理・再利用</strong> が自然につながることを重視しています。単なる翻訳出力ではなく、履歴・Word Book・クイズ・内部検索までを含めて、ひとつの作業面として設計しています。</div>
+        <div class="doc-chip-row">
+          <span class="doc-chip">Translation</span>
+          <span class="doc-chip">History</span>
+          <span class="doc-chip">Word Book</span>
+          <span class="doc-chip">Quiz</span>
+          <span class="doc-chip">Internal Search</span>
         </div>
       </section>
 
-      <section class="info-block">
-        <div class="info-kicker">Core Features</div>
-        <div class="info-section-title">機能を役割ごとに整理した製品構成</div>
-        <div class="info-feature-grid">
-          <div class="info-feature-card">
-            <div class="info-feature-kicker">01</div>
-            <div class="info-feature-title">Translation</div>
-            <div class="info-feature-copy">原文入力、言語切替、翻訳結果確認を一画面で行えます。短文確認、下訳作成、言い換え確認の起点として使えます。</div>
+      <div class="doc-grid-2">
+        <section class="doc-section">
+          <div class="doc-section-title">この製品が解決すること</div>
+          <div class="doc-list">
+            <div class="doc-list-item">
+              <div class="doc-list-kicker">Problem 01</div>
+              <div class="doc-list-title">翻訳結果がその場限りで消える</div>
+              <div class="doc-list-copy">履歴保存と Word Book により、後で再利用できる形に残せます。</div>
+            </div>
+            <div class="doc-list-item">
+              <div class="doc-list-kicker">Problem 02</div>
+              <div class="doc-list-title">聞く・覚える・調べるが分断される</div>
+              <div class="doc-list-copy">クリック発音、ダブルクリック検索、クイズ評価を一続きにして切替コストを減らします。</div>
+            </div>
+            <div class="doc-list-item">
+              <div class="doc-list-kicker">Problem 03</div>
+              <div class="doc-list-title">単語帳化と復習が手間になる</div>
+              <div class="doc-list-copy">保存先指定、既存 Word Book 追加、○△✕評価で整理と復習を近づけています。</div>
+            </div>
           </div>
-          <div class="info-feature-card">
-            <div class="info-feature-kicker">02</div>
-            <div class="info-feature-title">History</div>
-            <div class="info-feature-copy">翻訳履歴の保存、検索、編集、並び替えに対応しています。あとから見返す作業や、断片的な訳文の再利用をしやすくします。</div>
-          </div>
-          <div class="info-feature-card">
-            <div class="info-feature-kicker">03</div>
-            <div class="info-feature-title">Word Book</div>
-            <div class="info-feature-copy">残したい語句や表現を Book 単位で整理できます。学習用にも、実務の用語集にも使えるようにしています。</div>
-          </div>
-          <div class="info-feature-card">
-            <div class="info-feature-kicker">04</div>
-            <div class="info-feature-title">Search Launcher</div>
-            <div class="info-feature-copy">翻訳後に AI / Web / Image / Video 検索へ展開できます。翻訳結果をその場で調査動線につなげられるのが特徴です。</div>
-          </div>
-        </div>
-      </section>
+        </section>
 
-      <section class="info-block">
-        <div class="info-kicker">Who It’s For</div>
-        <div class="info-grid">
-          <div class="info-li">
-            <div class="info-li-head"><div class="info-num">1</div><div class="info-li-title">学習者</div></div>
-            <div class="info-li-copy">単語確認、発音確認、例文保存、あとで見返す整理を一つのUIで行いたい人に向きます。</div>
+        <section class="doc-section">
+          <div class="doc-section-title">主な体験</div>
+          <div class="doc-list">
+            <div class="doc-list-item">
+              <div class="doc-list-kicker">Experience</div>
+              <div class="doc-list-title">翻訳する</div>
+              <div class="doc-list-copy">原文入力、言語切替、音声確認をコンパクトに行えます。</div>
+            </div>
+            <div class="doc-list-item">
+              <div class="doc-list-kicker">Experience</div>
+              <div class="doc-list-title">保存先を選んで残す</div>
+              <div class="doc-list-copy">翻訳履歴または既存 Word Book に直接保存でき、残し方を最初に決められます。</div>
+            </div>
+            <div class="doc-list-item">
+              <div class="doc-list-kicker">Experience</div>
+              <div class="doc-list-title">一覧で見直す</div>
+              <div class="doc-list-copy">並び替えと1〜4列表示で、量が増えても見通しを保ちやすくしています。</div>
+            </div>
+            <div class="doc-list-item">
+              <div class="doc-list-kicker">Experience</div>
+              <div class="doc-list-title">クイズと内部検索で深める</div>
+              <div class="doc-list-copy">評価一覧・履歴・Word Book から、発音と検索を直接つなげられます。</div>
+            </div>
           </div>
-          <div class="info-li">
-            <div class="info-li-head"><div class="info-num">2</div><div class="info-li-title">調査・研究用途</div></div>
-            <div class="info-li-copy">海外記事、論文概要、製品情報、資料断片の読み取りをしながら、必要語句を蓄積したい人に向きます。</div>
-          </div>
-          <div class="info-li">
-            <div class="info-li-head"><div class="info-num">3</div><div class="info-li-title">実務の下訳整理</div></div>
-            <div class="info-li-copy">作業前の一次理解、外部検索への接続、訳文のたたき台整理を素早く進めたい人に向きます。</div>
-          </div>
-          <div class="info-li">
-            <div class="info-li-head"><div class="info-num">4</div><div class="info-li-title">個人知識の蓄積</div></div>
-            <div class="info-li-copy">その場だけの翻訳ではなく、履歴・Book・検索を通じて自分の知識ストックとして残したい人に向きます。</div>
-          </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
-      <section class="info-block">
-        <div class="info-kicker">Trust & Limits</div>
-        <div class="info-section-title">利用前に知っておくべき前提と制限</div>
-        <div class="info-limit-list">
-          <div class="info-limit-item">
-            <div class="info-limit-head">保存データについて</div>
-            <div class="info-copy">翻訳履歴および Word Book の内容は、ブラウザ内の IndexedDB に保存されます。保存内容は利用端末・利用ブラウザごとに管理されるため、ブラウザ削除、ストレージ初期化、別端末利用などにより失われる場合があります。</div>
+      <section class="doc-section">
+        <div class="doc-section-title">向いている使い方</div>
+        <div class="doc-mini-grid">
+          <div class="doc-mini-card">
+            <div class="doc-mini-label">Learning</div>
+            <div class="doc-mini-value">単語・発音・訳語を残しながら反復したい学習用途。</div>
           </div>
-          <div class="info-limit-item">
-            <div class="info-limit-head">翻訳と音声の品質について</div>
-            <div class="info-copy">翻訳結果および音声出力は、外部サービス仕様、ブラウザ実装差異、通信状況、端末環境等により変動する場合があります。表示結果や音声結果の完全性、正確性、継続性は保証されません。</div>
+          <div class="doc-mini-card">
+            <div class="doc-mini-label">Research</div>
+            <div class="doc-mini-value">記事・資料・サイト情報を読みながら必要語句を蓄積する調査用途。</div>
           </div>
-          <div class="info-limit-item">
-            <div class="info-limit-head">高リスク用途の制限</div>
-            <div class="info-copy">契約、法務、医療、申請、公的提出、研究成果確定などの用途では、必ず利用者自身で内容確認と再検証を行ってください。本製品は最終判断を代替するものではありません。</div>
-          </div>
-          <div class="info-limit-item">
-            <div class="info-limit-head">第三者権利について</div>
-            <div class="info-copy">本作品内で言及される第三者ライセンス名、規格名、制度名、団体名、ブラウザ名、ライブラリ名、API 名、サービス名、商標等は、各権利者または運営主体に帰属します。本作品の存在は、第三者の原典、サービス、ライブラリ、ライセンス本文に対する再許諾や権利移転を意味しません。</div>
+          <div class="doc-mini-card">
+            <div class="doc-mini-label">Work</div>
+            <div class="doc-mini-value">下訳、表現整理、外部検索への接続を早く回したい実務用途。</div>
           </div>
         </div>
       </section>
 
-      <section class="info-block">
-        <div class="info-kicker">Release Info</div>
-        <div class="info-meta-grid">
-          <div class="info-meta-card">
-            <div class="info-meta-label">Product</div>
-            <div class="info-meta-value">Kotoba — Translation Workspace</div>
-          </div>
-          <div class="info-meta-card">
-            <div class="info-meta-label">Author</div>
-            <div class="info-meta-value">YAHATA MASAHIRO</div>
-          </div>
-          <div class="info-meta-card">
-            <div class="info-meta-label">Release Type</div>
-            <div class="info-meta-value">Web application for public release</div>
-          </div>
-          <div class="info-meta-card">
-            <div class="info-meta-label">Storage</div>
-            <div class="info-meta-value">Browser IndexedDB (local per browser / device)</div>
-          </div>
-          <div class="info-meta-card">
-            <div class="info-meta-label">License</div>
-            <div class="info-meta-value">UNLICENSED / All rights reserved</div>
-          </div>
-          <div class="info-meta-card">
-            <div class="info-meta-label">Copyright</div>
-            <div class="info-meta-value">©YAHATA MASAHIRO</div>
-          </div>
+      <section class="doc-callout">
+        <div class="doc-callout-title">Storage</div>
+        <div class="doc-callout-copy">翻訳履歴と Word Book はブラウザ内の IndexedDB に保存されます。ブラウザ削除、ストレージ初期化、別端末利用などでは保持されません。</div>
+      </section>
+
+      <section class="doc-callout warn">
+        <div class="doc-callout-title">Trust & Limits</div>
+        <div class="doc-callout-copy">翻訳・音声・外部検索は、外部サービスやブラウザ実装の影響で結果が変わることがあります。契約、法務、医療、申請、公的提出、研究成果確定などの用途では、利用者自身の確認と再検証が必要です。</div>
+      </section>
+
+      <section class="doc-section">
+        <div class="doc-section-title">Release Info</div>
+        <div class="doc-mini-grid">
+          <div class="doc-mini-card"><div class="doc-mini-label">Product</div><div class="doc-mini-value">Kotoba — Translation Site</div></div>
+          <div class="doc-mini-card"><div class="doc-mini-label">Author</div><div class="doc-mini-value">YAHATA MASAHIRO</div></div>
+          <div class="doc-mini-card"><div class="doc-mini-label">Release Type</div><div class="doc-mini-value">Public website</div></div>
+          <div class="doc-mini-card"><div class="doc-mini-label">Storage</div><div class="doc-mini-value">Browser IndexedDB (local per browser / device)</div></div>
+          <div class="doc-mini-card"><div class="doc-mini-label">License</div><div class="doc-mini-value">UNLICENSED / All rights reserved</div></div>
+          <div class="doc-mini-card"><div class="doc-mini-label">Copyright</div><div class="doc-mini-value">©YAHATA MASAHIRO</div></div>
         </div>
-        <div class="info-note">本作品のデザイン、UI、画面構成、表示表現、独自の情報整理方法および制作物としての構成は、©YAHATA MASAHIRO に帰属します。</div>
+        <div class="info-note">本サイトのデザイン、UI、画面構成、表示表現、独自の情報整理方法および制作物としての構成は、©YAHATA MASAHIRO に帰属します。</div>
       </section>
     </div>
   </div>
-</div>
+</div></div>
 </div>
 
 <div class="pill" aria-label="view switcher">
@@ -1332,8 +2064,9 @@ body {
     <button class="pdot" type="button" data-view="1" aria-label="履歴"></button>
     <button class="pdot" type="button" data-view="2" aria-label="Word Book"></button>
     <button class="pdot" type="button" data-view="3" aria-label="検索"></button>
-    <button class="pdot" type="button" data-view="4" aria-label="使いかた"></button>
-    <button class="pdot" type="button" data-view="5" aria-label="作品情報"></button>
+    <button class="pdot" type="button" data-view="4" aria-label="クイズ"></button>
+    <button class="pdot" type="button" data-view="5" aria-label="使いかた"></button>
+    <button class="pdot" type="button" data-view="6" aria-label="作品情報"></button>
   </div>
   <button class="pill-btn" id="nextViewBtn" title="次へ">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m9 18 6-6-6-6"/></svg>
@@ -1368,6 +2101,7 @@ const viewTranslate = document.getElementById('viewTranslate');
 const viewHistory = document.getElementById('viewHistory');
 const viewWordBook = document.getElementById('viewWordBook');
 const viewSearch = document.getElementById('viewSearch');
+const viewQuiz = document.getElementById('viewQuiz');
 const viewHowTo = document.getElementById('viewHowTo');
 const viewInfo = document.getElementById('viewInfo');
 const searchInputExt = document.getElementById('searchInputExt');
@@ -1384,6 +2118,8 @@ const historyList = document.getElementById('historyList');
 const historyDeleteSelectedBtn = document.getElementById('historyDeleteSelectedBtn');
 const historyClearBtn = document.getElementById('historyClearBtn');
 const historySearchInput = document.getElementById('historySearchInput');
+const historySortSelect = document.getElementById('historySortSelect');
+const historyColumnsSelect = document.getElementById('historyColumnsSelect');
 const wordBookNameInput = document.getElementById('wordBookNameInput');
 const wordBookSaveMode = document.getElementById('wordBookSaveMode');
 const saveWordBookBtn = document.getElementById('saveWordBookBtn');
@@ -1391,16 +2127,65 @@ const historySelectAllBtn = document.getElementById('historySelectAllBtn');
 const historyDeselectAllBtn = document.getElementById('historyDeselectAllBtn');
 const wordBookSelect = document.getElementById('wordBookSelect');
 const wordBookSearchInput = document.getElementById('wordBookSearchInput');
+const wordBookBooksSortSelect = document.getElementById('wordBookBooksSortSelect');
+const wordBookItemsSortSelect = document.getElementById('wordBookItemsSortSelect');
+const wordBookColumnsSelect = document.getElementById('wordBookColumnsSelect');
 const wordBookDeleteSelectedBtn = document.getElementById('wordBookDeleteSelectedBtn');
+const historyWordBookTargetSelect = document.getElementById('historyWordBookTargetSelect');
+const openSelectedWordBookBtn = document.getElementById('openSelectedWordBookBtn');
+const appendToSelectedWordBookBtn = document.getElementById('appendToSelectedWordBookBtn');
+const removeFromSelectedWordBookBtn = document.getElementById('removeFromSelectedWordBookBtn');
 const wordBookList = document.getElementById('wordBookList');
 const wordBookBooksList = document.getElementById('wordBookBooksList');
 const wordBookNameChip = document.getElementById('wordBookNameChip');
 const wordBookCount = document.getElementById('wordBookCount');
+const quizSourceSelect = document.getElementById('quizSourceSelect');
+const quizSourceLabel = document.getElementById('quizSourceLabel');
+const quizPoolCount = document.getElementById('quizPoolCount');
+const quizShuffleCheck = document.getElementById('quizShuffleCheck');
+const quizLoopCheck = document.getElementById('quizLoopCheck');
+const quizOrder1 = document.getElementById('quizOrder1');
+const quizOrder2 = document.getElementById('quizOrder2');
+const quizCountO = document.getElementById('quizCountO');
+const quizCountD = document.getElementById('quizCountD');
+const quizCountX = document.getElementById('quizCountX');
+const quizReviewList = document.getElementById('quizReviewList');
+const quizReviewColumnsSelect = document.getElementById('quizReviewColumnsSelect');
+const quizShell = document.getElementById('quizShell');
+const quizWin = document.getElementById('quizWin');
+const quizStagePill = document.getElementById('quizStagePill');
+const quizIndexPill = document.getElementById('quizIndexPill');
+const quizSourcePill = document.getElementById('quizSourcePill');
+const quizTagRow = document.getElementById('quizTagRow');
+const quizBigText = document.getElementById('quizBigText');
+const quizScreen = document.getElementById('quizScreen');
+const quizStartBtn = document.getElementById('quizStartBtn');
+const quizStartWeakBtn = document.getElementById('quizStartWeakBtn');
+const quizClearMarksBtn = document.getElementById('quizClearMarksBtn');
+const quizPrevBtn = document.getElementById('quizPrevBtn');
+const quizNextBtn = document.getElementById('quizNextBtn');
+const btnQuizSearch = document.getElementById('btnQuizSearch');
+const quizMaxBtn = document.getElementById('quizMaxBtn');
+const quizCloseBtn = document.getElementById('quizCloseBtn');
+const iwinShell = document.getElementById('iwinShell');
+const iwinHead = document.getElementById('iwinHead');
+const iwinQuery = document.getElementById('iwinQuery');
+const iwinRun = document.getElementById('iwinRun');
+const iwinOpenTab = document.getElementById('iwinOpenTab');
+const iwinMax = document.getElementById('iwinMax');
+const iwinCloseBtn = document.getElementById('iwinClose');
+const iwinFrame = document.getElementById('iwinFrame');
+const iwinEmpty = document.getElementById('iwinEmpty');
+const iwinHint = document.getElementById('iwinHint');
+const quizMarkO = document.getElementById('quizMarkO');
+const quizMarkD = document.getElementById('quizMarkD');
+const quizMarkX = document.getElementById('quizMarkX');
 const wordBookMoveUpBtn = document.getElementById('wordBookMoveUpBtn');
 const wordBookMoveDownBtn = document.getElementById('wordBookMoveDownBtn');
 const wordBookRenameBtn = document.getElementById('wordBookRenameBtn');
 const wordBookDeleteBtn = document.getElementById('wordBookDeleteBtn');
 const saveBtn = document.getElementById('saveBtn');
+const translateSaveTarget = document.getElementById('translateSaveTarget');
 const pageDots = Array.from(document.querySelectorAll('.pdot'));
 
 let timer = null;
@@ -1410,8 +2195,129 @@ let dragHistoryId = null;
 let dragWordBookItemIndex = null;
 let suppressWordBookClickUntil = 0;
 let suppressHistoryClickUntil = 0;
+let historyClickTimer = null;
+let wordBookClickTimer = null;
+let quizReviewClickTimer = null;
 let lastSpokenPhrase = '';
+const HISTORY_SORT_KEY = 'kotoba_history_sort_mode';
+const HISTORY_COLUMNS_KEY = 'kotoba_history_columns';
+const WORD_BOOK_BOOKS_SORT_KEY = 'kotoba_wordbook_books_sort_mode';
+const WORD_BOOK_ITEMS_SORT_KEY = 'kotoba_wordbook_items_sort_mode';
+const WORD_BOOK_COLUMNS_KEY = 'kotoba_wordbook_columns';
+const QUIZ_SOURCE_KEY = 'kotoba_quiz_source';
+const QUIZ_ORDER_KEY = 'kotoba_quiz_order';
+const QUIZ_MARKS_KEY = 'kotoba_quiz_marks';
+const QUIZ_SHUFFLE_KEY = 'kotoba_quiz_shuffle';
+const QUIZ_LOOP_KEY = 'kotoba_quiz_loop';
+const TRANSLATE_SAVE_TARGET_KEY = 'kotoba_translate_save_target';
+const INTERNAL_SEARCH_MODE_KEY = 'kotoba_internal_search_mode';
+const QUIZ_REVIEW_COLUMNS_KEY = 'kotoba_quiz_review_columns';
+let quizQueue = [];
+let quizIndex = 0;
+let quizStageIndex = 0;
+let quizReviewFilter = 'all';
+let quizMarks = {};
+let iwinState = { open:false, max:false, query:'', url:'', mode:(localStorage.getItem(INTERNAL_SEARCH_MODE_KEY) || 'general'), itemKey:'' };
 
+function getHistorySortMode() {
+  const value = localStorage.getItem(HISTORY_SORT_KEY) || 'manual';
+  return ['manual', 'newest', 'oldest', 'source', 'target'].includes(value) ? value : 'manual';
+}
+
+function getHistoryColumns() {
+  const value = Number(localStorage.getItem(HISTORY_COLUMNS_KEY) || '1');
+  return [1, 2, 3, 4].includes(value) ? value : 1;
+}
+
+function getQuizReviewColumns() {
+  const value = Number(localStorage.getItem(QUIZ_REVIEW_COLUMNS_KEY) || '1');
+  return [1, 2, 3, 4].includes(value) ? value : 1;
+}
+
+function getWordBookBooksSortMode() {
+  const value = localStorage.getItem(WORD_BOOK_BOOKS_SORT_KEY) || 'manual';
+  return ['manual', 'newest', 'oldest', 'name'].includes(value) ? value : 'manual';
+}
+
+function getWordBookItemsSortMode() {
+  const value = localStorage.getItem(WORD_BOOK_ITEMS_SORT_KEY) || 'manual';
+  return ['manual', 'source', 'target'].includes(value) ? value : 'manual';
+}
+
+function getWordBookColumns() {
+  const value = Number(localStorage.getItem(WORD_BOOK_COLUMNS_KEY) || '1');
+  return [1, 2, 3, 4].includes(value) ? value : 1;
+}
+
+function sortWordBooks(rows, mode) {
+  const list = Array.isArray(rows) ? [...rows] : [];
+  if (mode === 'newest') return list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  if (mode === 'oldest') return list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+  if (mode === 'name') return list.sort((a, b) => compareTextJaAware(a.name, b.name));
+  return list;
+}
+
+function sortWordBookItems(rows, mode) {
+  const list = Array.isArray(rows) ? [...rows] : [];
+  if (mode === 'source') return list.sort((a, b) => compareTextJaAware(a.item && a.item.sourceText, b.item && b.item.sourceText));
+  if (mode === 'target') return list.sort((a, b) => compareTextJaAware(a.item && a.item.translatedText, b.item && b.item.translatedText));
+  return list;
+}
+
+function syncWordBookControls() {
+  if (wordBookBooksSortSelect) wordBookBooksSortSelect.value = getWordBookBooksSortMode();
+  if (wordBookItemsSortSelect) wordBookItemsSortSelect.value = getWordBookItemsSortMode();
+  if (wordBookColumnsSelect) wordBookColumnsSelect.value = String(getWordBookColumns());
+  if (quizReviewColumnsSelect) quizReviewColumnsSelect.value = String(getQuizReviewColumns());
+}
+
+function applyWordBookLayoutClasses() {
+  const cols = getWordBookColumns();
+  if (wordBookList) {
+    wordBookList.classList.remove('cols-1', 'cols-2', 'cols-3', 'cols-4', 'sort-locked');
+    wordBookList.classList.add(`cols-${cols}`);
+    if (getWordBookItemsSortMode() !== 'manual') wordBookList.classList.add('sort-locked');
+  }
+  if (wordBookBooksList) {
+    wordBookBooksList.classList.remove('cols-1', 'cols-2', 'cols-3', 'cols-4', 'sort-locked');
+    wordBookBooksList.classList.add(`cols-${cols}`);
+    if (getWordBookBooksSortMode() !== 'manual') wordBookBooksList.classList.add('sort-locked');
+  }
+}
+
+function compareTextJaAware(a, b) {
+  return String(a || '').localeCompare(String(b || ''), 'ja');
+}
+
+function sortHistoryRows(rows, mode) {
+  const list = Array.isArray(rows) ? [...rows] : [];
+  if (mode === 'newest') return list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  if (mode === 'oldest') return list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+  if (mode === 'source') return list.sort((a, b) => compareTextJaAware(a.sourceText, b.sourceText));
+  if (mode === 'target') return list.sort((a, b) => compareTextJaAware(a.translatedText, b.translatedText));
+  return list;
+}
+
+function syncHistoryControls() {
+  if (historySortSelect) historySortSelect.value = getHistorySortMode();
+  if (historyColumnsSelect) historyColumnsSelect.value = String(getHistoryColumns());
+  syncWordBookControls();
+}
+
+function applyHistoryLayoutClasses() {
+  if (!historyList) return;
+  const cols = getHistoryColumns();
+  historyList.classList.remove('cols-1', 'cols-2', 'cols-3', 'cols-4', 'sort-locked');
+  historyList.classList.add(`cols-${cols}`);
+  if (getHistorySortMode() !== 'manual') historyList.classList.add('sort-locked');
+}
+
+function applyQuizReviewLayoutClasses() {
+  if (!quizReviewList) return;
+  const cols = getQuizReviewColumns();
+  quizReviewList.classList.remove('cols-1', 'cols-2', 'cols-3', 'cols-4');
+  quizReviewList.classList.add(`cols-${cols}`);
+}
 
 const NAMES = {
   en:'英語', ja:'日本語', zh:'中国語', ko:'韓国語',
@@ -1880,19 +2786,21 @@ function speakCurrentTarget(text, langKey) {
 
 async function renderHistory() {
   if (!historyList) return;
+  applyHistoryLayoutClasses();
   try {
     const rows = await getAllHistory();
     const keyword = historySearchInput ? historySearchInput.value : '';
     const filtered = rows.filter(row => matchesKeyword(row, keyword));
+    const sorted = sortHistoryRows(filtered, getHistorySortMode());
     if (!rows.length) {
       historyList.innerHTML = '<div class="history-empty">履歴はまだありません。</div>';
       return;
     }
-    if (!filtered.length) {
+    if (!sorted.length) {
       historyList.innerHTML = '<div class="history-empty">検索条件に一致する履歴はありません。</div>';
       return;
     }
-    historyList.innerHTML = filtered.map(buildHistoryItemHTML).join('');
+    historyList.innerHTML = sorted.map(buildHistoryItemHTML).join('');
   } catch (err) {
     historyList.innerHTML = '<div class="history-empty">履歴の読み込みに失敗しました: ' + esc(err.message || err) + '</div>';
   }
@@ -1909,38 +2817,92 @@ function renderWordBookSelectOptions(books, selectedId) {
   const picked = books.find(book => String(book.id) === String(selectedId)) || books[0];
   wordBookSelect.value = String(picked.id);
 }
+function renderHistoryWordBookTargetOptions(books, selectedId) {
+  if (!historyWordBookTargetSelect) return;
+  if (!books.length) {
+    historyWordBookTargetSelect.innerHTML = '<option value="">Word Book がありません</option>';
+    historyWordBookTargetSelect.value = '';
+    return;
+  }
+  historyWordBookTargetSelect.innerHTML = books.map(book => `<option value="${book.id}">${esc(book.name)}</option>`).join('');
+  const baseId = selectedId || (wordBookSelect ? wordBookSelect.value : '') || historyWordBookTargetSelect.value;
+  const picked = books.find(book => String(book.id) === String(baseId)) || books[0];
+  historyWordBookTargetSelect.value = String(picked.id);
+}
+
+function getTranslateSaveTargetValue() {
+  const raw = translateSaveTarget ? String(translateSaveTarget.value || '') : '';
+  if (!raw) return 'history';
+  if (raw === 'history') return 'history';
+  return raw.startsWith('wordbook:') ? raw : 'history';
+}
+
+function updateTranslateSaveButtonTitle() {
+  if (!saveBtn) return;
+  const value = getTranslateSaveTargetValue();
+  if (value === 'history') {
+    saveBtn.title = '翻訳履歴に保存';
+    return;
+  }
+  const opt = translateSaveTarget && translateSaveTarget.options[translateSaveTarget.selectedIndex];
+  const label = opt ? opt.textContent : 'Word Book に保存';
+  saveBtn.title = label;
+}
+
+function renderTranslateSaveTargetOptions(books) {
+  if (!translateSaveTarget) return;
+  const picked = localStorage.getItem(TRANSLATE_SAVE_TARGET_KEY) || translateSaveTarget.value || 'history';
+  const options = ['<option value="history">翻訳履歴に保存</option>'].concat(
+    (books || []).map(book => `<option value="wordbook:${book.id}">Word Book: ${esc(book.name || '無題')} に保存</option>`)
+  );
+  translateSaveTarget.innerHTML = options.join('');
+  const exists = Array.from(translateSaveTarget.options).some(opt => opt.value === picked);
+  translateSaveTarget.value = exists ? picked : 'history';
+  updateTranslateSaveButtonTitle();
+}
+
 
 async function renderWordBooks(preferredId) {
   if (!wordBookList || !wordBookSelect) return;
+  applyWordBookLayoutClasses();
   try {
     const books = await getAllWordBooks();
-    renderWordBookSelectOptions(books, preferredId || wordBookSelect.value);
+    const sortedBooks = sortWordBooks(books, getWordBookBooksSortMode());
+    renderWordBookSelectOptions(sortedBooks, preferredId || wordBookSelect.value);
+    renderHistoryWordBookTargetOptions(sortedBooks, preferredId || (historyWordBookTargetSelect ? historyWordBookTargetSelect.value : ''));
+    renderTranslateSaveTargetOptions(sortedBooks);
     if (!books.length) {
       wordBookNameChip.textContent = '未選択';
       wordBookCount.textContent = '';
+      updateTranslateSaveButtonTitle();
       if (wordBookBooksList) wordBookBooksList.innerHTML = '<div class="wordbook-empty">Word Book はまだありません。</div>';
+      if (historyWordBookTargetSelect) {
+        historyWordBookTargetSelect.innerHTML = '<option value="">Word Book がありません</option>';
+        historyWordBookTargetSelect.value = '';
+      }
       wordBookList.innerHTML = '<div class="wordbook-empty">Word Book はまだありません。</div>';
       return;
     }
-    const active = books.find(book => String(book.id) === String(wordBookSelect.value)) || books[0];
+    const active = sortedBooks.find(book => String(book.id) === String(wordBookSelect.value)) || sortedBooks[0];
     wordBookSelect.value = String(active.id);
     wordBookNameChip.textContent = active.name || '無題';
     if (wordBookBooksList) {
-      wordBookBooksList.innerHTML = books.map(book => buildWordBookBookCardHTML(book, Number(book.id) === Number(active.id))).join('');
+      wordBookBooksList.innerHTML = sortedBooks.map(book => buildWordBookBookCardHTML(book, Number(book.id) === Number(active.id))).join('');
     }
     const items = Array.isArray(active.items) ? active.items : [];
     const keyword = wordBookSearchInput ? wordBookSearchInput.value : '';
     const filteredItems = items.map((item, index) => ({ item, index })).filter(row => matchesKeyword(row.item, keyword));
-    wordBookCount.textContent = '';
+    const sortedItems = sortWordBookItems(filteredItems, getWordBookItemsSortMode());
+    wordBookCount.textContent = `${sortedItems.length} / ${items.length} items`;
     if (!items.length) {
       wordBookList.innerHTML = '<div class="wordbook-empty">この Word Book に項目はありません。</div>';
       return;
     }
-    if (!filteredItems.length) {
+    if (!sortedItems.length) {
       wordBookList.innerHTML = '<div class="wordbook-empty">検索条件に一致する項目はありません。</div>';
       return;
     }
-    wordBookList.innerHTML = filteredItems.map(({ item, index }) => buildWordBookItemHTML(item, index)).join('');
+    wordBookList.innerHTML = sortedItems.map(({ item, index }) => buildWordBookItemHTML(item, index)).join('');
   } catch (err) {
     wordBookList.innerHTML = '<div class="wordbook-empty">Word Book の読み込みに失敗しました: ' + esc(err.message || err) + '</div>';
   }
@@ -2085,6 +3047,102 @@ async function saveSelectedHistoryToWordBook() {
   switchView(2);
 }
 
+function getSelectedHistoryRows(rows) {
+  const selectedIds = new Set(getSelectedHistoryIds());
+  return (rows || []).filter(row => selectedIds.has(Number(row.id)));
+}
+
+function buildWordBookCompareKey(item) {
+  return [
+    normalizeTextForCompare(item && item.sourceText),
+    normalizeTextForCompare(item && item.translatedText),
+    (item && item.srcLang) || '',
+    (item && item.tgtLang) || ''
+  ].join('||');
+}
+
+async function addSelectedHistoryToExistingWordBook(wordBookId) {
+  const id = Number(wordBookId || (historyWordBookTargetSelect ? historyWordBookTargetSelect.value : 0));
+  if (!id) {
+    alert('追加先の Word Book を選択してください。');
+    return;
+  }
+  const rows = await getAllHistory();
+  const pickedRows = getSelectedHistoryRows(rows);
+  if (!pickedRows.length) {
+    alert('追加する履歴を選択してください。');
+    return;
+  }
+  const mode = wordBookSaveMode ? wordBookSaveMode.value : 'full';
+  const transformed = pickedRows.map(item => transformHistoryItemForWordBook(item, mode)).filter(Boolean);
+  const books = await getAllWordBooks();
+  const active = books.find(book => Number(book.id) === id);
+  if (!active) {
+    alert('追加先の Word Book が見つかりません。');
+    return;
+  }
+  const currentItems = Array.isArray(active.items) ? active.items.slice() : [];
+  const keySet = new Set(currentItems.map(buildWordBookCompareKey));
+  let addedCount = 0;
+  transformed.forEach(item => {
+    const key = buildWordBookCompareKey(item);
+    if (!keySet.has(key)) {
+      currentItems.push(item);
+      keySet.add(key);
+      addedCount += 1;
+    }
+  });
+  await updateWordBookItems(active.id, currentItems);
+  await renderWordBooks(active.id);
+  await refreshQuizSourceOptions(getQuizSourceValue() === 'history' ? 'history' : `wordbook:${active.id}`);
+  alert(addedCount > 0 ? `「${active.name || '無題'}」に ${addedCount} 件追加しました。` : '追加できる新規項目はありませんでした。');
+}
+
+async function removeSelectedHistoryFromExistingWordBook(wordBookId) {
+  const id = Number(wordBookId || (historyWordBookTargetSelect ? historyWordBookTargetSelect.value : 0));
+  if (!id) {
+    alert('操作対象の Word Book を選択してください。');
+    return;
+  }
+  const rows = await getAllHistory();
+  const pickedRows = getSelectedHistoryRows(rows);
+  if (!pickedRows.length) {
+    alert('削除基準にする履歴を選択してください。');
+    return;
+  }
+  const mode = wordBookSaveMode ? wordBookSaveMode.value : 'full';
+  const transformedKeys = new Set(pickedRows.map(item => transformHistoryItemForWordBook(item, mode)).filter(Boolean).map(buildWordBookCompareKey));
+  const books = await getAllWordBooks();
+  const active = books.find(book => Number(book.id) === id);
+  if (!active) {
+    alert('操作対象の Word Book が見つかりません。');
+    return;
+  }
+  const currentItems = Array.isArray(active.items) ? active.items.slice() : [];
+  const nextItems = currentItems.filter(item => !transformedKeys.has(buildWordBookCompareKey(item)));
+  const removedCount = currentItems.length - nextItems.length;
+  if (!removedCount) {
+    alert('一致する項目はありませんでした。');
+    return;
+  }
+  if (!window.confirm(`「${active.name || '無題'}」から ${removedCount} 件削除しますか？`)) return;
+  await updateWordBookItems(active.id, nextItems);
+  await renderWordBooks(active.id);
+  await refreshQuizSourceOptions(getQuizSourceValue() === 'history' ? 'history' : `wordbook:${active.id}`);
+}
+
+async function openSelectedHistoryWordBook() {
+  const id = historyWordBookTargetSelect ? String(historyWordBookTargetSelect.value || '') : '';
+  if (!id) {
+    alert('開く Word Book を選択してください。');
+    return;
+  }
+  if (wordBookSelect) wordBookSelect.value = id;
+  await renderWordBooks(id);
+  await refreshQuizSourceOptions(getQuizSourceValue() === 'history' ? 'history' : `wordbook:${id}`);
+  switchView(2);
+}
+
 async function saveCurrentHistory(sourceText, translatedText) {
   const s = (sourceText || '').trim();
   const t = (translatedText || '').trim();
@@ -2116,6 +3174,56 @@ async function saveCurrentHistory(sourceText, translatedText) {
     createdAt: Date.now()
   });
   return { added: true, duplicate: false, id };
+}
+
+async function saveCurrentToWordBook(wordBookId, sourceText, translatedText) {
+  const s = (sourceText || '').trim();
+  const t = (translatedText || '').trim();
+  const id = Number(wordBookId || 0);
+  if (!s || !t || !id) return { added: false, duplicate: false, target: 'wordbook', bookId: id };
+  const books = await getAllWordBooks();
+  const active = books.find(book => Number(book.id) === id);
+  if (!active) return { added: false, duplicate: false, missing: true, target: 'wordbook', bookId: id };
+  const items = Array.isArray(active.items) ? active.items.slice() : [];
+  const candidate = {
+    sourceText: s,
+    translatedText: t,
+    srcLang: srcLang.value,
+    tgtLang: tgtLang.value,
+    createdAt: Date.now()
+  };
+  const key = buildWordBookCompareKey(candidate);
+  const existingIndex = items.findIndex(item => buildWordBookCompareKey(item) === key);
+  if (existingIndex >= 0) {
+    const existing = Object.assign({}, items[existingIndex], { createdAt: Date.now() });
+    items.splice(existingIndex, 1);
+    items.unshift(existing);
+    await updateWordBookItems(active.id, items);
+    return { added: false, duplicate: true, target: 'wordbook', bookId: active.id, bookName: active.name || '無題' };
+  }
+  items.unshift(candidate);
+  await updateWordBookItems(active.id, items);
+  return { added: true, duplicate: false, target: 'wordbook', bookId: active.id, bookName: active.name || '無題' };
+}
+
+async function saveCurrentToSelectedDestination(sourceText, translatedText) {
+  const target = getTranslateSaveTargetValue();
+  if (target === 'history') {
+    const result = await saveCurrentHistory(sourceText, translatedText);
+    return Object.assign({ target: 'history' }, result);
+  }
+  if (target.startsWith('wordbook:')) {
+    const id = Number(target.split(':')[1] || 0);
+    const result = await saveCurrentToWordBook(id, sourceText, translatedText);
+    if (result && result.missing && translateSaveTarget) {
+      translateSaveTarget.value = 'history';
+      localStorage.setItem(TRANSLATE_SAVE_TARGET_KEY, 'history');
+      updateTranslateSaveButtonTitle();
+      return Object.assign({ target: 'history', fallback: true }, await saveCurrentHistory(sourceText, translatedText));
+    }
+    return result;
+  }
+  return Object.assign({ target: 'history' }, await saveCurrentHistory(sourceText, translatedText));
 }
 
 function speakWithSettings(text, langKey, voiceName, rate, pitch, volume, voiceLang, voiceURI) {
@@ -2151,13 +3259,528 @@ function speakWithSettings(text, langKey, voiceName, rate, pitch, volume, voiceL
   }
 }
 
+
+function normalizeQuizText(text) {
+  const lines = String(text || '').replace(/\r/g, '\n').split('\n').map(v => v.trim()).filter(Boolean);
+  const base = lines[0] || String(text || '').trim();
+  return base.replace(/\s+/g, ' ').trim();
+}
+
+function buildQuizKey(sourceText, translatedText, sourceType, sourceId) {
+  return [normalizeTextForCompare(sourceText), normalizeTextForCompare(translatedText), sourceType || '', sourceId || ''].join('||');
+}
+
+function buildQuizItem(sourceText, translatedText, meta) {
+  const source = normalizeQuizText(sourceText);
+  const target = normalizeQuizText(translatedText);
+  if (!source || !target) return null;
+  return {
+    sourceText: source,
+    translatedText: target,
+    sourceType: meta && meta.sourceType || 'history',
+    sourceId: meta && meta.sourceId || '',
+    sourceLabel: meta && meta.sourceLabel || '翻訳履歴',
+    key: buildQuizKey(source, target, meta && meta.sourceType, meta && meta.sourceId),
+    extra: meta || {}
+  };
+}
+
+function getQuizSourceValue() {
+  return (quizSourceSelect && quizSourceSelect.value) || localStorage.getItem(QUIZ_SOURCE_KEY) || 'history';
+}
+
+function getQuizOrder() {
+  try {
+    const raw = JSON.parse(localStorage.getItem(QUIZ_ORDER_KEY) || '["source","target"]');
+    if (Array.isArray(raw) && raw.length >= 2 && ['source','target'].includes(raw[0]) && ['source','target'].includes(raw[1])) return raw.slice(0,2);
+  } catch (_) {}
+  return ['source', 'target'];
+}
+
+function loadQuizPrefs() {
+  try {
+    quizMarks = JSON.parse(localStorage.getItem(QUIZ_MARKS_KEY) || '{}') || {};
+  } catch (_) {
+    quizMarks = {};
+  }
+  const order = getQuizOrder();
+  if (quizOrder1) quizOrder1.value = order[0];
+  if (quizOrder2) quizOrder2.value = order[1];
+  if (quizShuffleCheck) quizShuffleCheck.checked = localStorage.getItem(QUIZ_SHUFFLE_KEY) !== '0';
+  if (quizLoopCheck) quizLoopCheck.checked = localStorage.getItem(QUIZ_LOOP_KEY) === '1';
+}
+
+function saveQuizPrefs() {
+  localStorage.setItem(QUIZ_SOURCE_KEY, getQuizSourceValue());
+  localStorage.setItem(QUIZ_ORDER_KEY, JSON.stringify([quizOrder1 ? quizOrder1.value : 'source', quizOrder2 ? quizOrder2.value : 'target']));
+  localStorage.setItem(QUIZ_SHUFFLE_KEY, quizShuffleCheck && quizShuffleCheck.checked ? '1' : '0');
+  localStorage.setItem(QUIZ_LOOP_KEY, quizLoopCheck && quizLoopCheck.checked ? '1' : '0');
+  localStorage.setItem(QUIZ_MARKS_KEY, JSON.stringify(quizMarks || {}));
+}
+
+async function refreshQuizSourceOptions(preferred) {
+  if (!quizSourceSelect) return;
+  const books = await getAllWordBooks();
+  const options = ['<option value="history">翻訳履歴</option>'].concat(
+    books.map(book => `<option value="wordbook:${book.id}">Word Book: ${esc(book.name || '無題')}</option>`)
+  );
+  quizSourceSelect.innerHTML = options.join('');
+  const picked = preferred || localStorage.getItem(QUIZ_SOURCE_KEY) || 'history';
+  const exists = Array.from(quizSourceSelect.options).some(opt => opt.value === picked);
+  quizSourceSelect.value = exists ? picked : 'history';
+  updateQuizSourceLabel();
+}
+
+function updateQuizSourceLabel() {
+  if (!quizSourceLabel || !quizSourceSelect) return;
+  const opt = quizSourceSelect.options[quizSourceSelect.selectedIndex];
+  const label = opt ? opt.textContent : '翻訳履歴';
+  quizSourceLabel.textContent = label;
+  if (quizSourcePill) quizSourcePill.textContent = label;
+}
+
+async function getQuizPool() {
+  const sourceValue = getQuizSourceValue();
+  if (sourceValue === 'history') {
+    const rows = await getAllHistory();
+    const items = rows.map(row => buildQuizItem(row.sourceText, row.translatedText, {
+      sourceType: 'history',
+      sourceId: row.id,
+      sourceLabel: '翻訳履歴',
+      createdAt: row.createdAt || 0
+    })).filter(Boolean);
+    return sortHistoryRows(items, 'newest');
+  }
+  if (sourceValue.startsWith('wordbook:')) {
+    const id = Number(sourceValue.split(':')[1] || 0);
+    const books = await getAllWordBooks();
+    const active = books.find(book => Number(book.id) === id);
+    if (!active) return [];
+    return (Array.isArray(active.items) ? active.items : []).map((item, index) => buildQuizItem(item.sourceText, item.translatedText, {
+      sourceType: 'wordbook',
+      sourceId: `${active.id}:${index}`,
+      sourceLabel: `Word Book: ${active.name || '無題'}`,
+      bookId: active.id,
+      bookName: active.name || '無題'
+    })).filter(Boolean);
+  }
+  return [];
+}
+
+function getQuizMark(key) {
+  return quizMarks && key ? quizMarks[key] || '' : '';
+}
+
+function setQuizMarkButtonState() {
+  const currentItem = quizQueue[quizIndex];
+  const mk = currentItem ? getQuizMark(currentItem.key) : '';
+  if (quizMarkO) quizMarkO.className = 'quiz-mark-btn' + (mk === 'o' ? ' o' : '');
+  if (quizMarkD) quizMarkD.className = 'quiz-mark-btn' + (mk === 'd' ? ' d' : '');
+  if (quizMarkX) quizMarkX.className = 'quiz-mark-btn' + (mk === 'x' ? ' x' : '');
+}
+
+async function updateQuizStats() {
+  const pool = await getQuizPool();
+  if (quizPoolCount) quizPoolCount.textContent = String(pool.length);
+  let o = 0, d = 0, x = 0;
+  pool.forEach(item => {
+    const mk = getQuizMark(item.key);
+    if (mk === 'o') o++;
+    else if (mk === 'd') d++;
+    else if (mk === 'x') x++;
+  });
+  if (quizCountO) quizCountO.textContent = String(o);
+  if (quizCountD) quizCountD.textContent = String(d);
+  if (quizCountX) quizCountX.textContent = String(x);
+}
+
+async function renderQuizReviewList() {
+  if (!quizReviewList) return;
+  const pool = await getQuizPool();
+  if (!pool.length) {
+    quizReviewList.innerHTML = '<div class="quiz-empty">出題できる項目がありません。翻訳履歴を保存するか、Word Book を選択してください。</div>';
+    applyQuizReviewLayoutClasses();
+    await updateQuizStats();
+    return;
+  }
+  const rows = pool.filter(item => {
+    if (quizReviewFilter === 'all') return true;
+    return getQuizMark(item.key) === quizReviewFilter;
+  });
+  if (!rows.length) {
+    quizReviewList.innerHTML = '<div class="quiz-empty">この評価の項目はまだありません。</div>';
+    applyQuizReviewLayoutClasses();
+    await updateQuizStats();
+    return;
+  }
+  quizReviewList.innerHTML = rows.map(item => {
+    const mk = getQuizMark(item.key);
+    const cls = mk ? ' ' + mk : '';
+    const icon = mk === 'o' ? '○' : mk === 'd' ? '△' : mk === 'x' ? '✕' : '・';
+    return `<div class="quiz-review-item" data-quiz-review-item="1" data-quiz-key="${esc(item.key)}">
+      <div class="quiz-review-top">
+        <span class="quiz-mark-pill${cls}">${icon}</span>
+        <div class="quiz-review-mark-actions">
+          <button class="quiz-review-mark-btn${mk === 'o' ? ' active-o' : ''}" data-quiz-set-mark="o" data-quiz-key="${esc(item.key)}" type="button">○</button>
+          <button class="quiz-review-mark-btn${mk === 'd' ? ' active-d' : ''}" data-quiz-set-mark="d" data-quiz-key="${esc(item.key)}" type="button">△</button>
+          <button class="quiz-review-mark-btn${mk === 'x' ? ' active-x' : ''}" data-quiz-set-mark="x" data-quiz-key="${esc(item.key)}" type="button">✕</button>
+        </div>
+      </div>
+      <div class="quiz-review-source" data-quiz-speak="source" data-quiz-key="${esc(item.key)}">${esc(item.sourceText || '')}</div>
+      <div class="quiz-review-target" data-quiz-speak="target" data-quiz-key="${esc(item.key)}">${esc(item.translatedText || '')}</div>
+    </div>`;
+  }).join('');
+  applyQuizReviewLayoutClasses();
+  await updateQuizStats();
+}
+
+function openQuizModal() {
+  if (!quizShell) return;
+  quizShell.classList.add('open');
+  quizShell.setAttribute('aria-hidden', 'false');
+}
+
+function closeQuizModal() {
+  if (!quizShell) return;
+  quizShell.classList.remove('open');
+  quizShell.setAttribute('aria-hidden', 'true');
+}
+
+function getQuizStages() {
+  const first = quizOrder1 ? quizOrder1.value : 'source';
+  const second = quizOrder2 ? quizOrder2.value : 'target';
+  return first === second ? [first] : [first, second];
+}
+
+function renderQuizCard() {
+  const item = quizQueue[quizIndex];
+  if (!item) {
+    if (quizBigText) quizBigText.textContent = 'No items';
+    if (quizIndexPill) quizIndexPill.textContent = '0 / 0';
+    if (quizTagRow) quizTagRow.innerHTML = '';
+    setQuizMarkButtonState();
+    return;
+  }
+  const stages = getQuizStages();
+  const stage = stages[quizStageIndex % stages.length];
+  const displayText = stage === 'source' ? item.sourceText : item.translatedText;
+  const displayLang = stage === 'source' ? (item.extra && item.extra.srcLang) || srcLang.value : (item.extra && item.extra.tgtLang) || tgtLang.value;
+  if (quizStagePill) quizStagePill.textContent = stage === 'source' ? '原文' : '訳文';
+  if (quizIndexPill) quizIndexPill.textContent = `${quizIndex + 1} / ${quizQueue.length}`;
+  if (quizBigText) quizBigText.textContent = displayText;
+  if (quizTagRow) {
+    quizTagRow.innerHTML = `<span class="history-chip">${esc(item.sourceLabel || '')}</span>` +
+      `<span class="history-chip">${esc(stage === 'source' ? '次で訳文' : '次で原文')}</span>`;
+  }
+  setQuizMarkButtonState();
+  if (displayText) {
+    setTimeout(() => {
+      if (!quizShell || !quizShell.classList.contains('open')) return;
+      const currentItem = quizQueue[quizIndex];
+      if (!currentItem || currentItem.key !== item.key) return;
+      const currentStage = getQuizStages()[quizStageIndex % getQuizStages().length];
+      if (currentStage !== stage) return;
+      speak(displayText, displayLang, stage === 'source' ? voiceSrc : voiceTgt);
+    }, 60);
+  }
+}
+
+function nextQuizStep() {
+  const stages = getQuizStages();
+  if (!quizQueue.length) return;
+  if (quizStageIndex < stages.length - 1) {
+    quizStageIndex += 1;
+    renderQuizCard();
+    return;
+  }
+  quizStageIndex = 0;
+  if (quizIndex < quizQueue.length - 1) {
+    quizIndex += 1;
+    renderQuizCard();
+    return;
+  }
+  if (quizLoopCheck && quizLoopCheck.checked) {
+    quizIndex = 0;
+    renderQuizCard();
+    return;
+  }
+  closeQuizModal();
+}
+
+function prevQuizItem() {
+  if (!quizQueue.length) return;
+  quizStageIndex = 0;
+  quizIndex = quizIndex > 0 ? quizIndex - 1 : 0;
+  renderQuizCard();
+}
+
+function recordQuizMark(mark) {
+  const item = quizQueue[quizIndex];
+  if (!item) return;
+  quizMarks[item.key] = mark;
+  saveQuizPrefs();
+  setQuizMarkButtonState();
+  renderQuizReviewList();
+}
+
+async function startQuiz(onlyWeak) {
+  const pool = await getQuizPool();
+  let rows = pool.slice();
+  if (onlyWeak) rows = rows.filter(item => ['d', 'x'].includes(getQuizMark(item.key)));
+  if (!rows.length) {
+    alert(onlyWeak ? '△または✕の評価がある項目がありません。' : '出題できる項目がありません。');
+    return;
+  }
+  if (quizShuffleCheck && quizShuffleCheck.checked) rows.sort(() => Math.random() - 0.5);
+  quizQueue = rows;
+  quizIndex = 0;
+  quizStageIndex = 0;
+  saveQuizPrefs();
+  updateQuizSourceLabel();
+  openQuizModal();
+  renderQuizCard();
+}
+
+
+
+
+const IWIN_MODES = {
+  general:  {label:'一般',     url:q=>`https://www.google.com/search?igu=1&q=${encodeURIComponent(q)}`},
+  ai:       {label:'Google AI', url:q=>`https://www.google.com/search?igu=1&udm=50&q=${encodeURIComponent(q)}`},
+  image:    {label:'画像',     url:q=>`https://www.google.com/search?igu=1&tbm=isch&q=${encodeURIComponent(q)}`},
+  pinterest:{label:'Pinterest',url:q=>`https://www.pinterest.jp/search/pins/?q=${encodeURIComponent(q)}`},
+  youtube:  {label:'YouTube',  url:q=>`https://www.youtube.com/results?search_query=${encodeURIComponent(q)}`},
+  dict:     {label:'辞書',     url:q=>`https://www.google.com/search?igu=1&q=${encodeURIComponent(q)}+site:dictionary.cambridge.org+OR+site:ejje.weblio.jp`},
+  example:  {label:'例文',     url:q=>`https://www.google.com/search?igu=1&q=${encodeURIComponent(q)}+%22example+sentence%22+OR+examples+OR+usage`},
+  phrase:   {label:'熟語',     url:q=>`https://www.google.com/search?igu=1&q=${encodeURIComponent(q)}+phrase+OR+idiom+OR+collocation`},
+  etymology:{label:'語源',     url:q=>`https://www.google.com/search?igu=1&q=${encodeURIComponent(q)}+etymology+OR+%22word+origin%22`},
+  chatgpt:  {label:'GPT',      url:q=>`https://chatgpt.com/?q=${encodeURIComponent(q)}`}
+};
+
+function getCurrentQuizDisplayText() {
+  const item = quizQueue[quizIndex];
+  if (!item) return '';
+  const stage = getQuizStages()[quizStageIndex % getQuizStages().length];
+  return stage === 'source' ? (item.sourceText || '') : (item.translatedText || '');
+}
+
+
+function getInternalSearchModeByLang(langKey) {
+  const key = String(langKey || '').toLowerCase();
+  return key === 'en' ? 'dict' : 'general';
+}
+
+async function openHistoryItemInternalSearch(id, field) {
+  const rows = await getAllHistory();
+  const item = rows.find(r => Number(r.id) === Number(id));
+  if (!item) return;
+  const query = String(field === 'target' ? (item.translatedText || '') : (item.sourceText || '')).trim();
+  if (!query) return;
+  iwinOpen(query, { mode: iwinState.mode || localStorage.getItem(INTERNAL_SEARCH_MODE_KEY) || 'general', itemKey: `history:${id}:${field}` });
+}
+
+async function openWordBookItemInternalSearch(index, field) {
+  const active = await getActiveWordBook();
+  if (!active) return;
+  const items = Array.isArray(active.items) ? active.items : [];
+  const item = items[Number(index)];
+  if (!item) return;
+  const query = String(field === 'target' ? (item.translatedText || '') : (item.sourceText || '')).trim();
+  if (!query) return;
+  iwinOpen(query, { mode: iwinState.mode || localStorage.getItem(INTERNAL_SEARCH_MODE_KEY) || 'general', itemKey: `wordbook:${active.id}:${index}:${field}` });
+}
+
+async function openQuizReviewEntryInternalSearch(key, field) {
+  const pool = await getQuizPool();
+  const item = pool.find(row => row.key === key);
+  if (!item) return;
+  const query = String(field === 'target' ? (item.translatedText || '') : (item.sourceText || '')).trim();
+  if (!query) return;
+  iwinOpen(query, { mode: iwinState.mode || localStorage.getItem(INTERNAL_SEARCH_MODE_KEY) || 'general', itemKey: `${key}:${field}` });
+}
+
+function iwinOpen(query, opts = {}) {
+  const q = String(query || '').trim();
+  if (!q) return;
+  iwinState.query = q;
+  iwinState.mode = opts.mode || iwinState.mode || localStorage.getItem(INTERNAL_SEARCH_MODE_KEY) || 'general';
+  localStorage.setItem(INTERNAL_SEARCH_MODE_KEY, iwinState.mode);
+  iwinState.itemKey = opts.itemKey || '';
+  iwinState.open = true;
+  const mode = IWIN_MODES[iwinState.mode] || IWIN_MODES.general;
+  iwinState.url = mode.url(q);
+  iwinSyncUI();
+}
+
+function iwinClose() {
+  iwinState.open = false;
+  if (iwinFrame) iwinFrame.src = 'about:blank';
+  iwinSyncUI();
+}
+
+function iwinSyncUI() {
+  if (!iwinShell) return;
+  iwinShell.classList.toggle('open', !!iwinState.open);
+  iwinShell.classList.toggle('iwin-max', !!iwinState.max);
+  if (iwinQuery && document.activeElement !== iwinQuery) iwinQuery.value = iwinState.query || '';
+  document.querySelectorAll('.iwin-mode-tab').forEach(tab => {
+    tab.classList.toggle('on', tab.dataset.imode === iwinState.mode);
+  });
+  if (iwinMax) iwinMax.classList.toggle('active', !!iwinState.max);
+  if (iwinState.open && iwinState.url) {
+    const isChatGPT = iwinState.mode === 'chatgpt';
+    if (isChatGPT) {
+      if (iwinEmpty) {
+        iwinEmpty.style.display = 'grid';
+        iwinEmpty.innerHTML = `<div><div class="iwin-empty-icon">🤖</div><div style="font-weight:700;margin-bottom:8px">ChatGPT検索</div><div style="font-size:12px;line-height:1.7">ChatGPTは埋め込みに対応していません。<br>↗ ボタンで新しいタブで開いてください。</div><a href="${iwinState.url}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin-top:12px;padding:8px 18px;border-radius:999px;border:1px solid #d9d2ff;background:#ede9fe;color:var(--accent);text-decoration:none;font-weight:700;font-size:12px">↗ ChatGPTで開く</a></div>`;
+      }
+      if (iwinFrame) iwinFrame.src = 'about:blank';
+    } else {
+      if (iwinEmpty) {
+        iwinEmpty.style.display = 'none';
+        iwinEmpty.innerHTML = `<div><div class="iwin-empty-icon">🔎</div><div style="font-weight:700;margin-bottom:6px">内部検索</div><div style="font-size:12px;line-height:1.7">クイズ中の🔎ボタンまたは G キーで、<br>現在表示中の語句を検索できます。</div></div>`;
+      }
+      if (iwinFrame && iwinFrame.src !== iwinState.url) iwinFrame.src = iwinState.url;
+    }
+  } else {
+    if (iwinFrame) iwinFrame.src = 'about:blank';
+    if (iwinEmpty) {
+      iwinEmpty.style.display = 'grid';
+      iwinEmpty.innerHTML = `<div><div class="iwin-empty-icon">🔎</div><div style="font-weight:700;margin-bottom:6px">内部検索</div><div style="font-size:12px;line-height:1.7">クイズ中の🔎ボタンまたは G キーで、<br>現在表示中の語句を検索できます。</div></div>`;
+    }
+  }
+  if (iwinHint) iwinHint.textContent = iwinState.mode === 'chatgpt'
+    ? 'ChatGPTは埋め込み非対応 — ↗ で新しいタブへ'
+    : 'Googleが埋め込みを拒否する場合は ↗ で新しいタブへ';
+}
+
+function iwinRunMode(mode) {
+  iwinState.mode = mode;
+  localStorage.setItem(INTERNAL_SEARCH_MODE_KEY, mode);
+  if (iwinState.open && iwinState.query) {
+    const cfg = IWIN_MODES[mode] || IWIN_MODES.general;
+    iwinState.url = cfg.url(iwinState.query);
+  }
+  iwinSyncUI();
+}
+
+function speakCurrentQuizDisplay() {
+  const item = quizQueue[quizIndex];
+  if (!item) return;
+  const stage = getQuizStages()[quizStageIndex % getQuizStages().length];
+  const text = stage === 'source' ? (item.sourceText || '') : (item.translatedText || '');
+  const lang = stage === 'source'
+    ? ((item.extra && item.extra.srcLang) || srcLang.value)
+    : ((item.extra && item.extra.tgtLang) || tgtLang.value);
+  if (!text) return;
+  speak(text, lang, stage === 'source' ? voiceSrc : voiceTgt);
+}
+
+function openQuizInternalSearch(mode) {
+  const text = getCurrentQuizDisplayText();
+  if (!text) return;
+  iwinOpen(text, { mode: mode || iwinState.mode || 'general' });
+}
+
+function toggleQuizInternalSearch(mode) {
+  if (iwinState.open) {
+    iwinClose();
+    return;
+  }
+  openQuizInternalSearch(mode);
+}
+
+function setQuizMarkByKey(key, mark) {
+  if (!key) return;
+  quizMarks[key] = mark;
+  saveQuizPrefs();
+  renderQuizReviewList();
+}
+
+async function speakQuizReviewEntry(key, field) {
+  if (!key) return;
+  const pool = await getQuizPool();
+  const item = pool.find(entry => entry.key === key);
+  if (!item) return;
+  if (field === 'target') {
+    speak(item.translatedText || '', ((item.extra && item.extra.tgtLang) || tgtLang.value), voiceTgt);
+    return;
+  }
+  speak(item.sourceText || '', ((item.extra && item.extra.srcLang) || srcLang.value), voiceSrc);
+}
+
+(function(){
+  if (!iwinShell || !iwinHead) return;
+  let drag = false, ox = 0, oy = 0, wx = 0, wy = 0;
+  function dragStart(cx, cy) {
+    if (iwinShell.classList.contains('iwin-max')) return false;
+    drag = true; ox = cx; oy = cy;
+    const r = iwinShell.getBoundingClientRect();
+    wx = r.left; wy = r.top;
+    iwinShell.style.right = 'auto';
+    document.body.style.userSelect = 'none';
+    return true;
+  }
+  function dragMove(cx, cy) {
+    if (!drag) return;
+    const nx = wx + cx - ox;
+    const ny = wy + cy - oy;
+    iwinShell.style.left = Math.max(0, Math.min(nx, window.innerWidth - 100)) + 'px';
+    iwinShell.style.top = Math.max(0, Math.min(ny, window.innerHeight - 60)) + 'px';
+  }
+  function dragEnd() { drag = false; document.body.style.userSelect = ''; }
+  iwinHead.addEventListener('mousedown', e => {
+    if (e.target.closest('button,input')) return;
+    dragStart(e.clientX, e.clientY);
+  });
+  document.addEventListener('mousemove', e => dragMove(e.clientX, e.clientY));
+  document.addEventListener('mouseup', dragEnd);
+  if (iwinRun) iwinRun.addEventListener('click', () => {
+    const q = (iwinQuery ? iwinQuery.value : '').trim();
+    if (q) iwinOpen(q, { mode: iwinState.mode });
+  });
+  if (iwinQuery) iwinQuery.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const q = e.target.value.trim();
+      if (q) iwinOpen(q, { mode: iwinState.mode });
+    }
+  });
+  if (iwinCloseBtn) iwinCloseBtn.addEventListener('click', iwinClose);
+  if (iwinMax) iwinMax.addEventListener('click', () => {
+    iwinState.max = !iwinState.max;
+    if (!iwinState.max) {
+      iwinShell.style.left = '';
+      iwinShell.style.top = '';
+      iwinShell.style.right = '16px';
+    }
+    iwinSyncUI();
+  });
+  if (iwinOpenTab) iwinOpenTab.addEventListener('click', () => {
+    if (iwinState.url && iwinState.url !== 'about:blank') window.open(iwinState.url, '_blank', 'noopener,noreferrer');
+  });
+  document.querySelectorAll('.iwin-mode-tab').forEach(tab => {
+    tab.addEventListener('click', () => iwinRunMode(tab.dataset.imode));
+  });
+
+  document.addEventListener('pointerdown', e => {
+    if (!iwinState.open) return;
+    if (e.target.closest('#iwinShell')) return;
+    if (e.target.closest('#btnQuizSearch')) return;
+    iwinClose();
+  });
+})();
+
+
 function switchView(index) {
-  const views = [viewTranslate, viewHistory, viewWordBook, viewSearch, viewHowTo, viewInfo];
+  const views = [viewTranslate, viewHistory, viewWordBook, viewSearch, viewQuiz, viewHowTo, viewInfo];
   currentView = (index + views.length) % views.length;
   views.forEach((el, i) => el.classList.toggle('active', i === currentView));
   pageDots.forEach((dot, i) => dot.classList.toggle('cur', i === currentView));
   if (currentView === 1) renderHistory();
   if (currentView === 2) renderWordBooks();
+  if (currentView === 4) {
+    refreshQuizSourceOptions(wordBookSelect && wordBookSelect.value ? `wordbook:${wordBookSelect.value}` : getQuizSourceValue()).then(() => renderQuizReviewList());
+  }
 }
 
 
@@ -2361,12 +3984,18 @@ saveBtn.addEventListener('click', async () => {
   const source = srcText.value.trim();
   const translated = (current || '').trim();
   if (!source || !translated) return;
-  const result = await saveCurrentHistory(source, translated);
+  const result = await saveCurrentToSelectedDestination(source, translated);
   const o = saveBtn.innerHTML;
   saveBtn.innerHTML = result && result.duplicate
     ? '<span style="font-size:11px;color:var(--accent);font-weight:600;">重複</span>'
     : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#30d158" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
-  if (currentView === 1) await renderHistory();
+  if (result && result.target === 'history') {
+    await renderHistory();
+  } else if (result && result.target === 'wordbook') {
+    await renderWordBooks(result.bookId || (wordBookSelect ? wordBookSelect.value : ''));
+  }
+  await refreshQuizSourceOptions(getQuizSourceValue() === 'history' ? 'history' : `wordbook:${wordBookSelect && wordBookSelect.value ? wordBookSelect.value : ''}`);
+  await renderQuizReviewList();
   setTimeout(() => saveBtn.innerHTML = o, 1500);
 });
 
@@ -2490,16 +4119,36 @@ historyList.addEventListener('click', async (e) => {
   if (!btn) return;
   const card = btn.closest('.history-item[data-id]');
   if (card && card.classList.contains('editing')) return;
+  clearTimeout(historyClickTimer);
+  historyClickTimer = setTimeout(async () => {
+    const action = btn.dataset.action;
+    const id = Number(btn.dataset.id);
+    const rows = await getAllHistory();
+    const item = rows.find(r => Number(r.id) === id);
+    if (!item) return;
+    if (action === 'speak-source') {
+      speakCurrentSource(item.sourceText, item.srcLang);
+    } else if (action === 'speak-target') {
+      speakCurrentTarget(item.translatedText, item.tgtLang);
+    }
+  }, 220);
+});
+
+historyList.addEventListener('dblclick', async (e) => {
+  if (Date.now() < suppressHistoryClickUntil) {
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
+  const btn = getHistoryActionButton(e.target);
+  if (!btn) return;
+  const card = btn.closest('.history-item[data-id]');
+  if (card && card.classList.contains('editing')) return;
+  clearTimeout(historyClickTimer);
+  e.preventDefault();
   const action = btn.dataset.action;
   const id = Number(btn.dataset.id);
-  const rows = await getAllHistory();
-  const item = rows.find(r => Number(r.id) === id);
-  if (!item) return;
-  if (action === 'speak-source') {
-    speakCurrentSource(item.sourceText, item.srcLang);
-  } else if (action === 'speak-target') {
-    speakCurrentTarget(item.translatedText, item.tgtLang);
-  }
+  await openHistoryItemInternalSearch(id, action === 'speak-target' ? 'target' : 'source');
 });
 
 historyList.addEventListener('keydown', async (e) => {
@@ -2545,6 +4194,7 @@ document.addEventListener('mousedown', async (e) => {
 
 if (historyList) {
   historyList.addEventListener('dragstart', (e) => {
+    if (getHistorySortMode() !== 'manual') { e.preventDefault(); return; }
     const card = e.target.closest('.history-item[data-id]');
     if (!card || card.classList.contains('editing')) {
       e.preventDefault();
@@ -2570,6 +4220,7 @@ if (historyList) {
   });
 
   historyList.addEventListener('dragover', (e) => {
+    if (getHistorySortMode() !== 'manual') return;
     e.preventDefault();
     const target = e.target.closest('.history-item[data-id]');
     if (!target || !dragHistoryId) return;
@@ -2584,6 +4235,7 @@ if (historyList) {
   });
 
   historyList.addEventListener('drop', async (e) => {
+    if (getHistorySortMode() !== 'manual') return;
     e.preventDefault();
     const orderedIds = Array.from(historyList.querySelectorAll('.history-item[data-id]')).map(el => Number(el.getAttribute('data-id'))).filter(Boolean);
     historyList.querySelectorAll('.history-item').forEach(el => el.classList.remove('drop-before', 'drop-after', 'dragging'));
@@ -2603,9 +4255,53 @@ if (saveWordBookBtn) {
     }
   });
 }
+if (historyWordBookTargetSelect) {
+  historyWordBookTargetSelect.addEventListener('change', async () => {
+    if (wordBookSelect && historyWordBookTargetSelect.value) wordBookSelect.value = historyWordBookTargetSelect.value;
+    await refreshQuizSourceOptions(getQuizSourceValue() === 'history' ? 'history' : `wordbook:${historyWordBookTargetSelect.value}`);
+  });
+}
+
+if (openSelectedWordBookBtn) {
+  openSelectedWordBookBtn.addEventListener('click', async () => {
+    try {
+      await openSelectedHistoryWordBook();
+    } catch (err) {
+      alert('Word Book を開けませんでした: ' + (err.message || err));
+    }
+  });
+}
+
+if (appendToSelectedWordBookBtn) {
+  appendToSelectedWordBookBtn.addEventListener('click', async () => {
+    try {
+      await addSelectedHistoryToExistingWordBook();
+    } catch (err) {
+      alert('Word Book への追加に失敗しました: ' + (err.message || err));
+    }
+  });
+}
+
+if (removeFromSelectedWordBookBtn) {
+  removeFromSelectedWordBookBtn.addEventListener('click', async () => {
+    try {
+      await removeSelectedHistoryFromExistingWordBook();
+    } catch (err) {
+      alert('Word Book からの削除に失敗しました: ' + (err.message || err));
+    }
+  });
+}
+
 
 if (wordBookSelect) {
-  wordBookSelect.addEventListener('change', () => renderWordBooks(wordBookSelect.value));
+  wordBookSelect.addEventListener('change', async () => { if (historyWordBookTargetSelect && wordBookSelect.value) historyWordBookTargetSelect.value = wordBookSelect.value; await renderWordBooks(wordBookSelect.value); await refreshQuizSourceOptions(getQuizSourceValue() === 'history' ? 'history' : `wordbook:${wordBookSelect.value}`); await renderQuizReviewList(); });
+}
+
+if (translateSaveTarget) {
+  translateSaveTarget.addEventListener('change', () => {
+    localStorage.setItem(TRANSLATE_SAVE_TARGET_KEY, getTranslateSaveTargetValue());
+    updateTranslateSaveButtonTitle();
+  });
 }
 
 if (wordBookBooksList) {
@@ -2637,6 +4333,7 @@ if (wordBookBooksList) {
   });
 
   wordBookBooksList.addEventListener('dragover', (e) => {
+    if (getWordBookBooksSortMode() !== 'manual') return;
     e.preventDefault();
     const target = e.target.closest('[data-wordbook-book-id]');
     if (!target || !dragBookId) return;
@@ -2649,6 +4346,7 @@ if (wordBookBooksList) {
   });
 
   wordBookBooksList.addEventListener('drop', async (e) => {
+    if (getWordBookBooksSortMode() !== 'manual') return;
     e.preventDefault();
     const ids = Array.from(wordBookBooksList.querySelectorAll('[data-wordbook-book-id]')).map(el => Number(el.getAttribute('data-wordbook-book-id'))).filter(Boolean);
     if (!ids.length) return;
@@ -2682,17 +4380,36 @@ if (wordBookList) {
     if (!btn) return;
     const card = btn.closest('.history-item[data-wordbook-entry-id]');
     if (card && card.classList.contains('editing')) return;
-    const active = await getActiveWordBook();
-    if (!active) return;
-    const items = Array.isArray(active.items) ? active.items : [];
-    const index = Number(btn.dataset.index);
-    const item = items[index];
-    if (!item) return;
-    if (btn.dataset.action === 'wb-speak-source') {
-      speakCurrentSource(item.sourceText, item.srcLang);
-    } else if (btn.dataset.action === 'wb-speak-target') {
-      speakCurrentTarget(item.translatedText, item.tgtLang);
+    clearTimeout(wordBookClickTimer);
+    wordBookClickTimer = setTimeout(async () => {
+      const active = await getActiveWordBook();
+      if (!active) return;
+      const items = Array.isArray(active.items) ? active.items : [];
+      const index = Number(btn.dataset.index);
+      const item = items[index];
+      if (!item) return;
+      if (btn.dataset.action === 'wb-speak-source') {
+        speakCurrentSource(item.sourceText, item.srcLang);
+      } else if (btn.dataset.action === 'wb-speak-target') {
+        speakCurrentTarget(item.translatedText, item.tgtLang);
+      }
+    }, 220);
+  });
+
+  wordBookList.addEventListener('dblclick', async (e) => {
+    if (Date.now() < suppressWordBookClickUntil) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
     }
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const card = btn.closest('.history-item[data-wordbook-entry-id]');
+    if (card && card.classList.contains('editing')) return;
+    clearTimeout(wordBookClickTimer);
+    e.preventDefault();
+    const index = Number(btn.dataset.index);
+    await openWordBookItemInternalSearch(index, btn.dataset.action === 'wb-speak-target' ? 'target' : 'source');
   });
 
   wordBookList.addEventListener('keydown', async (e) => {
@@ -2725,6 +4442,7 @@ if (wordBookList) {
   });
 
   wordBookList.addEventListener('dragstart', (e) => {
+    if (getWordBookItemsSortMode() !== 'manual') { e.preventDefault(); return; }
     const card = e.target.closest('.history-item[data-wordbook-entry-id]');
     if (!card || card.classList.contains('editing')) {
       e.preventDefault();
@@ -2750,6 +4468,7 @@ if (wordBookList) {
   });
 
   wordBookList.addEventListener('dragover', (e) => {
+    if (getWordBookItemsSortMode() !== 'manual') return;
     e.preventDefault();
     const target = e.target.closest('.history-item[data-wordbook-entry-id]');
     if (!target || dragWordBookItemIndex === null) return;
@@ -2764,6 +4483,7 @@ if (wordBookList) {
   });
 
   wordBookList.addEventListener('drop', async (e) => {
+    if (getWordBookItemsSortMode() !== 'manual') return;
     e.preventDefault();
     const ordered = Array.from(wordBookList.querySelectorAll('.history-item[data-wordbook-entry-id]')).map(el => Number(el.getAttribute('data-wordbook-entry-id'))).filter(v => Number.isInteger(v));
     wordBookList.querySelectorAll('.history-item').forEach(el => el.classList.remove('drop-before', 'drop-after', 'dragging'));
@@ -2873,6 +4593,23 @@ document.addEventListener('keydown', (e) => {
   const target = e.target;
   const tagName = target && target.tagName ? target.tagName.toLowerCase() : '';
   const isEditable = !!(target && (target.isContentEditable || tagName === 'input' || tagName === 'textarea' || tagName === 'select'));
+
+  if (quizShell && quizShell.classList.contains('open')) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if (iwinState.open) { iwinClose(); return; }
+      closeQuizModal();
+      return;
+    }
+    if (isEditable) return;
+    if (e.key === 'g' || e.key === 'G') { e.preventDefault(); toggleQuizInternalSearch(); return; }
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextQuizStep(); return; }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); prevQuizItem(); return; }
+    if (e.key === '1') { e.preventDefault(); recordQuizMark('o'); return; }
+    if (e.key === '2') { e.preventDefault(); recordQuizMark('d'); return; }
+    if (e.key === '3') { e.preventDefault(); recordQuizMark('x'); return; }
+  }
+
   if (isEditable) return;
   if (e.repeat) return;
 
@@ -2922,18 +4659,164 @@ if (historyClearBtn) {
 if (historySearchInput) {
   historySearchInput.addEventListener('input', () => renderHistory());
 }
+if (historySortSelect) {
+  historySortSelect.addEventListener('change', () => {
+    localStorage.setItem(HISTORY_SORT_KEY, historySortSelect.value || 'manual');
+    applyHistoryLayoutClasses();
+    renderHistory();
+  });
+}
+if (historyColumnsSelect) {
+  historyColumnsSelect.addEventListener('change', () => {
+    const cols = Number(historyColumnsSelect.value || '1');
+    localStorage.setItem(HISTORY_COLUMNS_KEY, String([1,2,3,4].includes(cols) ? cols : 1));
+    applyHistoryLayoutClasses();
+    renderHistory();
+  });
+}
 
 if (wordBookSearchInput) {
   wordBookSearchInput.addEventListener('input', () => renderWordBooks(wordBookSelect ? wordBookSelect.value : ''));
 }
+if (wordBookBooksSortSelect) {
+  wordBookBooksSortSelect.addEventListener('change', () => {
+    localStorage.setItem(WORD_BOOK_BOOKS_SORT_KEY, wordBookBooksSortSelect.value || 'manual');
+    applyWordBookLayoutClasses();
+    renderWordBooks(wordBookSelect ? wordBookSelect.value : '');
+  });
+}
+if (wordBookItemsSortSelect) {
+  wordBookItemsSortSelect.addEventListener('change', () => {
+    localStorage.setItem(WORD_BOOK_ITEMS_SORT_KEY, wordBookItemsSortSelect.value || 'manual');
+    applyWordBookLayoutClasses();
+    renderWordBooks(wordBookSelect ? wordBookSelect.value : '');
+  });
+}
+if (wordBookColumnsSelect) {
+  wordBookColumnsSelect.addEventListener('change', () => {
+    const cols = Number(wordBookColumnsSelect.value || '1');
+    localStorage.setItem(WORD_BOOK_COLUMNS_KEY, String([1,2,3,4].includes(cols) ? cols : 1));
+    applyWordBookLayoutClasses();
+    renderWordBooks(wordBookSelect ? wordBookSelect.value : '');
+  });
+}
+
+
+if (quizReviewColumnsSelect) {
+  quizReviewColumnsSelect.addEventListener('change', async () => {
+    const cols = Number(quizReviewColumnsSelect.value || '1');
+    localStorage.setItem(QUIZ_REVIEW_COLUMNS_KEY, String([1,2,3,4].includes(cols) ? cols : 1));
+    applyQuizReviewLayoutClasses();
+    await renderQuizReviewList();
+  });
+}
+
+if (quizSourceSelect) {
+  quizSourceSelect.addEventListener('change', async () => {
+    saveQuizPrefs();
+    updateQuizSourceLabel();
+    await renderQuizReviewList();
+  });
+}
+
+[quizOrder1, quizOrder2].forEach(el => {
+  if (!el) return;
+  el.addEventListener('change', () => {
+    if (quizOrder1.value === quizOrder2.value) {
+      quizOrder2.value = quizOrder1.value === 'source' ? 'target' : 'source';
+    }
+    saveQuizPrefs();
+  });
+});
+
+if (quizShuffleCheck) quizShuffleCheck.addEventListener('change', saveQuizPrefs);
+if (quizLoopCheck) quizLoopCheck.addEventListener('change', saveQuizPrefs);
+
+document.querySelectorAll('[data-quiz-filter]').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    quizReviewFilter = btn.getAttribute('data-quiz-filter') || 'all';
+    document.querySelectorAll('[data-quiz-filter]').forEach(el => el.classList.toggle('active', el === btn));
+    await renderQuizReviewList();
+  });
+});
+
+if (quizStartBtn) quizStartBtn.addEventListener('click', () => startQuiz(false));
+if (quizStartWeakBtn) quizStartWeakBtn.addEventListener('click', () => startQuiz(true));
+if (quizClearMarksBtn) {
+  quizClearMarksBtn.addEventListener('click', async () => {
+    if (!window.confirm('クイズ評価をすべてクリアしますか？')) return;
+    quizMarks = {};
+    saveQuizPrefs();
+    await renderQuizReviewList();
+  });
+}
+
+if (quizCloseBtn) quizCloseBtn.addEventListener('click', closeQuizModal);
+if (btnQuizSearch) btnQuizSearch.addEventListener('click', () => toggleQuizInternalSearch());
+if (quizReviewList) {
+  quizReviewList.addEventListener('click', async (e) => {
+    const markBtn = e.target.closest('[data-quiz-set-mark]');
+    if (markBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      setQuizMarkByKey(markBtn.getAttribute('data-quiz-key') || '', markBtn.getAttribute('data-quiz-set-mark') || '');
+      return;
+    }
+    const speakTarget = e.target.closest('[data-quiz-speak]');
+    if (speakTarget) {
+      e.preventDefault();
+      clearTimeout(quizReviewClickTimer);
+      const key = speakTarget.getAttribute('data-quiz-key') || '';
+      const field = speakTarget.getAttribute('data-quiz-speak') || 'source';
+      quizReviewClickTimer = setTimeout(async () => {
+        await speakQuizReviewEntry(key, field);
+      }, 220);
+    }
+  });
+  quizReviewList.addEventListener('dblclick', async (e) => {
+    const speakTarget = e.target.closest('[data-quiz-speak]');
+    if (!speakTarget) return;
+    e.preventDefault();
+    clearTimeout(quizReviewClickTimer);
+    const key = speakTarget.getAttribute('data-quiz-key') || '';
+    const field = speakTarget.getAttribute('data-quiz-speak') || 'source';
+    await openQuizReviewEntryInternalSearch(key, field);
+  });
+}
+if (quizMaxBtn) quizMaxBtn.addEventListener('click', () => quizWin && quizWin.classList.toggle('max'));
+if (quizPrevBtn) quizPrevBtn.addEventListener('click', prevQuizItem);
+if (quizNextBtn) quizNextBtn.addEventListener('click', nextQuizStep);
+if (quizScreen) {
+  let quizScreenClickTimer = null;
+  quizScreen.addEventListener('click', e => {
+    if (e.target.closest('.quiz-mark-bar')) return;
+    clearTimeout(quizScreenClickTimer);
+    quizScreenClickTimer = setTimeout(() => {
+      speakCurrentQuizDisplay();
+    }, 200);
+  });
+  quizScreen.addEventListener('dblclick', e => {
+    if (e.target.closest('.quiz-mark-bar')) return;
+    clearTimeout(quizScreenClickTimer);
+    openQuizInternalSearch();
+  });
+}
+if (quizMarkO) quizMarkO.addEventListener('click', e => { e.stopPropagation(); recordQuizMark('o'); });
+if (quizMarkD) quizMarkD.addEventListener('click', e => { e.stopPropagation(); recordQuizMark('d'); });
+if (quizMarkX) quizMarkX.addEventListener('click', e => { e.stopPropagation(); recordQuizMark('x'); });
+
 
 prevViewBtn.addEventListener('click', () => switchView(currentView - 1));
 nextViewBtn.addEventListener('click', () => switchView(currentView + 1));
 pageDots.forEach((dot, i) => dot.addEventListener('click', () => switchView(i)));
 
+loadQuizPrefs();
+
 openHistoryDB().then(async () => {
   await renderHistory();
   await renderWordBooks();
+  await refreshQuizSourceOptions(localStorage.getItem(QUIZ_SOURCE_KEY) || (wordBookSelect && wordBookSelect.value ? `wordbook:${wordBookSelect.value}` : 'history'));
+  await renderQuizReviewList();
 }).catch(err => {
   if (historyList) historyList.innerHTML = '<div class="history-empty">IndexedDB の初期化に失敗しました: ' + esc(err.message || err) + '</div>';
   if (wordBookList) wordBookList.innerHTML = '<div class="wordbook-empty">IndexedDB の初期化に失敗しました: ' + esc(err.message || err) + '</div>';
