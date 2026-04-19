@@ -787,10 +787,18 @@ body {
 
 @media (max-width: 720px) {
   .history-cols { grid-template-columns: 1fr; }
-  .history-list.cols-2, .history-list.cols-3, .history-list.cols-4,
-.wordbook-list.cols-2, .wordbook-list.cols-3, .wordbook-list.cols-4,
-.wordbook-books.cols-2, .wordbook-books.cols-3, .wordbook-books.cols-4,
-.quiz-review-list.cols-2, .quiz-review-list.cols-3, .quiz-review-list.cols-4 { grid-template-columns: 1fr; }
+  .history-list, .wordbook-list, .wordbook-books, .quiz-review-list {
+    gap: 10px;
+  }
+  .history-list.cols-2, .wordbook-list.cols-2, .wordbook-books.cols-2, .quiz-review-list.cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .history-list.cols-3, .history-list.cols-4,
+  .wordbook-list.cols-3, .wordbook-list.cols-4,
+  .wordbook-books.cols-3, .wordbook-books.cols-4,
+  .quiz-review-list.cols-3, .quiz-review-list.cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 @media (max-width: 560px) {
   body { padding: 18px 12px 92px; }
@@ -1310,9 +1318,68 @@ body {
   .iwin-mode-tabs { display:none; }
 }
 
+
+
+/* ── Fullscreen button ── */
+.fs-fab {
+  position: fixed;
+  top: max(14px, env(safe-area-inset-top, 0px) + 10px);
+  right: max(14px, env(safe-area-inset-right, 0px) + 10px);
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255,255,255,.92);
+  color: var(--ink2);
+  box-shadow: 0 8px 28px rgba(0,0,0,.12), 0 1px 4px rgba(0,0,0,.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 1200;
+  transition: .15s;
+}
+.fs-fab:hover {
+  background: #fff;
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+.fs-fab:active {
+  transform: translateY(0);
+}
+.fs-fab.is-fullscreen {
+  color: var(--accent);
+  border-color: #d9d2ff;
+  background: #f5f3ff;
+}
+.fs-fab svg { pointer-events: none; }
+@media (max-width: 560px) {
+  .fs-fab {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+  }
+}
+
 </style>
 </head>
 <body>
+
+<button class="fs-fab" id="fullscreenToggleBtn" type="button" title="全画面表示" aria-label="全画面表示">
+  <svg class="fs-icon-enter" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <polyline points="9 3 3 3 3 9"></polyline>
+    <line x1="3" y1="3" x2="10" y2="10"></line>
+    <polyline points="15 3 21 3 21 9"></polyline>
+    <line x1="21" y1="3" x2="14" y2="10"></line>
+    <polyline points="3 15 3 21 9 21"></polyline>
+    <line x1="3" y1="21" x2="10" y2="14"></line>
+    <polyline points="21 15 21 21 15 21"></polyline>
+    <line x1="21" y1="21" x2="14" y2="14"></line>
+  </svg>
+</button>
+
 
 <div class="stage">
 <div class="view-panel active" id="viewTranslate">
@@ -1513,6 +1580,9 @@ body {
               <option value="3">3列表示</option>
               <option value="4">4列表示</option>
             </select>
+            <button class="hist-btn" id="historyLoopSourceBtn" type="button">原文ループ</button>
+            <button class="hist-btn" id="historyLoopTargetBtn" type="button">訳語ループ</button>
+            <button class="hist-btn" id="historyLoopAlternateBtn" type="button">交互ループ</button>
           </div>
         </div>
       </div>
@@ -1585,6 +1655,9 @@ body {
       </div>
       <div class="wordbook-toolbar-right">
         <input id="wordBookSearchInput" class="history-search-input" type="text" placeholder="Word Book 内を検索">
+        <button class="hist-btn" id="wordBookLoopSourceBtn" type="button">原文ループ</button>
+        <button class="hist-btn" id="wordBookLoopTargetBtn" type="button">訳語ループ</button>
+        <button class="hist-btn" id="wordBookLoopAlternateBtn" type="button">交互ループ</button>
         <button class="hist-btn danger" id="wordBookDeleteSelectedBtn" type="button">選択項目を削除</button>
         <button class="hist-btn" id="wordBookRenameBtn" type="button">名前変更</button>
         <button class="hist-btn danger" id="wordBookDeleteBtn" type="button">削除</button>
@@ -2125,12 +2198,18 @@ const wordBookSaveMode = document.getElementById('wordBookSaveMode');
 const saveWordBookBtn = document.getElementById('saveWordBookBtn');
 const historySelectAllBtn = document.getElementById('historySelectAllBtn');
 const historyDeselectAllBtn = document.getElementById('historyDeselectAllBtn');
+const historyLoopSourceBtn = document.getElementById('historyLoopSourceBtn');
+const historyLoopTargetBtn = document.getElementById('historyLoopTargetBtn');
+const historyLoopAlternateBtn = document.getElementById('historyLoopAlternateBtn');
 const wordBookSelect = document.getElementById('wordBookSelect');
 const wordBookSearchInput = document.getElementById('wordBookSearchInput');
 const wordBookBooksSortSelect = document.getElementById('wordBookBooksSortSelect');
 const wordBookItemsSortSelect = document.getElementById('wordBookItemsSortSelect');
 const wordBookColumnsSelect = document.getElementById('wordBookColumnsSelect');
 const wordBookDeleteSelectedBtn = document.getElementById('wordBookDeleteSelectedBtn');
+const wordBookLoopSourceBtn = document.getElementById('wordBookLoopSourceBtn');
+const wordBookLoopTargetBtn = document.getElementById('wordBookLoopTargetBtn');
+const wordBookLoopAlternateBtn = document.getElementById('wordBookLoopAlternateBtn');
 const historyWordBookTargetSelect = document.getElementById('historyWordBookTargetSelect');
 const openSelectedWordBookBtn = document.getElementById('openSelectedWordBookBtn');
 const appendToSelectedWordBookBtn = document.getElementById('appendToSelectedWordBookBtn');
@@ -2199,6 +2278,10 @@ let historyClickTimer = null;
 let wordBookClickTimer = null;
 let quizReviewClickTimer = null;
 let lastSpokenPhrase = '';
+let wordBookLoopState = { active: false, mode: null, token: 0, button: null };
+let historyLoopState = { active: false, mode: null, token: 0, button: null };
+let renderedHistoryLoopItems = [];
+let renderedWordBookLoopItems = [];
 const HISTORY_SORT_KEY = 'kotoba_history_sort_mode';
 const HISTORY_COLUMNS_KEY = 'kotoba_history_columns';
 const WORD_BOOK_BOOKS_SORT_KEY = 'kotoba_wordbook_books_sort_mode';
@@ -2268,6 +2351,7 @@ function syncWordBookControls() {
   if (wordBookBooksSortSelect) wordBookBooksSortSelect.value = getWordBookBooksSortMode();
   if (wordBookItemsSortSelect) wordBookItemsSortSelect.value = getWordBookItemsSortMode();
   if (wordBookColumnsSelect) wordBookColumnsSelect.value = String(getWordBookColumns());
+  updateWordBookLoopButtons();
   if (quizReviewColumnsSelect) quizReviewColumnsSelect.value = String(getQuizReviewColumns());
 }
 
@@ -2435,11 +2519,14 @@ window.pickAlt = function(el) { current = el.textContent; tgtOut.textContent = c
 
 
 const DB_NAME = 'kotoba_history_db';
-const DB_VERSION = 3;
+const DB_VERSION = 4;
 const STORE_NAME = 'translation_history';
 const WORD_BOOK_STORE_NAME = 'word_books';
+const APP_SETTINGS_STORE_NAME = 'app_settings';
+const VOICE_SETTINGS_KEY = 'voice_settings';
 let dbPromise = null;
 let currentView = 0;
+let pendingVoiceSettings = null;
 
 function formatDate(ts) {
   const d = new Date(ts);
@@ -2558,10 +2645,10 @@ function buildWordBookItemHTML(item, index) {
       <div>
         <div class="history-cols history-view-mode">
           <div class="history-col" data-wordbook-side="source">
-            <div class="history-text" data-action="wb-speak-source" data-index="${index}" title="クリックで発音">${esc(item.sourceText)}</div>
+            <div class="history-text" data-action="wb-speak-source" data-index="${index}" data-lang="${esc(item.srcLang || "")}" title="クリックで発音">${esc(item.sourceText)}</div>
           </div>
           <div class="history-col" data-wordbook-side="target">
-            <div class="history-text" data-action="wb-speak-target" data-index="${index}" title="クリックで発音">${esc(item.translatedText)}</div>
+            <div class="history-text" data-action="wb-speak-target" data-index="${index}" data-lang="${esc(item.tgtLang || "")}" title="クリックで発音">${esc(item.translatedText)}</div>
           </div>
         </div>
         <div class="history-cols history-edit-mode">
@@ -2592,6 +2679,9 @@ function openHistoryDB() {
         wordBookStore.createIndex('createdAt', 'createdAt', { unique: false });
         wordBookStore.createIndex('sortOrder', 'sortOrder', { unique: false });
       }
+      if (!db.objectStoreNames.contains(APP_SETTINGS_STORE_NAME)) {
+        db.createObjectStore(APP_SETTINGS_STORE_NAME, { keyPath: 'key' });
+      }
     };
     req.onsuccess = function() { resolve(req.result); };
     req.onerror = function() { reject(req.error || new Error('IndexedDB open failed')); };
@@ -2614,6 +2704,22 @@ async function withStore(mode, runner, storeName = STORE_NAME) {
     tx.onerror = function() { reject(tx.error || new Error('IndexedDB transaction failed')); };
     tx.oncomplete = function() { if (typeof result !== 'undefined') resolve(result); };
   });
+}
+
+
+function getAppSetting(key) {
+  return withStore('readonly', (store, tx, resolve) => {
+    const req = store.get(key);
+    req.onsuccess = function() {
+      resolve(req.result ? req.result.value : null);
+    };
+  }, APP_SETTINGS_STORE_NAME);
+}
+
+function setAppSetting(key, value) {
+  return withStore('readwrite', (store) => {
+    store.put({ key, value, updatedAt: Date.now() });
+  }, APP_SETTINGS_STORE_NAME);
 }
 
 function getAllHistory() {
@@ -2775,13 +2881,223 @@ function buildWordBookBookCardHTML(book, isActive) {
 }
 
 function speakCurrentSource(text, langKey) {
+  stopWordBookLoopPlayback(false);
+  stopHistoryLoopPlayback(false);
+  stopHistoryLoopPlayback(false);
   updateSearchInputFromSpeech(text);
   speak(text, langKey || srcLang.value, voiceSrc);
 }
 
 function speakCurrentTarget(text, langKey) {
+  stopWordBookLoopPlayback(false);
+  stopHistoryLoopPlayback(false);
   updateSearchInputFromSpeech(text);
   speak(text, langKey || tgtLang.value, voiceTgt);
+}
+
+function getActiveWordBookLoopItems() {
+  return Array.isArray(renderedWordBookLoopItems) ? renderedWordBookLoopItems.slice() : [];
+}
+
+function updateWordBookLoopButtons() {
+  const defs = [
+    [wordBookLoopSourceBtn, 'source', '原文ループ', '原文停止'],
+    [wordBookLoopTargetBtn, 'target', '訳語ループ', '訳語停止'],
+    [wordBookLoopAlternateBtn, 'alternate', '交互ループ', '交互停止']
+  ];
+  defs.forEach(([btn, mode, idleLabel, activeLabel]) => {
+    if (!btn) return;
+    const on = wordBookLoopState.active && wordBookLoopState.mode === mode;
+    btn.textContent = on ? activeLabel : idleLabel;
+    btn.classList.toggle('playing', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.disabled = !getActiveWordBookLoopItems().length && !on;
+  });
+}
+
+function stopWordBookLoopPlayback(cancelSpeech = true) {
+  wordBookLoopState.active = false;
+  wordBookLoopState.mode = null;
+  wordBookLoopState.button = null;
+  wordBookLoopState.token += 1;
+  if (cancelSpeech && window.speechSynthesis) window.speechSynthesis.cancel();
+  updateWordBookLoopButtons();
+}
+
+function getActiveHistoryLoopItems() {
+  return Array.isArray(renderedHistoryLoopItems) ? renderedHistoryLoopItems.slice() : [];
+}
+
+function updateHistoryLoopButtons() {
+  const defs = [
+    [historyLoopSourceBtn, 'source', '原文ループ', '原文停止'],
+    [historyLoopTargetBtn, 'target', '訳語ループ', '訳語停止'],
+    [historyLoopAlternateBtn, 'alternate', '交互ループ', '交互停止']
+  ];
+  defs.forEach(([btn, mode, idleLabel, activeLabel]) => {
+    if (!btn) return;
+    const on = historyLoopState.active && historyLoopState.mode === mode;
+    btn.textContent = on ? activeLabel : idleLabel;
+    btn.classList.toggle('playing', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    btn.disabled = !getActiveHistoryLoopItems().length && !on;
+  });
+}
+
+function stopHistoryLoopPlayback(cancelSpeech = true) {
+  historyLoopState.active = false;
+  historyLoopState.mode = null;
+  historyLoopState.button = null;
+  historyLoopState.token += 1;
+  if (cancelSpeech && window.speechSynthesis) window.speechSynthesis.cancel();
+  updateHistoryLoopButtons();
+}
+
+function scheduleLoopStep(fn, delay = 8) {
+  setTimeout(fn, delay);
+}
+
+function speakLoopChunk(loopState, text, langKey, voiceSel, token, onend) {
+  if (!text || !window.speechSynthesis || token !== loopState.token || !loopState.active) {
+    onend && onend();
+    return;
+  }
+  const bcp = LANG_BCP[langKey] || 'ja-JP';
+  const fire = () => {
+    if (token !== loopState.token || !loopState.active) return;
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = bcp;
+    u.rate = +rateSlider.value;
+    u.pitch = +pitchSlider.value;
+    u.volume = +volSlider.value;
+    const chosen = getVoiceFromSelect(voiceSel);
+    if (chosen) {
+      u.voice = chosen;
+    } else {
+      const vs = window.speechSynthesis.getVoices();
+      const v = vs.find(v => v.lang === bcp) || vs.find(v => (v.lang || '').startsWith(bcp.split('-')[0]));
+      if (v) u.voice = v;
+    }
+    u.onend = () => {
+      if (token !== loopState.token || !loopState.active) return;
+      scheduleLoopStep(() => onend && onend(), 8);
+    };
+    u.onerror = () => {
+      if (token !== loopState.token || !loopState.active) return;
+      scheduleLoopStep(() => onend && onend(), 8);
+    };
+    window.speechSynthesis.speak(u);
+  };
+  if (window.speechSynthesis.getVoices().length > 0) {
+    fire();
+  } else {
+    let done = false;
+    window.speechSynthesis.addEventListener('voiceschanged', function h() {
+      window.speechSynthesis.removeEventListener('voiceschanged', h);
+      if (!done) { done = true; fire(); }
+    });
+    setTimeout(() => { if (!done) { done = true; fire(); } }, 60);
+  }
+}
+
+function runLoopSequence(loopState, mode, items, startIndex, token) {
+  if (!loopState.active || token !== loopState.token) return;
+  if (!Array.isArray(items) || !items.length) {
+    if (loopState === wordBookLoopState) stopWordBookLoopPlayback(false);
+    else stopHistoryLoopPlayback(false);
+    return;
+  }
+  const length = items.length;
+  const safeIndex = ((startIndex % length) + length) % length;
+  const item = items[safeIndex];
+  if (!item) {
+    if (loopState === wordBookLoopState) stopWordBookLoopPlayback(false);
+    else stopHistoryLoopPlayback(false);
+    return;
+  }
+  if (mode === 'alternate') {
+    const source = (item.sourceText || '').trim();
+    const target = (item.translatedText || '').trim();
+    if (!source && !target) {
+      runLoopSequence(loopState, mode, items, safeIndex + 1, token);
+      return;
+    }
+    if (!source) {
+      updateSearchInputFromSpeech(target);
+      speakLoopChunk(loopState, target, item.tgtLang || tgtLang.value, voiceTgt, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
+      return;
+    }
+    updateSearchInputFromSpeech(source);
+    speakLoopChunk(loopState, source, item.srcLang || srcLang.value, voiceSrc, token, () => {
+      if (!loopState.active || token !== loopState.token) return;
+      if (!target) {
+        runLoopSequence(loopState, mode, items, safeIndex + 1, token);
+        return;
+      }
+      updateSearchInputFromSpeech(target);
+      speakLoopChunk(loopState, target, item.tgtLang || tgtLang.value, voiceTgt, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
+    });
+    return;
+  }
+  const text = mode === 'target' ? (item.translatedText || '').trim() : (item.sourceText || '').trim();
+  const lang = mode === 'target' ? (item.tgtLang || tgtLang.value) : (item.srcLang || srcLang.value);
+  const voiceSel = mode === 'target' ? voiceTgt : voiceSrc;
+  if (!text) {
+    runLoopSequence(loopState, mode, items, safeIndex + 1, token);
+    return;
+  }
+  updateSearchInputFromSpeech(text);
+  speakLoopChunk(loopState, text, lang, voiceSel, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
+}
+
+function startHistoryLoopPlayback(mode, button) {
+  const items = getActiveHistoryLoopItems();
+  if (!items.length) {
+    alert('再生できる翻訳履歴がありません。');
+    return;
+  }
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  stopWordBookLoopPlayback(false);
+  historyLoopState.active = true;
+  historyLoopState.mode = mode;
+  historyLoopState.button = button || null;
+  historyLoopState.token += 1;
+  const token = historyLoopState.token;
+  updateHistoryLoopButtons();
+  runLoopSequence(historyLoopState, mode, items, 0, token);
+}
+
+function toggleHistoryLoopPlayback(mode, button) {
+  if (historyLoopState.active && historyLoopState.mode === mode) {
+    stopHistoryLoopPlayback(true);
+    return;
+  }
+  startHistoryLoopPlayback(mode, button);
+}
+
+function startWordBookLoopPlayback(mode, button) {
+  const items = getActiveWordBookLoopItems();
+  if (!items.length) {
+    alert('再生できる Word Book 項目がありません。');
+    return;
+  }
+  window.speechSynthesis && window.speechSynthesis.cancel();
+  stopHistoryLoopPlayback(false);
+  wordBookLoopState.active = true;
+  wordBookLoopState.mode = mode;
+  wordBookLoopState.button = button || null;
+  wordBookLoopState.token += 1;
+  const token = wordBookLoopState.token;
+  updateWordBookLoopButtons();
+  runLoopSequence(wordBookLoopState, mode, items, 0, token);
+}
+
+function toggleWordBookLoopPlayback(mode, button) {
+  if (wordBookLoopState.active && wordBookLoopState.mode === mode) {
+    stopWordBookLoopPlayback(true);
+    return;
+  }
+  startWordBookLoopPlayback(mode, button);
 }
 
 async function renderHistory() {
@@ -2792,17 +3108,29 @@ async function renderHistory() {
     const keyword = historySearchInput ? historySearchInput.value : '';
     const filtered = rows.filter(row => matchesKeyword(row, keyword));
     const sorted = sortHistoryRows(filtered, getHistorySortMode());
+    renderedHistoryLoopItems = sorted.map(item => ({
+      id: item.id,
+      sourceText: item.sourceText || '',
+      translatedText: item.translatedText || '',
+      srcLang: item.srcLang || srcLang.value,
+      tgtLang: item.tgtLang || tgtLang.value
+    }));
     if (!rows.length) {
       historyList.innerHTML = '<div class="history-empty">履歴はまだありません。</div>';
+      updateHistoryLoopButtons();
       return;
     }
     if (!sorted.length) {
       historyList.innerHTML = '<div class="history-empty">検索条件に一致する履歴はありません。</div>';
+      updateHistoryLoopButtons();
       return;
     }
     historyList.innerHTML = sorted.map(buildHistoryItemHTML).join('');
+    updateHistoryLoopButtons();
   } catch (err) {
+    renderedHistoryLoopItems = [];
     historyList.innerHTML = '<div class="history-empty">履歴の読み込みに失敗しました: ' + esc(err.message || err) + '</div>';
+    updateHistoryLoopButtons();
   }
 }
 
@@ -2880,7 +3208,9 @@ async function renderWordBooks(preferredId) {
         historyWordBookTargetSelect.innerHTML = '<option value="">Word Book がありません</option>';
         historyWordBookTargetSelect.value = '';
       }
+      renderedWordBookLoopItems = [];
       wordBookList.innerHTML = '<div class="wordbook-empty">Word Book はまだありません。</div>';
+      updateWordBookLoopButtons();
       return;
     }
     const active = sortedBooks.find(book => String(book.id) === String(wordBookSelect.value)) || sortedBooks[0];
@@ -2893,9 +3223,18 @@ async function renderWordBooks(preferredId) {
     const keyword = wordBookSearchInput ? wordBookSearchInput.value : '';
     const filteredItems = items.map((item, index) => ({ item, index })).filter(row => matchesKeyword(row.item, keyword));
     const sortedItems = sortWordBookItems(filteredItems, getWordBookItemsSortMode());
+    renderedWordBookLoopItems = sortedItems.map(row => ({
+      index: row.index,
+      sourceText: row.item.sourceText || '',
+      translatedText: row.item.translatedText || '',
+      srcLang: row.item.srcLang || srcLang.value,
+      tgtLang: row.item.tgtLang || tgtLang.value
+    }));
     wordBookCount.textContent = `${sortedItems.length} / ${items.length} items`;
     if (!items.length) {
+      renderedWordBookLoopItems = [];
       wordBookList.innerHTML = '<div class="wordbook-empty">この Word Book に項目はありません。</div>';
+      updateWordBookLoopButtons();
       return;
     }
     if (!sortedItems.length) {
@@ -2904,7 +3243,9 @@ async function renderWordBooks(preferredId) {
     }
     wordBookList.innerHTML = sortedItems.map(({ item, index }) => buildWordBookItemHTML(item, index)).join('');
   } catch (err) {
+    renderedWordBookLoopItems = [];
     wordBookList.innerHTML = '<div class="wordbook-empty">Word Book の読み込みに失敗しました: ' + esc(err.message || err) + '</div>';
+    updateWordBookLoopButtons();
   }
 }
 
@@ -3873,25 +4214,93 @@ swapBtn.addEventListener('click', () => {
 // ── Voice selector ─────────────────────────────────────────────────────────
 let allVoices = [];
 
+
+async function saveVoiceSettingsToIndexedDB() {
+  const payload = {
+    srcLang: srcLang ? srcLang.value : 'en',
+    tgtLang: tgtLang ? tgtLang.value : 'ja',
+    voiceSrcValue: voiceSrc ? (voiceSrc.value || '') : '',
+    voiceTgtValue: voiceTgt ? (voiceTgt.value || '') : '',
+    rate: rateSlider ? +rateSlider.value : 0.95,
+    pitch: pitchSlider ? +pitchSlider.value : 1,
+    volume: volSlider ? +volSlider.value : 1,
+    savedAt: Date.now()
+  };
+  pendingVoiceSettings = payload;
+  try {
+    await setAppSetting(VOICE_SETTINGS_KEY, payload);
+  } catch (err) {
+    console.warn('Voice settings save failed:', err);
+  }
+}
+
+function applyVoiceSettingsToControls(settings) {
+  if (!settings) return;
+  pendingVoiceSettings = settings;
+  if (rateSlider && Number.isFinite(+settings.rate)) {
+    rateSlider.value = String(settings.rate);
+    rateVal.textContent = (+rateSlider.value).toFixed(2);
+  }
+  if (pitchSlider && Number.isFinite(+settings.pitch)) {
+    pitchSlider.value = String(settings.pitch);
+    pitchVal.textContent = (+pitchSlider.value).toFixed(2);
+  }
+  if (volSlider && Number.isFinite(+settings.volume)) {
+    volSlider.value = String(settings.volume);
+    volVal.textContent = (+volSlider.value).toFixed(2);
+  }
+}
+
+async function loadVoiceSettingsFromIndexedDB() {
+  try {
+    const settings = await getAppSetting(VOICE_SETTINGS_KEY);
+    if (!settings) return null;
+    applyVoiceSettingsToControls(settings);
+    return settings;
+  } catch (err) {
+    console.warn('Voice settings load failed:', err);
+    return null;
+  }
+}
+
+function restoreVoiceSelectValue(sel, rawValue) {
+  if (!sel || !rawValue) return false;
+  const options = [...sel.options];
+  if (!options.length) return false;
+  const exact = options.find(o => o.value === rawValue);
+  if (exact) {
+    sel.value = rawValue;
+    return true;
+  }
+  const name = String(rawValue).includes('_') ? String(rawValue).slice(String(rawValue).indexOf('_') + 1) : String(rawValue);
+  const byName = options.find(o => (o.value || '').endsWith('_' + name));
+  if (byName) {
+    sel.value = byName.value;
+    return true;
+  }
+  return false;
+}
+
 function populateVoiceSelects() {
   allVoices = window.speechSynthesis.getVoices();
   if (!allVoices.length) return;
 
-  function fillSelect(sel, langKey) {
+  function fillSelect(sel, langKey, savedValueKey) {
     const bcp = LANG_BCP[langKey] || 'ja-JP';
     const lang2 = bcp.split('-')[0];
-    const langVoices = allVoices.filter(v => v.lang.startsWith(lang2));
+    const langVoices = allVoices.filter(v => (v.lang || '').startsWith(lang2));
     const pool = langVoices.length ? langVoices : allVoices;
     const prev = sel.value;
     sel.innerHTML = pool.map((v,i)=>
       `<option value="${i}_${v.name}">${v.name} (${v.lang})</option>`
     ).join('');
-    // restore previous if still valid
-    if (prev && [...sel.options].find(o=>o.value===prev)) sel.value = prev;
+    const savedValue = pendingVoiceSettings && pendingVoiceSettings[savedValueKey] ? pendingVoiceSettings[savedValueKey] : '';
+    if (savedValue && restoreVoiceSelectValue(sel, savedValue)) return;
+    if (prev && restoreVoiceSelectValue(sel, prev)) return;
   }
 
-  fillSelect(voiceSrc, srcLang.value);
-  fillSelect(voiceTgt, tgtLang.value);
+  fillSelect(voiceSrc, srcLang.value, 'voiceSrcValue');
+  fillSelect(voiceTgt, tgtLang.value, 'voiceTgtValue');
 }
 
 function getVoiceFromSelect(sel) {
@@ -3906,7 +4315,7 @@ if (window.speechSynthesis) {
   setTimeout(populateVoiceSelects, 300);
 }
 
-[srcLang,tgtLang].forEach(el=>el.addEventListener('change', populateVoiceSelects));
+[srcLang,tgtLang].forEach(el=>el.addEventListener('change', async () => { populateVoiceSelects(); await saveVoiceSettingsToIndexedDB(); }));
 
 voiceToggle.addEventListener('click', () => {
   voicePanel.classList.toggle('open');
@@ -3914,12 +4323,18 @@ voiceToggle.addEventListener('click', () => {
   if (voicePanel.classList.contains('open')) populateVoiceSelects();
 });
 
-rateSlider.addEventListener('input', ()=> rateVal.textContent = (+rateSlider.value).toFixed(2));
-pitchSlider.addEventListener('input', ()=> pitchVal.textContent = (+pitchSlider.value).toFixed(2));
-volSlider.addEventListener('input', ()=> volVal.textContent = (+volSlider.value).toFixed(2));
+[voiceSrc, voiceTgt].forEach(sel => {
+  if (!sel) return;
+  sel.addEventListener('change', () => { saveVoiceSettingsToIndexedDB(); });
+});
+
+rateSlider.addEventListener('input', ()=> { rateVal.textContent = (+rateSlider.value).toFixed(2); saveVoiceSettingsToIndexedDB(); });
+pitchSlider.addEventListener('input', ()=> { pitchVal.textContent = (+pitchSlider.value).toFixed(2); saveVoiceSettingsToIndexedDB(); });
+volSlider.addEventListener('input', ()=> { volVal.textContent = (+volSlider.value).toFixed(2); saveVoiceSettingsToIndexedDB(); });
 
 // ── Speech synthesis ────────────────────────────────────────────────────────
 function speak(text, langKey, voiceSel) {
+  stopWordBookLoopPlayback(false);
   if (!text) return;
   if (!window.speechSynthesis) { alert('このブラウザは音声読み上げ非対応です。'); return; }
   const bcp = LANG_BCP[langKey] || 'ja-JP';
@@ -3952,7 +4367,7 @@ function speak(text, langKey, voiceSel) {
       window.speechSynthesis.removeEventListener('voiceschanged', h);
       if (!done) { done=true; fire(); }
     });
-    setTimeout(()=>{ if(!done){done=true;fire();} }, 400);
+    setTimeout(()=>{ if(!done){done=true;fire();} }, 80);
   }
 }
 
@@ -3991,6 +4406,8 @@ saveBtn.addEventListener('click', async () => {
     : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#30d158" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
   if (result && result.target === 'history') {
     await renderHistory();
+  updateHistoryLoopButtons();
+  updateWordBookLoopButtons();
   } else if (result && result.target === 'wordbook') {
     await renderWordBooks(result.bookId || (wordBookSelect ? wordBookSelect.value : ''));
   }
@@ -4545,6 +4962,13 @@ if (wordBookRenameBtn) {
   });
 }
 
+if (wordBookLoopSourceBtn) wordBookLoopSourceBtn.addEventListener('click', () => toggleWordBookLoopPlayback('source', wordBookLoopSourceBtn));
+if (wordBookLoopTargetBtn) wordBookLoopTargetBtn.addEventListener('click', () => toggleWordBookLoopPlayback('target', wordBookLoopTargetBtn));
+if (wordBookLoopAlternateBtn) wordBookLoopAlternateBtn.addEventListener('click', () => toggleWordBookLoopPlayback('alternate', wordBookLoopAlternateBtn));
+if (historyLoopSourceBtn) historyLoopSourceBtn.addEventListener('click', () => toggleHistoryLoopPlayback('source', historyLoopSourceBtn));
+if (historyLoopTargetBtn) historyLoopTargetBtn.addEventListener('click', () => toggleHistoryLoopPlayback('target', historyLoopTargetBtn));
+if (historyLoopAlternateBtn) historyLoopAlternateBtn.addEventListener('click', () => toggleHistoryLoopPlayback('alternate', historyLoopAlternateBtn));
+
 if (wordBookDeleteBtn) {
   wordBookDeleteBtn.addEventListener('click', async () => {
     const id = Number(wordBookSelect.value);
@@ -4810,9 +5234,72 @@ prevViewBtn.addEventListener('click', () => switchView(currentView - 1));
 nextViewBtn.addEventListener('click', () => switchView(currentView + 1));
 pageDots.forEach((dot, i) => dot.addEventListener('click', () => switchView(i)));
 
+
+const fullscreenToggleBtn = document.getElementById('fullscreenToggleBtn');
+
+function getFullscreenElement() {
+  return document.fullscreenElement
+    || document.webkitFullscreenElement
+    || document.mozFullScreenElement
+    || document.msFullscreenElement
+    || null;
+}
+
+function updateFullscreenButtonState() {
+  if (!fullscreenToggleBtn) return;
+  const active = !!getFullscreenElement();
+  fullscreenToggleBtn.classList.toggle('is-fullscreen', active);
+  fullscreenToggleBtn.title = active ? '全画面を終了' : '全画面表示';
+  fullscreenToggleBtn.setAttribute('aria-label', active ? '全画面を終了' : '全画面表示');
+}
+
+async function requestAppFullscreen() {
+  const el = document.documentElement;
+  try {
+    if (el.requestFullscreen) return await el.requestFullscreen();
+    if (el.webkitRequestFullscreen) return await el.webkitRequestFullscreen();
+    if (el.mozRequestFullScreen) return await el.mozRequestFullScreen();
+    if (el.msRequestFullscreen) return await el.msRequestFullscreen();
+  } catch (err) {
+    console.warn('Fullscreen request failed:', err);
+  }
+  alert('このブラウザでは全画面表示が制限されている可能性があります。');
+}
+
+async function exitAppFullscreen() {
+  try {
+    if (document.exitFullscreen) return await document.exitFullscreen();
+    if (document.webkitExitFullscreen) return await document.webkitExitFullscreen();
+    if (document.mozCancelFullScreen) return await document.mozCancelFullScreen();
+    if (document.msExitFullscreen) return await document.msExitFullscreen();
+  } catch (err) {
+    console.warn('Fullscreen exit failed:', err);
+  }
+}
+
+async function toggleAppFullscreen() {
+  if (getFullscreenElement()) {
+    await exitAppFullscreen();
+  } else {
+    await requestAppFullscreen();
+  }
+  setTimeout(updateFullscreenButtonState, 80);
+}
+
+if (fullscreenToggleBtn) {
+  fullscreenToggleBtn.addEventListener('click', toggleAppFullscreen);
+}
+['fullscreenchange','webkitfullscreenchange','mozfullscreenchange','MSFullscreenChange'].forEach(evt => {
+  document.addEventListener(evt, updateFullscreenButtonState);
+});
+updateFullscreenButtonState();
+
+
 loadQuizPrefs();
 
 openHistoryDB().then(async () => {
+  await loadVoiceSettingsFromIndexedDB();
+  populateVoiceSelects();
   await renderHistory();
   await renderWordBooks();
   await refreshQuizSourceOptions(localStorage.getItem(QUIZ_SOURCE_KEY) || (wordBookSelect && wordBookSelect.value ? `wordbook:${wordBookSelect.value}` : 'history'));
