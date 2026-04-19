@@ -1363,6 +1363,9 @@ body {
   }
 }
 
+@media (max-width: 560px) {
+  
+
 </style>
 </head>
 <body>
@@ -1544,7 +1547,6 @@ body {
 
 </div><!-- /card -->
 
-
 </div>
 
 <div class="view-panel" id="viewHistory">
@@ -1580,6 +1582,7 @@ body {
               <option value="3">3列表示</option>
               <option value="4">4列表示</option>
             </select>
+            <select id="historyLoopScopeSelect" class="history-mode-select" aria-label="履歴ループ対象"><option value="all">すべてループ</option><option value="selected">選択項目ループ</option></select>
             <button class="hist-btn" id="historyLoopSourceBtn" type="button">原文ループ</button>
             <button class="hist-btn" id="historyLoopTargetBtn" type="button">訳語ループ</button>
             <button class="hist-btn" id="historyLoopAlternateBtn" type="button">交互ループ</button>
@@ -1655,6 +1658,7 @@ body {
       </div>
       <div class="wordbook-toolbar-right">
         <input id="wordBookSearchInput" class="history-search-input" type="text" placeholder="Word Book 内を検索">
+        <select id="wordBookLoopScopeSelect" class="wordbook-sort-select" aria-label="Word Book ループ対象"><option value="all">すべてループ</option><option value="selected">選択項目ループ</option></select>
         <button class="hist-btn" id="wordBookLoopSourceBtn" type="button">原文ループ</button>
         <button class="hist-btn" id="wordBookLoopTargetBtn" type="button">訳語ループ</button>
         <button class="hist-btn" id="wordBookLoopAlternateBtn" type="button">交互ループ</button>
@@ -1891,7 +1895,6 @@ body {
   </div>
 </div>
 
-
 <div class="view-panel" id="viewHowTo">
   <div class="top-meta">
     <div class="logo">
@@ -2125,7 +2128,8 @@ body {
       </section>
     </div>
   </div>
-</div></div>
+</div>
+</div>
 </div>
 
 <div class="pill" aria-label="view switcher">
@@ -2198,6 +2202,7 @@ const wordBookSaveMode = document.getElementById('wordBookSaveMode');
 const saveWordBookBtn = document.getElementById('saveWordBookBtn');
 const historySelectAllBtn = document.getElementById('historySelectAllBtn');
 const historyDeselectAllBtn = document.getElementById('historyDeselectAllBtn');
+const historyLoopScopeSelect = document.getElementById('historyLoopScopeSelect');
 const historyLoopSourceBtn = document.getElementById('historyLoopSourceBtn');
 const historyLoopTargetBtn = document.getElementById('historyLoopTargetBtn');
 const historyLoopAlternateBtn = document.getElementById('historyLoopAlternateBtn');
@@ -2207,6 +2212,7 @@ const wordBookBooksSortSelect = document.getElementById('wordBookBooksSortSelect
 const wordBookItemsSortSelect = document.getElementById('wordBookItemsSortSelect');
 const wordBookColumnsSelect = document.getElementById('wordBookColumnsSelect');
 const wordBookDeleteSelectedBtn = document.getElementById('wordBookDeleteSelectedBtn');
+const wordBookLoopScopeSelect = document.getElementById('wordBookLoopScopeSelect');
 const wordBookLoopSourceBtn = document.getElementById('wordBookLoopSourceBtn');
 const wordBookLoopTargetBtn = document.getElementById('wordBookLoopTargetBtn');
 const wordBookLoopAlternateBtn = document.getElementById('wordBookLoopAlternateBtn');
@@ -2274,6 +2280,14 @@ let dragHistoryId = null;
 let dragWordBookItemIndex = null;
 let suppressWordBookClickUntil = 0;
 let suppressHistoryClickUntil = 0;
+let historyTouchLongPressTimer = null;
+let wordBookTouchLongPressTimer = null;
+let historyTouchLongPressTriggered = false;
+let wordBookTouchLongPressTriggered = false;
+const TOUCH_EDIT_LONG_PRESS_MS = 420;
+const TOUCH_EDIT_MOVE_TOLERANCE_PX = 12;
+let historyTouchStartPoint = null;
+let wordBookTouchStartPoint = null;
 let historyClickTimer = null;
 let wordBookClickTimer = null;
 let quizReviewClickTimer = null;
@@ -2287,6 +2301,8 @@ const HISTORY_COLUMNS_KEY = 'kotoba_history_columns';
 const WORD_BOOK_BOOKS_SORT_KEY = 'kotoba_wordbook_books_sort_mode';
 const WORD_BOOK_ITEMS_SORT_KEY = 'kotoba_wordbook_items_sort_mode';
 const WORD_BOOK_COLUMNS_KEY = 'kotoba_wordbook_columns';
+const HISTORY_LOOP_SCOPE_KEY = 'kotoba_history_loop_scope';
+const WORD_BOOK_LOOP_SCOPE_KEY = 'kotoba_wordbook_loop_scope';
 const QUIZ_SOURCE_KEY = 'kotoba_quiz_source';
 const QUIZ_ORDER_KEY = 'kotoba_quiz_order';
 const QUIZ_MARKS_KEY = 'kotoba_quiz_marks';
@@ -2311,6 +2327,20 @@ function getHistoryColumns() {
   const value = Number(localStorage.getItem(HISTORY_COLUMNS_KEY) || '1');
   return [1, 2, 3, 4].includes(value) ? value : 1;
 }
+
+function getLoopScopeValue(key) {
+  const value = localStorage.getItem(key) || 'all';
+  return value === 'selected' ? 'selected' : 'all';
+}
+
+function getHistoryLoopScope() {
+  return getLoopScopeValue(HISTORY_LOOP_SCOPE_KEY);
+}
+
+function getWordBookLoopScope() {
+  return getLoopScopeValue(WORD_BOOK_LOOP_SCOPE_KEY);
+}
+
 
 function getQuizReviewColumns() {
   const value = Number(localStorage.getItem(QUIZ_REVIEW_COLUMNS_KEY) || '1');
@@ -2895,8 +2925,15 @@ function speakCurrentTarget(text, langKey) {
   speak(text, langKey || tgtLang.value, voiceTgt);
 }
 
+function getSelectedWordBookItemIndexes() {
+  return Array.from(document.querySelectorAll('[data-wordbook-item-select]:checked')).map(el => Number(el.getAttribute('data-wordbook-item-select'))).filter(v => Number.isFinite(v));
+}
+
 function getActiveWordBookLoopItems() {
-  return Array.isArray(renderedWordBookLoopItems) ? renderedWordBookLoopItems.slice() : [];
+  const items = Array.isArray(renderedWordBookLoopItems) ? renderedWordBookLoopItems.slice() : [];
+  if (getWordBookLoopScope() !== 'selected') return items;
+  const selectedIndexes = new Set(getSelectedWordBookItemIndexes());
+  return items.filter((_, index) => selectedIndexes.has(index));
 }
 
 function updateWordBookLoopButtons() {
@@ -2925,7 +2962,10 @@ function stopWordBookLoopPlayback(cancelSpeech = true) {
 }
 
 function getActiveHistoryLoopItems() {
-  return Array.isArray(renderedHistoryLoopItems) ? renderedHistoryLoopItems.slice() : [];
+  const items = Array.isArray(renderedHistoryLoopItems) ? renderedHistoryLoopItems.slice() : [];
+  if (getHistoryLoopScope() !== 'selected') return items;
+  const selectedIds = new Set(getSelectedHistoryIds());
+  return items.filter(item => selectedIds.has(Number(item.id)));
 }
 
 function updateHistoryLoopButtons() {
@@ -3322,6 +3362,48 @@ function getWordBookEditableSide(target) {
   return sideEl ? sideEl.getAttribute('data-wordbook-side') : 'source';
 }
 
+function clearHistoryTouchLongPressTimer() {
+  if (historyTouchLongPressTimer) {
+    clearTimeout(historyTouchLongPressTimer);
+    historyTouchLongPressTimer = null;
+  }
+}
+
+function clearWordBookTouchLongPressTimer() {
+  if (wordBookTouchLongPressTimer) {
+    clearTimeout(wordBookTouchLongPressTimer);
+    wordBookTouchLongPressTimer = null;
+  }
+}
+
+function getTouchPointFromEvent(e) {
+  if (!e) return null;
+  const touch = (e.touches && e.touches[0]) || (e.changedTouches && e.changedTouches[0]);
+  if (!touch) return null;
+  const x = Number(touch.clientX);
+  const y = Number(touch.clientY);
+  if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+  return { x, y };
+}
+
+function hasTouchMovedBeyondTolerance(startPoint, e) {
+  if (!startPoint) return false;
+  const nextPoint = getTouchPointFromEvent(e);
+  if (!nextPoint) return false;
+  return Math.abs(nextPoint.x - startPoint.x) > TOUCH_EDIT_MOVE_TOLERANCE_PX || Math.abs(nextPoint.y - startPoint.y) > TOUCH_EDIT_MOVE_TOLERANCE_PX;
+}
+
+function shouldStartMobileInlineEdit(target, editingSelector) {
+  const el = getEventElement(target);
+  if (!el || (editingSelector && typeof el.closest === 'function' && el.closest(editingSelector))) return false;
+  return !!(el && typeof el.closest === 'function' && (el.closest('.history-text') || el.closest('.history-col')));
+}
+
+function isTouchPointerEvent(e) {
+  return !!(e && (e.pointerType === 'touch' || e.pointerType === 'pen'));
+}
+
+
 async function interceptWordBookEditTrigger(e) {
   const card = getWordBookEditableCard(e.target);
   if (!card || card.classList.contains('editing')) return false;
@@ -3335,6 +3417,21 @@ async function interceptWordBookEditTrigger(e) {
   e.preventDefault();
   e.stopPropagation();
   if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+  await startWordBookInlineEdit(card, index, side);
+  return true;
+}
+
+
+async function interceptWordBookTouchEditTrigger(e) {
+  const card = getWordBookEditableCard(e.target);
+  if (!card || card.classList.contains('editing')) return false;
+  const index = Number(card.getAttribute('data-wordbook-entry-id') || -1);
+  if (index < 0) return false;
+  const side = getWordBookEditableSide(e.target);
+  suppressWordBookClickUntil = Date.now() + 900;
+  if (e && typeof e.preventDefault === 'function') e.preventDefault();
+  if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+  if (e && typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
   await startWordBookInlineEdit(card, index, side);
   return true;
 }
@@ -3648,7 +3745,21 @@ function loadQuizPrefs() {
   if (quizOrder1) quizOrder1.value = order[0];
   if (quizOrder2) quizOrder2.value = order[1];
   if (quizShuffleCheck) quizShuffleCheck.checked = localStorage.getItem(QUIZ_SHUFFLE_KEY) !== '0';
+  if (historyLoopScopeSelect) historyLoopScopeSelect.value = getHistoryLoopScope();
+  if (wordBookLoopScopeSelect) wordBookLoopScopeSelect.value = getWordBookLoopScope();
   if (quizLoopCheck) quizLoopCheck.checked = localStorage.getItem(QUIZ_LOOP_KEY) === '1';
+}
+
+function saveHistoryLoopScope() {
+  if (!historyLoopScopeSelect) return;
+  localStorage.setItem(HISTORY_LOOP_SCOPE_KEY, historyLoopScopeSelect.value === 'selected' ? 'selected' : 'all');
+  updateHistoryLoopButtons();
+}
+
+function saveWordBookLoopScope() {
+  if (!wordBookLoopScopeSelect) return;
+  localStorage.setItem(WORD_BOOK_LOOP_SCOPE_KEY, wordBookLoopScopeSelect.value === 'selected' ? 'selected' : 'all');
+  updateWordBookLoopButtons();
 }
 
 function saveQuizPrefs() {
@@ -4514,6 +4625,21 @@ async function interceptHistoryEditTrigger(e) {
   return true;
 }
 
+
+async function interceptHistoryTouchEditTrigger(e) {
+  const card = getHistoryEditableCard(e.target);
+  if (!card || card.classList.contains('editing')) return false;
+  const id = Number(card.getAttribute('data-id') || 0);
+  if (!id) return false;
+  const side = getHistoryEditableSide(e.target);
+  suppressHistoryClickUntil = Date.now() + 900;
+  if (e && typeof e.preventDefault === 'function') e.preventDefault();
+  if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+  if (e && typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+  await startHistoryInlineEdit(card, id, side);
+  return true;
+}
+
 historyList.addEventListener('pointerdown', (e) => {
   interceptHistoryEditTrigger(e);
 }, true);
@@ -4526,7 +4652,70 @@ historyList.addEventListener('contextmenu', (e) => {
   interceptHistoryEditTrigger(e);
 }, true);
 
+historyList.addEventListener('pointerdown', (e) => {
+  if (!isTouchPointerEvent(e)) return;
+  if (!shouldStartMobileInlineEdit(e.target, '.history-edit-box')) return;
+  historyTouchStartPoint = { x: Number(e.clientX) || 0, y: Number(e.clientY) || 0 };
+  historyTouchLongPressTriggered = false;
+  clearHistoryTouchLongPressTimer();
+  historyTouchLongPressTimer = setTimeout(async () => {
+    historyTouchLongPressTriggered = await interceptHistoryTouchEditTrigger(e);
+    if (historyTouchLongPressTriggered) historyTouchStartPoint = null;
+  }, TOUCH_EDIT_LONG_PRESS_MS);
+}, true);
+
+historyList.addEventListener('pointerup', () => {
+  historyTouchStartPoint = null;
+  clearHistoryTouchLongPressTimer();
+}, true);
+
+historyList.addEventListener('pointercancel', () => {
+  historyTouchStartPoint = null;
+  clearHistoryTouchLongPressTimer();
+}, true);
+
+historyList.addEventListener('pointermove', (e) => {
+  if (historyTouchStartPoint && (Math.abs((Number(e.clientX) || 0) - historyTouchStartPoint.x) > TOUCH_EDIT_MOVE_TOLERANCE_PX || Math.abs((Number(e.clientY) || 0) - historyTouchStartPoint.y) > TOUCH_EDIT_MOVE_TOLERANCE_PX)) {
+    historyTouchStartPoint = null;
+    clearHistoryTouchLongPressTimer();
+  }
+}, true);
+
+historyList.addEventListener('touchstart', (e) => {
+  if (!shouldStartMobileInlineEdit(e.target, '.history-edit-box')) return;
+  historyTouchStartPoint = getTouchPointFromEvent(e);
+  historyTouchLongPressTriggered = false;
+  clearHistoryTouchLongPressTimer();
+  historyTouchLongPressTimer = setTimeout(async () => {
+    historyTouchLongPressTriggered = await interceptHistoryTouchEditTrigger(e);
+    if (historyTouchLongPressTriggered) historyTouchStartPoint = null;
+  }, TOUCH_EDIT_LONG_PRESS_MS);
+}, { capture: true, passive: false });
+
+historyList.addEventListener('touchmove', (e) => {
+  if (hasTouchMovedBeyondTolerance(historyTouchStartPoint, e)) {
+    historyTouchStartPoint = null;
+    clearHistoryTouchLongPressTimer();
+  }
+}, { capture: true, passive: true });
+
+historyList.addEventListener('touchend', () => {
+  historyTouchStartPoint = null;
+  clearHistoryTouchLongPressTimer();
+}, true);
+
+historyList.addEventListener('touchcancel', () => {
+  historyTouchStartPoint = null;
+  clearHistoryTouchLongPressTimer();
+}, true);
+
 historyList.addEventListener('click', async (e) => {
+  if (historyTouchLongPressTriggered) {
+    historyTouchLongPressTriggered = false;
+    e.preventDefault();
+    e.stopPropagation();
+    return;
+  }
   if (Date.now() < suppressHistoryClickUntil) {
     e.preventDefault();
     e.stopPropagation();
@@ -4787,7 +4976,70 @@ if (wordBookList) {
     interceptWordBookEditTrigger(e);
   }, true);
 
+  wordBookList.addEventListener('pointerdown', (e) => {
+    if (!isTouchPointerEvent(e)) return;
+    if (!shouldStartMobileInlineEdit(e.target, '[data-wb-edit-source], [data-wb-edit-target]')) return;
+    wordBookTouchStartPoint = { x: Number(e.clientX) || 0, y: Number(e.clientY) || 0 };
+    wordBookTouchLongPressTriggered = false;
+    clearWordBookTouchLongPressTimer();
+    wordBookTouchLongPressTimer = setTimeout(async () => {
+      wordBookTouchLongPressTriggered = await interceptWordBookTouchEditTrigger(e);
+      if (wordBookTouchLongPressTriggered) wordBookTouchStartPoint = null;
+    }, TOUCH_EDIT_LONG_PRESS_MS);
+  }, true);
+
+  wordBookList.addEventListener('pointerup', () => {
+    wordBookTouchStartPoint = null;
+    clearWordBookTouchLongPressTimer();
+  }, true);
+
+  wordBookList.addEventListener('pointercancel', () => {
+    wordBookTouchStartPoint = null;
+    clearWordBookTouchLongPressTimer();
+  }, true);
+
+  wordBookList.addEventListener('pointermove', (e) => {
+    if (wordBookTouchStartPoint && (Math.abs((Number(e.clientX) || 0) - wordBookTouchStartPoint.x) > TOUCH_EDIT_MOVE_TOLERANCE_PX || Math.abs((Number(e.clientY) || 0) - wordBookTouchStartPoint.y) > TOUCH_EDIT_MOVE_TOLERANCE_PX)) {
+      wordBookTouchStartPoint = null;
+      clearWordBookTouchLongPressTimer();
+    }
+  }, true);
+
+  wordBookList.addEventListener('touchstart', (e) => {
+    if (!shouldStartMobileInlineEdit(e.target, '[data-wb-edit-source], [data-wb-edit-target]')) return;
+    wordBookTouchStartPoint = getTouchPointFromEvent(e);
+    wordBookTouchLongPressTriggered = false;
+    clearWordBookTouchLongPressTimer();
+    wordBookTouchLongPressTimer = setTimeout(async () => {
+      wordBookTouchLongPressTriggered = await interceptWordBookTouchEditTrigger(e);
+      if (wordBookTouchLongPressTriggered) wordBookTouchStartPoint = null;
+    }, TOUCH_EDIT_LONG_PRESS_MS);
+  }, { capture: true, passive: false });
+
+  wordBookList.addEventListener('touchmove', (e) => {
+    if (hasTouchMovedBeyondTolerance(wordBookTouchStartPoint, e)) {
+      wordBookTouchStartPoint = null;
+      clearWordBookTouchLongPressTimer();
+    }
+  }, { capture: true, passive: true });
+
+  wordBookList.addEventListener('touchend', () => {
+    wordBookTouchStartPoint = null;
+    clearWordBookTouchLongPressTimer();
+  }, true);
+
+  wordBookList.addEventListener('touchcancel', () => {
+    wordBookTouchStartPoint = null;
+    clearWordBookTouchLongPressTimer();
+  }, true);
+
   wordBookList.addEventListener('click', async (e) => {
+    if (wordBookTouchLongPressTriggered) {
+      wordBookTouchLongPressTriggered = false;
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
     if (Date.now() < suppressWordBookClickUntil) {
       e.preventDefault();
       e.stopPropagation();
@@ -4962,6 +5214,8 @@ if (wordBookRenameBtn) {
   });
 }
 
+if (historyLoopScopeSelect) historyLoopScopeSelect.addEventListener('change', saveHistoryLoopScope);
+if (wordBookLoopScopeSelect) wordBookLoopScopeSelect.addEventListener('change', saveWordBookLoopScope);
 if (wordBookLoopSourceBtn) wordBookLoopSourceBtn.addEventListener('click', () => toggleWordBookLoopPlayback('source', wordBookLoopSourceBtn));
 if (wordBookLoopTargetBtn) wordBookLoopTargetBtn.addEventListener('click', () => toggleWordBookLoopPlayback('target', wordBookLoopTargetBtn));
 if (wordBookLoopAlternateBtn) wordBookLoopAlternateBtn.addEventListener('click', () => toggleWordBookLoopPlayback('alternate', wordBookLoopAlternateBtn));
@@ -5310,5 +5564,6 @@ openHistoryDB().then(async () => {
 });
 
 </script>
+
 </body>
 </html>
