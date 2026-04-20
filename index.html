@@ -1787,12 +1787,50 @@ body {
   <!-- Voice settings panel -->
   <div class="voice-panel" id="voicePanel">
     <div class="voice-row">
+      <span class="voice-label">原文方式</span>
+      <select class="voice-select" id="ttsProviderSrc">
+        <option value="browser">ブラウザ音声</option>
+        <option value="elevenlabs">ElevenLabs</option>
+      </select>
+    </div>
+    <div class="voice-row">
+      <span class="voice-label">翻訳方式</span>
+      <select class="voice-select" id="ttsProviderTgt">
+        <option value="browser">ブラウザ音声</option>
+        <option value="elevenlabs">ElevenLabs</option>
+      </select>
+    </div>
+    <div class="voice-row">
       <span class="voice-label">原文の声</span>
       <select class="voice-select" id="voiceSrc"></select>
     </div>
     <div class="voice-row">
       <span class="voice-label">翻訳の声</span>
       <select class="voice-select" id="voiceTgt"></select>
+    </div>
+    <div class="voice-row" style="align-items:flex-start">
+      <span class="voice-label">Eleven</span>
+      <div style="flex:1;display:grid;gap:8px;">
+        <input class="voice-select" id="elevenApiKey" type="password" autocomplete="off" placeholder="APIキー（毎回入力・保存しません）">
+        <input class="voice-select" id="elevenVoiceId" type="text" autocomplete="off" placeholder="Voice ID（IndexedDB保存）">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <select class="voice-select" id="elevenModelId">
+            <option value="eleven_multilingual_v2">eleven_multilingual_v2</option>
+            <option value="eleven_flash_v2_5">eleven_flash_v2_5</option>
+            <option value="eleven_turbo_v2_5">eleven_turbo_v2_5</option>
+            <option value="eleven_v3">eleven_v3</option>
+          </select>
+          <select class="voice-select" id="elevenOutputFormat">
+            <option value="mp3_44100_128">mp3_44100_128</option>
+            <option value="mp3_44100_64">mp3_44100_64</option>
+            <option value="mp3_22050_32">mp3_22050_32</option>
+            <option value="opus_48000_128">opus_48000_128</option>
+            <option value="pcm_44100">pcm_44100</option>
+            <option value="ulaw_8000">ulaw_8000</option>
+          </select>
+        </div>
+        <div id="elevenStatus" style="font-size:12px;color:var(--ink3);line-height:1.6;">Voice ID・モデル・出力形式は保存、APIキーは毎回入力です。</div>
+      </div>
     </div>
     <div class="voice-row" style="margin-top:6px">
       <span class="voice-label">調整</span>
@@ -2608,8 +2646,15 @@ const cpyBtn     = document.getElementById('cpyBtn');
 const cpySrc     = document.getElementById('cpySrc');
 const voiceToggle= document.getElementById('voiceToggle');
 const voicePanel = document.getElementById('voicePanel');
+const ttsProviderSrc = document.getElementById('ttsProviderSrc');
+const ttsProviderTgt = document.getElementById('ttsProviderTgt');
 const voiceSrc   = document.getElementById('voiceSrc');
 const voiceTgt   = document.getElementById('voiceTgt');
+const elevenApiKey = document.getElementById('elevenApiKey');
+const elevenVoiceId = document.getElementById('elevenVoiceId');
+const elevenModelId = document.getElementById('elevenModelId');
+const elevenOutputFormat = document.getElementById('elevenOutputFormat');
+const elevenStatus = document.getElementById('elevenStatus');
 const rateSlider = document.getElementById('rateSlider');
 const pitchSlider= document.getElementById('pitchSlider');
 const volSlider  = document.getElementById('volSlider');
@@ -3000,6 +3045,8 @@ const VOICE_SETTINGS_KEY = 'voice_settings';
 let dbPromise = null;
 let currentView = 0;
 let pendingVoiceSettings = null;
+let currentAudioPlayback = null;
+let currentElevenRequestToken = 0;
 
 function formatDate(ts) {
   const d = new Date(ts);
@@ -3358,14 +3405,14 @@ function speakCurrentSource(text, langKey) {
   stopHistoryLoopPlayback(false);
   stopHistoryLoopPlayback(false);
   updateSearchInputFromSpeech(text);
-  speak(text, langKey || srcLang.value, voiceSrc);
+  speak(text, langKey || srcLang.value, voiceSrc, ttsProviderSrc);
 }
 
 function speakCurrentTarget(text, langKey) {
   stopWordBookLoopPlayback(false);
   stopHistoryLoopPlayback(false);
   updateSearchInputFromSpeech(text);
-  speak(text, langKey || tgtLang.value, voiceTgt);
+  speak(text, langKey || tgtLang.value, voiceTgt, ttsProviderTgt);
 }
 
 function getSelectedWordBookItemIndexes() {
@@ -3400,7 +3447,7 @@ function stopWordBookLoopPlayback(cancelSpeech = true) {
   wordBookLoopState.mode = null;
   wordBookLoopState.button = null;
   wordBookLoopState.token += 1;
-  if (cancelSpeech && window.speechSynthesis) window.speechSynthesis.cancel();
+  if (cancelSpeech) stopAllSpeechPlayback(true);
   updateWordBookLoopButtons();
 }
 
@@ -3432,7 +3479,7 @@ function stopHistoryLoopPlayback(cancelSpeech = true) {
   historyLoopState.mode = null;
   historyLoopState.button = null;
   historyLoopState.token += 1;
-  if (cancelSpeech && window.speechSynthesis) window.speechSynthesis.cancel();
+  if (cancelSpeech) stopAllSpeechPlayback(true);
   updateHistoryLoopButtons();
 }
 
@@ -3440,47 +3487,23 @@ function scheduleLoopStep(fn, delay = 8) {
   setTimeout(fn, delay);
 }
 
-function speakLoopChunk(loopState, text, langKey, voiceSel, token, onend) {
-  if (!text || !window.speechSynthesis || token !== loopState.token || !loopState.active) {
+function speakLoopChunk(loopState, text, langKey, voiceSel, providerSel, token, onend) {
+  if (!text || token !== loopState.token || !loopState.active) {
     onend && onend();
     return;
   }
-  const bcp = LANG_BCP[langKey] || 'ja-JP';
-  const fire = () => {
-    if (token !== loopState.token || !loopState.active) return;
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = bcp;
-    u.rate = +rateSlider.value;
-    u.pitch = +pitchSlider.value;
-    u.volume = +volSlider.value;
-    const chosen = getVoiceFromSelect(voiceSel);
-    if (chosen) {
-      u.voice = chosen;
-    } else {
-      const vs = window.speechSynthesis.getVoices();
-      const v = vs.find(v => v.lang === bcp) || vs.find(v => (v.lang || '').startsWith(bcp.split('-')[0]));
-      if (v) u.voice = v;
-    }
-    u.onend = () => {
+  playSpeechChunk(loopState, text, langKey, voiceSel, providerSel, token)
+    .then(() => {
       if (token !== loopState.token || !loopState.active) return;
       scheduleLoopStep(() => onend && onend(), 8);
-    };
-    u.onerror = () => {
+    })
+    .catch((err) => {
+      const provider = getProviderForSelect(providerSel);
+      const message = err && err.message ? err.message : String(err || '音声再生に失敗しました。');
+      if (provider === 'elevenlabs') setElevenStatus(message, true);
       if (token !== loopState.token || !loopState.active) return;
       scheduleLoopStep(() => onend && onend(), 8);
-    };
-    window.speechSynthesis.speak(u);
-  };
-  if (window.speechSynthesis.getVoices().length > 0) {
-    fire();
-  } else {
-    let done = false;
-    window.speechSynthesis.addEventListener('voiceschanged', function h() {
-      window.speechSynthesis.removeEventListener('voiceschanged', h);
-      if (!done) { done = true; fire(); }
     });
-    setTimeout(() => { if (!done) { done = true; fire(); } }, 60);
-  }
 }
 
 function runLoopSequence(loopState, mode, items, startIndex, token) {
@@ -3507,30 +3530,31 @@ function runLoopSequence(loopState, mode, items, startIndex, token) {
     }
     if (!source) {
       updateSearchInputFromSpeech(target);
-      speakLoopChunk(loopState, target, item.tgtLang || tgtLang.value, voiceTgt, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
+      speakLoopChunk(loopState, target, item.tgtLang || tgtLang.value, voiceTgt, ttsProviderTgt, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
       return;
     }
     updateSearchInputFromSpeech(source);
-    speakLoopChunk(loopState, source, item.srcLang || srcLang.value, voiceSrc, token, () => {
+    speakLoopChunk(loopState, source, item.srcLang || srcLang.value, voiceSrc, ttsProviderSrc, token, () => {
       if (!loopState.active || token !== loopState.token) return;
       if (!target) {
         runLoopSequence(loopState, mode, items, safeIndex + 1, token);
         return;
       }
       updateSearchInputFromSpeech(target);
-      speakLoopChunk(loopState, target, item.tgtLang || tgtLang.value, voiceTgt, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
+      speakLoopChunk(loopState, target, item.tgtLang || tgtLang.value, voiceTgt, ttsProviderTgt, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
     });
     return;
   }
   const text = mode === 'target' ? (item.translatedText || '').trim() : (item.sourceText || '').trim();
   const lang = mode === 'target' ? (item.tgtLang || tgtLang.value) : (item.srcLang || srcLang.value);
   const voiceSel = mode === 'target' ? voiceTgt : voiceSrc;
+  const providerSel = mode === 'target' ? ttsProviderTgt : ttsProviderSrc;
   if (!text) {
     runLoopSequence(loopState, mode, items, safeIndex + 1, token);
     return;
   }
   updateSearchInputFromSpeech(text);
-  speakLoopChunk(loopState, text, lang, voiceSel, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
+  speakLoopChunk(loopState, text, lang, voiceSel, providerSel, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
 }
 
 function startHistoryLoopPlayback(mode, button) {
@@ -3539,7 +3563,7 @@ function startHistoryLoopPlayback(mode, button) {
     alert('再生できる翻訳履歴がありません。');
     return;
   }
-  window.speechSynthesis && window.speechSynthesis.cancel();
+  stopAllSpeechPlayback(true);
   stopWordBookLoopPlayback(false);
   historyLoopState.active = true;
   historyLoopState.mode = mode;
@@ -3564,7 +3588,7 @@ function startWordBookLoopPlayback(mode, button) {
     alert('再生できる Word Book 項目がありません。');
     return;
   }
-  window.speechSynthesis && window.speechSynthesis.cancel();
+  stopAllSpeechPlayback(true);
   stopHistoryLoopPlayback(false);
   wordBookLoopState.active = true;
   wordBookLoopState.mode = mode;
@@ -4787,6 +4811,40 @@ swapBtn.addEventListener('click', () => {
 // ── Voice selector ─────────────────────────────────────────────────────────
 let allVoices = [];
 
+function setElevenStatus(message, isError = false) {
+  if (!elevenStatus) return;
+  elevenStatus.textContent = message || 'Voice ID・モデル・出力形式は保存、APIキーは毎回入力です。';
+  elevenStatus.style.color = isError ? 'var(--red)' : 'var(--ink3)';
+}
+
+function stopExternalAudioPlayback() {
+  currentElevenRequestToken += 1;
+  if (currentAudioPlayback && currentAudioPlayback.audio) {
+    try { currentAudioPlayback.audio.pause(); } catch (_) {}
+    try {
+      if (currentAudioPlayback.objectUrl) URL.revokeObjectURL(currentAudioPlayback.objectUrl);
+    } catch (_) {}
+  }
+  currentAudioPlayback = null;
+}
+
+function stopAllSpeechPlayback(cancelBrowserSpeech = true) {
+  stopExternalAudioPlayback();
+  if (cancelBrowserSpeech && window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+function getProviderForSelect(providerSel) {
+  return providerSel && providerSel.value === 'elevenlabs' ? 'elevenlabs' : 'browser';
+}
+
+function getElevenLabsSettings() {
+  return {
+    apiKey: String(elevenApiKey && elevenApiKey.value || '').trim(),
+    voiceId: String(elevenVoiceId && elevenVoiceId.value || '').trim(),
+    modelId: String(elevenModelId && elevenModelId.value || 'eleven_multilingual_v2').trim(),
+    outputFormat: String(elevenOutputFormat && elevenOutputFormat.value || 'mp3_44100_128').trim()
+  };
+}
 
 async function saveVoiceSettingsToIndexedDB() {
   const payload = {
@@ -4794,6 +4852,11 @@ async function saveVoiceSettingsToIndexedDB() {
     tgtLang: tgtLang ? tgtLang.value : 'ja',
     voiceSrcValue: voiceSrc ? (voiceSrc.value || '') : '',
     voiceTgtValue: voiceTgt ? (voiceTgt.value || '') : '',
+    ttsProviderSrc: ttsProviderSrc ? (ttsProviderSrc.value || 'browser') : 'browser',
+    ttsProviderTgt: ttsProviderTgt ? (ttsProviderTgt.value || 'browser') : 'browser',
+    elevenVoiceId: elevenVoiceId ? (elevenVoiceId.value || '') : '',
+    elevenModelId: elevenModelId ? (elevenModelId.value || 'eleven_multilingual_v2') : 'eleven_multilingual_v2',
+    elevenOutputFormat: elevenOutputFormat ? (elevenOutputFormat.value || 'mp3_44100_128') : 'mp3_44100_128',
     rate: rateSlider ? +rateSlider.value : 0.95,
     pitch: pitchSlider ? +pitchSlider.value : 1,
     volume: volSlider ? +volSlider.value : 1,
@@ -4810,6 +4873,11 @@ async function saveVoiceSettingsToIndexedDB() {
 function applyVoiceSettingsToControls(settings) {
   if (!settings) return;
   pendingVoiceSettings = settings;
+  if (ttsProviderSrc && settings.ttsProviderSrc) ttsProviderSrc.value = settings.ttsProviderSrc;
+  if (ttsProviderTgt && settings.ttsProviderTgt) ttsProviderTgt.value = settings.ttsProviderTgt;
+  if (elevenVoiceId && typeof settings.elevenVoiceId === 'string') elevenVoiceId.value = settings.elevenVoiceId;
+  if (elevenModelId && settings.elevenModelId) elevenModelId.value = settings.elevenModelId;
+  if (elevenOutputFormat && settings.elevenOutputFormat) elevenOutputFormat.value = settings.elevenOutputFormat;
   if (rateSlider && Number.isFinite(+settings.rate)) {
     rateSlider.value = String(settings.rate);
     rateVal.textContent = (+rateSlider.value).toFixed(2);
@@ -4883,6 +4951,147 @@ function getVoiceFromSelect(sel) {
   return allVoices.find(v=>v.name===name) || null;
 }
 
+function explainElevenLabsError(rawMessage) {
+  const msg = String(rawMessage || '').toLowerCase();
+  if (msg.includes('invalid_api_key')) return 'APIキーが無効です。';
+  if (msg.includes('voice_not_found')) return 'Voice ID が見つかりません。';
+  if (msg.includes('quota_exceeded')) return '利用上限に達しています。';
+  if (msg.includes('max_character_limit_exceeded')) return '文字数上限を超えています。';
+  if (msg.includes('401')) return '401 認証エラーです。APIキーを確認してください。';
+  if (msg.includes('403')) return '403 エラーです。プランや権限を確認してください。';
+  if (msg.includes('422')) return '422 エラーです。Voice ID・モデル・出力形式の組合せを確認してください。';
+  return rawMessage || 'ElevenLabs の音声生成に失敗しました。';
+}
+
+async function playElevenLabsAudio(text, providerSettings, token) {
+  if (!text) return;
+  if (!providerSettings.apiKey) throw new Error('ElevenLabs APIキーを入力してください。');
+  if (!providerSettings.voiceId) throw new Error('ElevenLabs Voice ID を入力してください。');
+  const url = `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(providerSettings.voiceId)}?output_format=${encodeURIComponent(providerSettings.outputFormat)}`;
+  const payload = {
+    text,
+    model_id: providerSettings.modelId,
+    voice_settings: {
+      stability: 0.5,
+      similarity_boost: 0.75
+    }
+  };
+  setElevenStatus('ElevenLabs で音声生成中...');
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'xi-api-key': providerSettings.apiKey
+    },
+    body: JSON.stringify(payload)
+  });
+  if (!response.ok) {
+    let detail = `${response.status} ${response.statusText}`;
+    try {
+      const data = await response.json();
+      if (data && data.detail) {
+        if (typeof data.detail === 'string') detail = data.detail;
+        else if (data.detail.message) detail = data.detail.message;
+        else if (data.detail.status) detail = data.detail.status;
+        else detail = JSON.stringify(data.detail);
+      }
+    } catch (_) {}
+    throw new Error(explainElevenLabsError(detail));
+  }
+  const blob = await response.blob();
+  if (token !== currentElevenRequestToken) return;
+  stopExternalAudioPlayback();
+  const objectUrl = URL.createObjectURL(blob);
+  const audio = new Audio(objectUrl);
+  currentAudioPlayback = { audio, objectUrl, token };
+  await new Promise((resolve, reject) => {
+    let settled = false;
+    const finalize = (fn) => {
+      if (settled) return;
+      settled = true;
+      try { audio.onended = null; audio.onerror = null; } catch (_) {}
+      fn();
+    };
+    audio.onended = () => finalize(resolve);
+    audio.onerror = () => finalize(() => reject(new Error('音声の再生に失敗しました。')));
+    audio.play().then(() => {
+      setElevenStatus('ElevenLabs を使用中。Voice ID・モデル・出力形式は保存済み、APIキーは今回のみ。');
+    }).catch(() => {
+      finalize(() => reject(new Error('ブラウザが音声再生を開始できませんでした。')));
+    });
+  }).finally(() => {
+    if (currentAudioPlayback && currentAudioPlayback.objectUrl === objectUrl) {
+      try { URL.revokeObjectURL(objectUrl); } catch (_) {}
+      currentAudioPlayback = null;
+    }
+  });
+}
+
+function playBrowserSpeech(text, langKey, voiceSel) {
+  return new Promise((resolve, reject) => {
+    if (!text) { resolve(); return; }
+    if (!window.speechSynthesis) { reject(new Error('このブラウザは音声読み上げ非対応です。')); return; }
+    const bcp = LANG_BCP[langKey] || 'ja-JP';
+    const fire = () => {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang   = bcp;
+      u.rate   = +rateSlider.value;
+      u.pitch  = +pitchSlider.value;
+      u.volume = +volSlider.value;
+      const chosen = getVoiceFromSelect(voiceSel);
+      if (chosen) {
+        u.voice = chosen;
+      } else {
+        const vs = window.speechSynthesis.getVoices();
+        const v = vs.find(v=>v.lang===bcp) || vs.find(v=>(v.lang || '').startsWith(bcp.split('-')[0]));
+        if (v) u.voice = v;
+      }
+      u.onend = () => resolve();
+      u.onerror = e => reject(new Error((e && e.error) || 'TTS error'));
+      window.speechSynthesis.speak(u);
+    };
+    if (window.speechSynthesis.getVoices().length > 0) {
+      fire();
+    } else {
+      let done = false;
+      window.speechSynthesis.addEventListener('voiceschanged', function h() {
+        window.speechSynthesis.removeEventListener('voiceschanged', h);
+        if (!done) { done=true; fire(); }
+      });
+      setTimeout(()=>{ if(!done){done=true;fire();} }, 80);
+    }
+  });
+}
+
+async function speak(text, langKey, voiceSel, providerSel) {
+  stopWordBookLoopPlayback(false);
+  stopHistoryLoopPlayback(false);
+  if (!text) return;
+  const provider = getProviderForSelect(providerSel);
+  stopAllSpeechPlayback(provider !== 'browser');
+  try {
+    if (provider === 'elevenlabs') {
+      const token = ++currentElevenRequestToken;
+      await playElevenLabsAudio(text, getElevenLabsSettings(), token);
+      return;
+    }
+    await playBrowserSpeech(text, langKey, voiceSel);
+  } catch (err) {
+    const message = err && err.message ? err.message : String(err || '音声再生に失敗しました。');
+    if (provider === 'elevenlabs') setElevenStatus(message, true);
+    else alert(message);
+  }
+}
+
+async function playSpeechChunk(loopState, text, langKey, voiceSel, providerSel, token) {
+  if (!text) return;
+  if (getProviderForSelect(providerSel) === 'elevenlabs') {
+    await playElevenLabsAudio(text, getElevenLabsSettings(), token);
+    return;
+  }
+  await playBrowserSpeech(text, langKey, voiceSel);
+}
+
 if (window.speechSynthesis) {
   window.speechSynthesis.addEventListener('voiceschanged', populateVoiceSelects);
   setTimeout(populateVoiceSelects, 300);
@@ -4896,57 +5105,24 @@ voiceToggle.addEventListener('click', () => {
   if (voicePanel.classList.contains('open')) populateVoiceSelects();
 });
 
-[voiceSrc, voiceTgt].forEach(sel => {
+[ttsProviderSrc, ttsProviderTgt, voiceSrc, voiceTgt, elevenVoiceId, elevenModelId, elevenOutputFormat].forEach(sel => {
   if (!sel) return;
   sel.addEventListener('change', () => { saveVoiceSettingsToIndexedDB(); });
 });
+
+if (elevenApiKey) {
+  elevenApiKey.addEventListener('input', () => {
+    setElevenStatus(elevenApiKey.value.trim() ? 'APIキーはこのセッションだけ使用します。保存されません。' : 'Voice ID・モデル・出力形式は保存、APIキーは毎回入力です。');
+  });
+}
 
 rateSlider.addEventListener('input', ()=> { rateVal.textContent = (+rateSlider.value).toFixed(2); saveVoiceSettingsToIndexedDB(); });
 pitchSlider.addEventListener('input', ()=> { pitchVal.textContent = (+pitchSlider.value).toFixed(2); saveVoiceSettingsToIndexedDB(); });
 volSlider.addEventListener('input', ()=> { volVal.textContent = (+volSlider.value).toFixed(2); saveVoiceSettingsToIndexedDB(); });
 
 // ── Speech synthesis ────────────────────────────────────────────────────────
-function speak(text, langKey, voiceSel) {
-  stopWordBookLoopPlayback(false);
-  if (!text) return;
-  if (!window.speechSynthesis) { alert('このブラウザは音声読み上げ非対応です。'); return; }
-  const bcp = LANG_BCP[langKey] || 'ja-JP';
-  window.speechSynthesis.cancel();
-
-  function fire() {
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang   = bcp;
-    u.rate   = +rateSlider.value;
-    u.pitch  = +pitchSlider.value;
-    u.volume = +volSlider.value;
-
-    const chosen = getVoiceFromSelect(voiceSel);
-    if (chosen) {
-      u.voice = chosen;
-    } else {
-      const vs = window.speechSynthesis.getVoices();
-      const v = vs.find(v=>v.lang===bcp) || vs.find(v=>v.lang.startsWith(bcp.split('-')[0]));
-      if (v) u.voice = v;
-    }
-    u.onerror = e => console.warn('TTS:', e.error);
-    window.speechSynthesis.speak(u);
-  }
-
-  if (window.speechSynthesis.getVoices().length > 0) {
-    fire();
-  } else {
-    let done = false;
-    window.speechSynthesis.addEventListener('voiceschanged', function h() {
-      window.speechSynthesis.removeEventListener('voiceschanged', h);
-      if (!done) { done=true; fire(); }
-    });
-    setTimeout(()=>{ if(!done){done=true;fire();} }, 80);
-  }
-}
-
 spkSrc.addEventListener('click', () => speakCurrentSource(getCurrentSourceText(), srcLang.value));
 spkTgt.addEventListener('click', () => speakCurrentTarget(getCurrentTargetText(), tgtLang.value));
-
 // ── Copy ────────────────────────────────────────────────────────────────────
 cpyBtn.addEventListener('click', () => {
   if (!current) return;
