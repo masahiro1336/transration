@@ -456,6 +456,158 @@ body {
 .hist-ib.danger { color: var(--red); }
 
 
+
+
+/* ── Refined control groups ── */
+.control-board {
+  display:grid;
+  gap:12px;
+}
+.control-section {
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff;
+  padding:14px;
+  display:grid;
+  gap:10px;
+}
+.control-section.soft {
+  background:linear-gradient(180deg,#fff 0%, #fafafe 100%);
+}
+.control-headline {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:12px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:.02em;
+}
+.control-icon {
+  width:26px;
+  height:26px;
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#f3f0ff;
+  color:var(--accent);
+  flex:0 0 26px;
+}
+.control-sub {
+  font-size:11px;
+  color:var(--ink3);
+  line-height:1.6;
+}
+.control-grid {
+  display:grid;
+  gap:8px;
+  grid-template-columns: repeat(12, minmax(0,1fr));
+}
+.span-3 { grid-column: span 3; }
+.span-4 { grid-column: span 4; }
+.span-5 { grid-column: span 5; }
+.span-6 { grid-column: span 6; }
+.span-7 { grid-column: span 7; }
+.span-8 { grid-column: span 8; }
+.span-9 { grid-column: span 9; }
+.span-12 { grid-column: span 12; }
+.field-label {
+  font-size:11px;
+  color:var(--ink3);
+  margin-bottom:6px;
+  display:block;
+}
+.control-field {
+  min-width:0;
+}
+.control-field input,
+.control-field select,
+.control-field button,
+.control-field .segmented {
+  width:100%;
+}
+.compact-input,
+.compact-select {
+  min-height:42px;
+}
+.action-row {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.action-row .hist-btn {
+  min-height:40px;
+  padding:8px 12px;
+}
+.segmented {
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:4px;
+  border:1px solid var(--line);
+  background:var(--panel-r);
+  border-radius:12px;
+  padding:4px;
+}
+.segmented-btn {
+  border:none;
+  background:transparent;
+  border-radius:9px;
+  min-height:34px;
+  font-size:12px;
+  font-weight:600;
+  color:var(--ink3);
+  cursor:pointer;
+  transition:.15s;
+}
+.segmented-btn.active {
+  background:#fff;
+  color:var(--accent);
+  box-shadow:0 1px 3px rgba(0,0,0,.06);
+}
+.control-note-chip {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  align-self:flex-start;
+  font-size:11px;
+  color:var(--ink2);
+  border:1px solid var(--line);
+  background:var(--panel-r);
+  border-radius:999px;
+  padding:6px 10px;
+}
+.visually-hidden-select {
+  position:absolute !important;
+  width:1px !important;
+  height:1px !important;
+  padding:0 !important;
+  margin:-1px !important;
+  overflow:hidden !important;
+  clip:rect(0,0,0,0) !important;
+  white-space:nowrap !important;
+  border:0 !important;
+}
+.history-head, .wordbook-toolbar {
+  display:grid;
+  gap:14px;
+}
+.history-head-left, .history-actions,
+.wordbook-toolbar-left, .wordbook-toolbar-right {
+  display:block;
+}
+.inline-meta-row {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+@media (max-width: 720px) {
+  .control-grid { grid-template-columns: repeat(6, minmax(0,1fr)); }
+  .span-3, .span-4, .span-5, .span-6, .span-7, .span-8, .span-9 { grid-column: span 6; }
+}
+
 /* ── History utilities / Word Book ── */
 .history-name-input, .wordbook-select {
   min-width: 180px;
@@ -1363,8 +1515,135 @@ body {
   }
 }
 
+/* ── Panel Tab Navigation ── */
+.panel-tabs {
+  display: flex;
+  gap: 0;
+  padding: 14px 20px 0;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.panel-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink3);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color .15s;
+  white-space: nowrap;
+  border-radius: 10px 10px 0 0;
+}
+.panel-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0; right: 0;
+  height: 2px;
+  background: transparent;
+  border-radius: 2px 2px 0 0;
+  transition: background .15s;
+}
+.panel-tab:hover { color: var(--ink); }
+.panel-tab.active {
+  color: var(--accent);
+  background: rgba(94,92,230,.04);
+}
+.panel-tab.active::after {
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+}
+.panel-tab-icon {
+  width: 20px; height: 20px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  background: var(--bg);
+  transition: background .15s;
+}
+.panel-tab.active .panel-tab-icon {
+  background: rgba(94,92,230,.12);
+}
+
+/* Tab content panels */
+.panel-tab-content {
+  display: none;
+}
+.panel-tab-content.active {
+  display: block;
+}
+
+/* Word display area — always visible */
+.words-always-visible {
+  border-top: 1px solid var(--line);
+}
+
+/* Tab header with sticky word count */
+.panel-tab-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px 0;
+  background: var(--surface);
+  gap: 8px;
+}
+.panel-tab-badge {
+  font-size: 11px;
+  color: var(--ink3);
+  border: 1px solid var(--line);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--bg);
+}
+
+/* Compact inner section (no outer border) */
+.tab-inner-section {
+  padding: 16px 20px;
+  display: grid;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.tab-inner-section:last-child {
+  border-bottom: none;
+}
+
+/* Subtle section label */
+.tab-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--ink3);
+  margin-bottom: 8px;
+}
+
+/* History card overrides for tab layout */
+.history-card .history-head,
+.history-card .wordbook-toolbar {
+  padding: 0;
+  border-bottom: none;
+}
+.history-card .control-board {
+  display: none; /* replaced by tabs */
+}
+
+/* Inner tab area padding */
+.panel-tabs-body {
+  padding: 16px 20px;
+  display: grid;
+  gap: 14px;
+}
+
+/* Responsive */
 @media (max-width: 560px) {
-  
+  .panel-tab { padding: 9px 12px 11px; font-size: 12px; }
+  .panel-tabs { padding: 12px 14px 0; gap: 2px; }
+  .panel-tabs-body { padding: 14px; }
+}
 
 </style>
 </head>
@@ -1563,55 +1842,136 @@ body {
   </div>
 
   <div class="history-card">
-    <div class="history-head">
-      <div class="history-head-left">
-        <div class="history-title">翻訳履歴</div>
-        <div class="history-search-row">
-          <input id="historySearchInput" class="history-search-input" type="text" placeholder="履歴を検索">
-          <div class="history-layout-tools">
-            <select id="historySortSelect" class="history-sort-select" aria-label="履歴の並び替え">
+
+    <!-- Tab Navigation -->
+    <div class="panel-tab-header">
+      <div>
+        <div class="history-title" style="font-size:16px;font-weight:600;color:var(--ink)">翻訳履歴</div>
+        <div class="history-sub" style="font-size:11px;color:var(--ink3);margin-top:2px">検索・ループ・Book操作を切り替えて使用</div>
+      </div>
+      <span class="panel-tab-badge" id="historyTabBadge">選択項目操作に対応</span>
+    </div>
+
+    <div class="panel-tabs" role="tablist" aria-label="翻訳履歴の操作">
+      <button class="panel-tab active" type="button" role="tab" aria-selected="true"
+        data-tab-group="history" data-tab-target="hist-tab-search"
+        id="histTabSearch">
+        <span class="panel-tab-icon">⌕</span>
+        検索と表示
+      </button>
+      <button class="panel-tab" type="button" role="tab" aria-selected="false"
+        data-tab-group="history" data-tab-target="hist-tab-loop"
+        id="histTabLoop">
+        <span class="panel-tab-icon">↻</span>
+        ループ再生
+      </button>
+      <button class="panel-tab" type="button" role="tab" aria-selected="false"
+        data-tab-group="history" data-tab-target="hist-tab-select"
+        id="histTabSelect">
+        <span class="panel-tab-icon">▣</span>
+        選択操作と保存
+      </button>
+    </div>
+
+    <!-- Tab: 検索と表示 -->
+    <div class="panel-tab-content active" id="hist-tab-search" role="tabpanel">
+      <div class="panel-tabs-body">
+        <div class="control-grid">
+          <div class="control-field span-6">
+            <label class="field-label" for="historySearchInput">履歴検索</label>
+            <input id="historySearchInput" class="history-search-input compact-input" type="text" placeholder="履歴を検索…">
+          </div>
+          <div class="control-field span-3">
+            <label class="field-label" for="historySortSelect">並び替え</label>
+            <select id="historySortSelect" class="history-sort-select compact-select" aria-label="履歴の並び替え">
               <option value="manual">手動順</option>
               <option value="newest">新しい順</option>
               <option value="oldest">古い順</option>
               <option value="source">原文A→Z</option>
               <option value="target">訳文A→Z</option>
             </select>
-            <select id="historyColumnsSelect" class="history-column-toggle" aria-label="履歴の列表示">
+          </div>
+          <div class="control-field span-3">
+            <label class="field-label" for="historyColumnsSelect">列表示</label>
+            <select id="historyColumnsSelect" class="history-column-toggle compact-select" aria-label="履歴の列表示">
               <option value="1">1列表示</option>
               <option value="2">2列表示</option>
               <option value="3">3列表示</option>
               <option value="4">4列表示</option>
             </select>
-            <select id="historyLoopScopeSelect" class="history-mode-select" aria-label="履歴ループ対象"><option value="all">すべてループ</option><option value="selected">選択項目ループ</option></select>
-            <button class="hist-btn" id="historyLoopSourceBtn" type="button">原文ループ</button>
-            <button class="hist-btn" id="historyLoopTargetBtn" type="button">訳語ループ</button>
-            <button class="hist-btn" id="historyLoopAlternateBtn" type="button">交互ループ</button>
           </div>
         </div>
       </div>
-      <div class="history-actions">
-        <div class="history-save-row">
-          <input id="wordBookNameInput" class="history-name-input" type="text" placeholder="Word Book 名称" maxlength="80">
-          <select id="wordBookSaveMode" class="history-mode-select" aria-label="Word Book 保存形式">
-            <option value="full">全文保存</option>
-            <option value="firstline">1行抽出</option>
-            <option value="selection">選択範囲保存</option>
-          </select>
-          <button class="hist-btn" id="historySelectAllBtn" type="button">全選択</button>
-          <button class="hist-btn" id="historyDeselectAllBtn" type="button">全解除</button>
-          <button class="hist-btn" id="saveWordBookBtn" type="button">新規 Word Book に保存</button>
-          <select id="historyWordBookTargetSelect" class="history-mode-select" aria-label="履歴から操作する Word Book"></select>
-          <button class="hist-btn" id="openSelectedWordBookBtn" type="button">開く</button>
-          <button class="hist-btn" id="appendToSelectedWordBookBtn" type="button">開いている Word Book に追加</button>
-          <button class="hist-btn danger" id="removeFromSelectedWordBookBtn" type="button">開いている Word Book から削除</button>
-          <button class="hist-btn danger" id="historyDeleteSelectedBtn" type="button">選択項目を削除</button>
-          <button class="hist-btn danger" id="historyClearBtn" type="button">履歴を全削除</button>
+    </div>
+
+    <!-- Tab: ループ再生 -->
+    <div class="panel-tab-content" id="hist-tab-loop" role="tabpanel">
+      <div class="panel-tabs-body">
+        <div class="control-grid">
+          <div class="control-field span-4">
+            <label class="field-label">再生対象</label>
+            <div class="segmented" data-sync-select="historyLoopScopeSelect">
+              <button class="segmented-btn" type="button" data-value="selected">選択</button>
+              <button class="segmented-btn" type="button" data-value="all">すべて</button>
+            </div>
+            <select id="historyLoopScopeSelect" class="history-mode-select visually-hidden-select" aria-label="履歴ループ対象"><option value="all">すべてループ</option><option value="selected">選択項目ループ</option></select>
+          </div>
+          <div class="control-field span-8">
+            <label class="field-label">再生モード</label>
+            <div class="action-row">
+              <button class="hist-btn" id="historyLoopSourceBtn" type="button">原文ループ</button>
+              <button class="hist-btn" id="historyLoopTargetBtn" type="button">訳語ループ</button>
+              <button class="hist-btn" id="historyLoopAlternateBtn" type="button">交互ループ</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="history-list" id="historyList">
-      <div class="history-empty">履歴はまだありません。</div>
+
+    <!-- Tab: 選択操作と保存 -->
+    <div class="panel-tab-content" id="hist-tab-select" role="tabpanel">
+      <div class="panel-tabs-body">
+        <div class="control-grid">
+          <div class="control-field span-4">
+            <label class="field-label" for="wordBookNameInput">新規 Word Book 名</label>
+            <input id="wordBookNameInput" class="history-name-input compact-input" type="text" placeholder="Word Book 名称" maxlength="80">
+          </div>
+          <div class="control-field span-3">
+            <label class="field-label" for="wordBookSaveMode">保存形式</label>
+            <select id="wordBookSaveMode" class="history-mode-select compact-select" aria-label="Word Book 保存形式">
+              <option value="full">全文保存</option>
+              <option value="firstline">1行抽出</option>
+              <option value="selection">選択範囲保存</option>
+            </select>
+          </div>
+          <div class="control-field span-5">
+            <label class="field-label" for="historyWordBookTargetSelect">操作対象 Book</label>
+            <select id="historyWordBookTargetSelect" class="history-mode-select compact-select" aria-label="履歴から操作する Word Book"></select>
+          </div>
+          <div class="control-field span-12">
+            <label class="field-label">選択と Book 操作</label>
+            <div class="action-row">
+              <button class="hist-btn" id="historySelectAllBtn" type="button">全選択</button>
+              <button class="hist-btn" id="historyDeselectAllBtn" type="button">全解除</button>
+              <button class="hist-btn" id="saveWordBookBtn" type="button">新規 Book に保存</button>
+              <button class="hist-btn" id="openSelectedWordBookBtn" type="button">Book を開く</button>
+              <button class="hist-btn" id="appendToSelectedWordBookBtn" type="button">開いている Book に追加</button>
+              <button class="hist-btn danger" id="removeFromSelectedWordBookBtn" type="button">開いている Book から削除</button>
+              <button class="hist-btn danger" id="historyDeleteSelectedBtn" type="button">選択項目を削除</button>
+              <button class="hist-btn danger" id="historyClearBtn" type="button">履歴を全削除</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Words — always visible -->
+    <div class="words-always-visible">
+      <div class="history-list" id="historyList">
+        <div class="history-empty">履歴はまだありません。</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -1629,53 +1989,136 @@ body {
   </div>
 
   <div class="history-card">
-    <div class="wordbook-toolbar">
-      <div class="wordbook-toolbar-left">
-        <select id="wordBookSelect" class="wordbook-select" aria-label="Word Book 切替"></select>
-        <div class="wordbook-book-meta">
-          <span class="history-chip" id="wordBookNameChip">未選択</span>
-          <span class="wordbook-count" id="wordBookCount" aria-hidden="true"></span>
-        </div>
-        <div class="wordbook-layout-tools">
-          <select id="wordBookBooksSortSelect" class="wordbook-sort-select" aria-label="Word Book 一覧の並び替え">
-            <option value="manual">Book手動順</option>
-            <option value="newest">Book新しい順</option>
-            <option value="oldest">Book古い順</option>
-            <option value="name">Book名A→Z</option>
-          </select>
-          <select id="wordBookItemsSortSelect" class="wordbook-sort-select" aria-label="Word Book 項目の並び替え">
-            <option value="manual">項目手動順</option>
-            <option value="source">原文A→Z</option>
-            <option value="target">訳文A→Z</option>
-          </select>
-          <select id="wordBookColumnsSelect" class="wordbook-column-toggle" aria-label="Word Book の列表示">
-            <option value="1">1列表示</option>
-            <option value="2">2列表示</option>
-            <option value="3">3列表示</option>
-            <option value="4">4列表示</option>
-          </select>
-        </div>
+
+    <!-- Tab Navigation -->
+    <div class="panel-tab-header">
+      <div>
+        <div class="history-title" style="font-size:16px;font-weight:600;color:var(--ink)">Word Book</div>
+        <div class="history-sub" style="font-size:11px;color:var(--ink3);margin-top:2px">Book管理・検索・ループ再生を切り替えて使用</div>
       </div>
-      <div class="wordbook-toolbar-right">
-        <input id="wordBookSearchInput" class="history-search-input" type="text" placeholder="Word Book 内を検索">
-        <select id="wordBookLoopScopeSelect" class="wordbook-sort-select" aria-label="Word Book ループ対象"><option value="all">すべてループ</option><option value="selected">選択項目ループ</option></select>
-        <button class="hist-btn" id="wordBookLoopSourceBtn" type="button">原文ループ</button>
-        <button class="hist-btn" id="wordBookLoopTargetBtn" type="button">訳語ループ</button>
-        <button class="hist-btn" id="wordBookLoopAlternateBtn" type="button">交互ループ</button>
-        <button class="hist-btn danger" id="wordBookDeleteSelectedBtn" type="button">選択項目を削除</button>
-        <button class="hist-btn" id="wordBookRenameBtn" type="button">名前変更</button>
-        <button class="hist-btn danger" id="wordBookDeleteBtn" type="button">削除</button>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span class="history-chip" id="wordBookNameChip">未選択</span>
+        <span class="wordbook-count" id="wordBookCount" aria-hidden="true"></span>
       </div>
     </div>
-    <div class="wordbook-books-wrap">
-      <div class="wordbook-books-title">Word Book 一覧</div>
-      <div class="wordbook-books" id="wordBookBooksList">
+
+    <div class="panel-tabs" role="tablist" aria-label="Word Bookの操作">
+      <button class="panel-tab active" type="button" role="tab" aria-selected="true"
+        data-tab-group="wordbook" data-tab-target="wb-tab-manage"
+        id="wbTabManage">
+        <span class="panel-tab-icon">📚</span>
+        Book管理
+      </button>
+      <button class="panel-tab" type="button" role="tab" aria-selected="false"
+        data-tab-group="wordbook" data-tab-target="wb-tab-search"
+        id="wbTabSearch">
+        <span class="panel-tab-icon">⌕</span>
+        検索と表示
+      </button>
+      <button class="panel-tab" type="button" role="tab" aria-selected="false"
+        data-tab-group="wordbook" data-tab-target="wb-tab-loop"
+        id="wbTabLoop">
+        <span class="panel-tab-icon">↻</span>
+        ループ再生
+      </button>
+    </div>
+
+    <!-- Tab: Book管理 -->
+    <div class="panel-tab-content active" id="wb-tab-manage" role="tabpanel">
+      <div class="panel-tabs-body">
+        <div class="control-grid">
+          <div class="control-field span-4">
+            <label class="field-label" for="wordBookSelect">Book 切替</label>
+            <select id="wordBookSelect" class="wordbook-select compact-select" aria-label="Word Book 切替"></select>
+          </div>
+          <div class="control-field span-4">
+            <label class="field-label" for="wordBookBooksSortSelect">Book 並び</label>
+            <select id="wordBookBooksSortSelect" class="wordbook-sort-select compact-select" aria-label="Word Book 一覧の並び替え">
+              <option value="manual">Book手動順</option>
+              <option value="newest">Book新しい順</option>
+              <option value="oldest">Book古い順</option>
+              <option value="name">Book名A→Z</option>
+            </select>
+          </div>
+          <div class="control-field span-4">
+            <label class="field-label" for="wordBookItemsSortSelect">項目並び</label>
+            <select id="wordBookItemsSortSelect" class="wordbook-sort-select compact-select" aria-label="Word Book 項目の並び替え">
+              <option value="manual">項目手動順</option>
+              <option value="source">原文A→Z</option>
+              <option value="target">訳文A→Z</option>
+            </select>
+          </div>
+          <div class="control-field span-12">
+            <label class="field-label">Book 操作</label>
+            <div class="action-row">
+              <button class="hist-btn danger" id="wordBookDeleteSelectedBtn" type="button">選択項目を削除</button>
+              <button class="hist-btn" id="wordBookRenameBtn" type="button">名前変更</button>
+              <button class="hist-btn danger" id="wordBookDeleteBtn" type="button">Book 削除</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Book list always shown in this tab -->
+      <div class="wordbook-books-wrap">
+        <div class="wordbook-books-title">Word Book 一覧</div>
+        <div class="wordbook-books" id="wordBookBooksList">
+          <div class="wordbook-empty">Word Book はまだありません。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: 検索と表示 -->
+    <div class="panel-tab-content" id="wb-tab-search" role="tabpanel">
+      <div class="panel-tabs-body">
+        <div class="control-grid">
+          <div class="control-field span-6">
+            <label class="field-label" for="wordBookSearchInput">Book 内検索</label>
+            <input id="wordBookSearchInput" class="history-search-input compact-input" type="text" placeholder="Word Book 内を検索…">
+          </div>
+          <div class="control-field span-3">
+            <label class="field-label" for="wordBookColumnsSelect">列表示</label>
+            <select id="wordBookColumnsSelect" class="wordbook-column-toggle compact-select" aria-label="Word Book の列表示">
+              <option value="1">1列</option>
+              <option value="2">2列</option>
+              <option value="3">3列</option>
+              <option value="4">4列</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab: ループ再生 -->
+    <div class="panel-tab-content" id="wb-tab-loop" role="tabpanel">
+      <div class="panel-tabs-body">
+        <div class="control-grid">
+          <div class="control-field span-4">
+            <label class="field-label">再生対象</label>
+            <div class="segmented" data-sync-select="wordBookLoopScopeSelect">
+              <button class="segmented-btn" type="button" data-value="selected">選択</button>
+              <button class="segmented-btn" type="button" data-value="all">すべて</button>
+            </div>
+            <select id="wordBookLoopScopeSelect" class="wordbook-sort-select visually-hidden-select" aria-label="Word Book ループ対象"><option value="all">すべてループ</option><option value="selected">選択項目ループ</option></select>
+          </div>
+          <div class="control-field span-8">
+            <label class="field-label">再生モード</label>
+            <div class="action-row">
+              <button class="hist-btn" id="wordBookLoopSourceBtn" type="button">原文</button>
+              <button class="hist-btn" id="wordBookLoopTargetBtn" type="button">訳語</button>
+              <button class="hist-btn" id="wordBookLoopAlternateBtn" type="button">交互</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Words — always visible -->
+    <div class="words-always-visible">
+      <div class="wordbook-list" id="wordBookList">
         <div class="wordbook-empty">Word Book はまだありません。</div>
       </div>
     </div>
-    <div class="wordbook-list" id="wordBookList">
-      <div class="wordbook-empty">Word Book はまだありません。</div>
-    </div>
+
   </div>
 </div>
 
@@ -3735,6 +4178,25 @@ function getQuizOrder() {
   return ['source', 'target'];
 }
 
+function syncSegmentedWithSelect(selectId) {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+  const root = document.querySelector(`.segmented[data-sync-select="${selectId}"]`);
+  if (!root) return;
+  const buttons = Array.from(root.querySelectorAll('.segmented-btn'));
+  const refresh = () => {
+    buttons.forEach(btn => btn.classList.toggle('active', btn.dataset.value === select.value));
+  };
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      select.value = btn.dataset.value || 'all';
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      refresh();
+    });
+  });
+  refresh();
+}
+
 function loadQuizPrefs() {
   try {
     quizMarks = JSON.parse(localStorage.getItem(QUIZ_MARKS_KEY) || '{}') || {};
@@ -5547,6 +6009,46 @@ if (fullscreenToggleBtn) {
   document.addEventListener(evt, updateFullscreenButtonState);
 });
 updateFullscreenButtonState();
+
+
+syncSegmentedWithSelect('historyLoopScopeSelect');
+syncSegmentedWithSelect('wordBookLoopScopeSelect');
+
+// ── Panel Tab switching ──────────────────────────────────
+(function initPanelTabs() {
+  document.querySelectorAll('.panel-tab[data-tab-group]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.getAttribute('data-tab-group');
+      const target = btn.getAttribute('data-tab-target');
+
+      // Deactivate all tabs in this group
+      document.querySelectorAll(`.panel-tab[data-tab-group="${group}"]`).forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      // Deactivate all content panels in this group
+      document.querySelectorAll(`[data-tab-group-content="${group}"]`).forEach(p => {
+        p.classList.remove('active');
+      });
+
+      // Activate clicked tab
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected', 'true');
+
+      // Activate target panel — find sibling panels in same card
+      const panel = document.getElementById(target);
+      if (panel) panel.classList.add('active');
+    });
+  });
+
+  // Mark content panels with group for deactivation
+  document.querySelectorAll('.panel-tab[data-tab-group]').forEach(btn => {
+    const group = btn.getAttribute('data-tab-group');
+    const targetId = btn.getAttribute('data-tab-target');
+    const panel = document.getElementById(targetId);
+    if (panel) panel.setAttribute('data-tab-group-content', group);
+  });
+})();
 
 
 loadQuizPrefs();
