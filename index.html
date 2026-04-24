@@ -222,6 +222,40 @@ body {
 }
 .slider-val { font-size: 12px; color: var(--ink2); min-width: 28px; text-align: right; }
 
+/* ── Provider toggle button ── */
+.provider-toggle-btn {
+  padding: 4px 10px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--line) !important;
+  background: var(--bg) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: var(--ink3) !important;
+  gap: 0 !important;
+  transition: all .15s !important;
+}
+.provider-toggle-btn:hover {
+  border-color: var(--accent) !important;
+  background: rgba(94,92,230,.07) !important;
+  color: var(--accent) !important;
+}
+.provider-toggle-btn.is-eleven {
+  background: rgba(191,90,242,.1) !important;
+  border-color: rgba(191,90,242,.35) !important;
+  color: var(--accent2) !important;
+}
+.provider-toggle-btn.is-vv {
+  background: rgba(192,57,43,.08) !important;
+  border-color: rgba(192,57,43,.3) !important;
+  color: #c0392b !important;
+}
+.provider-toggle-btn.is-nemo {
+  background: rgba(37,99,235,.08) !important;
+  border-color: rgba(37,99,235,.3) !important;
+  color: #2563eb !important;
+}
+.provider-toggle-label { pointer-events: none; }
+
 /* ── Alternatives ── */
 .alt-wrap { display: none; border-top: 1px solid var(--line); background: var(--panel-r); }
 .alt-inner { padding: 10px 20px 14px; }
@@ -734,7 +768,280 @@ body {
 }
 .wordbook-item-delete:hover { background: var(--bg); }
 
-/* ── How to Use ── */
+/* ── Multi-panel Word Book ── */
+.wb-multi-root {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 14px;
+  align-items: start;
+  width: 100%;
+  max-width: 880px;
+}
+@media (max-width: 660px) {
+  .wb-multi-root { grid-template-columns: 1fr; }
+}
+.wb-sidebar {
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 4px 24px rgba(0,0,0,.07), 0 1px 4px rgba(0,0,0,.04);
+  position: sticky;
+  top: 16px;
+}
+.wb-sidebar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid var(--line);
+}
+.wb-sidebar-select {
+  font-size: 11px !important;
+  padding: 5px 8px !important;
+  min-width: 0 !important;
+  border-radius: 8px !important;
+}
+.wb-sidebar-loop {
+  padding: 12px 14px 14px;
+  border-top: 1px solid var(--line);
+  background: var(--panel-r);
+}
+.wb-book-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: .15s;
+  user-select: none;
+}
+.wb-book-row:hover { background: #f5f3ff; border-color: #c4b5fd; }
+.wb-book-row.wb-book-open { background: #f5f3ff; border-color: #c4b5fd; }
+.wb-book-row-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--line); flex-shrink: 0; transition: .15s;
+}
+.wb-book-row.wb-book-open .wb-book-row-dot { background: var(--accent); }
+.wb-book-row-name { font-size: 13px; font-weight: 600; color: var(--ink); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+.wb-book-row-count { font-size: 11px; color: var(--ink3); flex-shrink: 0; }
+.wb-book-row-drag { flex-shrink:0; color: var(--ink3); font-size: 14px; cursor: grab; }
+.wb-book-row.dragging { opacity: .45; }
+.wb-book-row.drop-before { box-shadow: inset 0 3px 0 var(--accent); }
+.wb-book-row.drop-after  { box-shadow: inset 0 -3px 0 var(--accent); }
+
+/* Panels area — horizontal scroll */
+.wb-panels-area {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  min-height: 120px;
+  /* subtle scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.wb-panels-area::-webkit-scrollbar { height: 5px; }
+.wb-panels-area::-webkit-scrollbar-track { background: transparent; }
+.wb-panels-area::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+
+.wb-panels-empty {
+  background: var(--surface);
+  border-radius: 18px;
+  padding: 48px 24px;
+  text-align: center;
+  border: 1px dashed var(--line);
+  flex-shrink: 0;
+  width: 100%;
+}
+
+/* Trash zone in sidebar */
+.wb-trash-zone {
+  margin: 10px 10px 0;
+  border: 2px dashed #e5e5ea;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--ink3);
+  cursor: default;
+  transition: .2s;
+  user-select: none;
+}
+.wb-trash-zone.drag-over {
+  border-color: var(--red);
+  background: rgba(255,69,58,.07);
+  color: var(--red);
+}
+.wb-trash-icon { font-size: 16px; flex-shrink: 0; }
+
+/* Individual open book panel — fixed width so they sit side by side */
+.wb-panel {
+  background: var(--surface);
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,.07), 0 1px 4px rgba(0,0,0,.04);
+  flex: 0 0 280px;
+  min-width: 240px;
+  max-width: 340px;
+}
+.wb-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.wb-panel-color {
+  width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+}
+.wb-panel-title { font-size: 13px; font-weight: 700; color: var(--ink); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wb-panel-count { font-size: 10px; color: var(--ink3); flex-shrink: 0; }
+.wb-panel-btns { display: flex; align-items: center; gap: 2px; }
+.wb-panel-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--ink3); padding: 4px; border-radius: 6px;
+  display: flex; align-items: center; transition: .15s;
+}
+.wb-panel-btn:hover { background: var(--bg); color: var(--ink); }
+.wb-panel-btn.danger:hover { background: rgba(255,69,58,.08); color: var(--red); }
+.wb-panel-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--panel-r);
+}
+.wb-panel-toolbar input[type=text] {
+  flex: 1; min-width: 0;
+  border: 1px solid var(--line); border-radius: 7px;
+  background: #fff; padding: 5px 8px; font-size: 11px;
+  color: var(--ink); font-family: inherit;
+}
+.wb-panel-toolbar input[type=text]:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.wb-panel-toolbar select {
+  border: 1px solid var(--line); border-radius: 7px;
+  background: #fff; padding: 5px 6px; font-size: 11px;
+  color: var(--ink); font-family: inherit;
+}
+.wb-panel-toolbar select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+/* Items inside panel */
+.wb-panel-list {
+  padding: 8px;
+  display: grid;
+  gap: 6px;
+  max-height: 520px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.wb-panel-list::-webkit-scrollbar { width: 4px; }
+.wb-panel-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
+
+.wb-item {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+  cursor: grab;
+  transition: border-color .12s, box-shadow .12s;
+}
+.wb-item:active { cursor: grabbing; }
+.wb-item.wb-dragging { opacity: .4; }
+.wb-item.wb-drag-over-top { box-shadow: inset 0 3px 0 var(--accent2); border-color: #c4b5fd; }
+.wb-item.wb-drag-over-bot { box-shadow: inset 0 -3px 0 var(--accent2); border-color: #c4b5fd; }
+
+/* Two-column layout, no labels */
+.wb-item-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.wb-item-col {
+  padding: 9px 10px;
+  transition: background .1s;
+}
+.wb-item-col:first-child { border-right: 1px solid var(--line); }
+.wb-item-col:hover { background: #fafafe; }
+/* labels hidden */
+.wb-item-label { display: none; }
+.wb-item-text {
+  font-size: 12px; line-height: 1.55; color: var(--ink);
+  white-space: pre-wrap; word-break: break-word;
+  user-select: none;
+}
+
+/* No footer — keep the element but hide it */
+.wb-item-footer { display: none; }
+
+/* Inline edit mode */
+.wb-item.editing { cursor: default; }
+.wb-item.editing .wb-item-view { display: none; }
+.wb-item .wb-item-edit { display: none; }
+.wb-item.editing .wb-item-edit { display: grid; padding: 8px 10px; gap: 6px; }
+.wb-item-edit-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.wb-item-edit textarea {
+  width: 100%; min-height: 52px; resize: vertical;
+  border: 1px solid var(--line); border-radius: 7px;
+  padding: 6px 8px; font: inherit; font-size: 12px;
+  color: var(--ink); background: #fff;
+}
+.wb-item-edit textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.wb-item-edit-actions { display: flex; gap: 6px; }
+.wb-item-edit-save, .wb-item-edit-cancel {
+  border: 1px solid var(--line); background: #fff;
+  border-radius: 7px; padding: 5px 12px; cursor: pointer;
+  font-size: 11px; font-weight: 600; transition: .15s;
+}
+.wb-item-edit-save { color: var(--accent); border-color: #c4b5fd; }
+.wb-item-edit-save:hover { background: #f5f3ff; }
+.wb-item-edit-cancel { color: var(--ink3); }
+.wb-item-edit-cancel:hover { background: var(--bg); }
+
+/* Context menu hint on hover */
+.wb-item:not(.editing):hover .wb-item-body { background: #fafafe; }
+
+/* Drop accept highlight on whole panel list */
+.wb-panel-list.wb-list-drag-target { background: rgba(94,92,230,.04); }
+
+/* Drag ghost */
+.wb-drag-ghost {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  background: white;
+  border: 2px solid var(--accent);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--ink);
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  transition: opacity .1s;
+}
+
+/* Panel colors */
+.wb-color-0 { background: #5e5ce6; }
+.wb-color-1 { background: #bf5af2; }
+.wb-color-2 { background: #30d158; }
+.wb-color-3 { background: #ff9f0a; }
+.wb-color-4 { background: #0a84ff; }
+.wb-color-5 { background: #ff453a; }
+.wb-color-6 { background: #64d2ff; }
+.wb-color-7 { background: #ffd60a; } */
 .howto-card {
   width: 100%; max-width: 880px;
   background: var(--surface);
@@ -1645,6 +1952,266 @@ body {
   .panel-tabs-body { padding: 14px; }
 }
 
+/* ── Quick nav buttons in translation header ── */
+.hd-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hd-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink2);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: .15s;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+}
+.hd-nav-btn:hover {
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+  color: var(--accent);
+}
+.hd-nav-btn svg { flex-shrink: 0; }
+
+/* ── History count badge ── */
+.hist-count-badge {
+  font-size: 11px;
+  color: var(--ink3);
+  border: 1px solid var(--line);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.75);
+}
+
+/* ── Sidebar form elements ── */
+.hist-sidebar-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 7px 10px;
+  font-size: 12px;
+  color: var(--ink);
+  font-family: inherit;
+  display: block;
+  box-sizing: border-box;
+}
+.hist-sidebar-input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.hist-sidebar-select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 6px 8px;
+  font-size: 12px;
+  color: var(--ink);
+  font-family: inherit;
+  display: block;
+  box-sizing: border-box;
+}
+.hist-sidebar-select:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+/* ── History items (Card-style, no labels, no icons) ── */
+.hist-item {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+  cursor: grab;
+  transition: border-color .12s, box-shadow .12s;
+  user-select: none;
+}
+.hist-item:active { cursor: grabbing; }
+.hist-item.hist-dragging { opacity: .4; }
+.hist-item.hist-drag-over-top { box-shadow: inset 0 3px 0 var(--accent2); border-color: #c4b5fd; }
+.hist-item.hist-drag-over-bot { box-shadow: inset 0 -3px 0 var(--accent2); border-color: #c4b5fd; }
+.hist-item.editing { cursor: default; }
+.hist-item-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.hist-item-col {
+  padding: 9px 10px;
+  transition: background .1s;
+}
+.hist-item-col:first-child { border-right: 1px solid var(--line); }
+.hist-item-col:hover { background: #fafafe; }
+.hist-item-text {
+  font-size: 12px; line-height: 1.55; color: var(--ink);
+  white-space: pre-wrap; word-break: break-word;
+}
+/* Date row (replaces checkbox row) */
+.hist-item-date-row {
+  padding: 3px 10px 5px;
+  border-top: 1px solid var(--line);
+  background: var(--panel-r);
+}
+.hist-item-date {
+  font-size: 10px; color: var(--ink3);
+}
+
+/* Inline edit */
+.hist-item.editing .hist-item-view { display: none; }
+.hist-item .hist-item-edit { display: none; }
+.hist-item.editing .hist-item-edit { display: grid; padding: 8px 10px; gap: 6px; }
+.hist-item-edit-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.hist-item-edit textarea {
+  width: 100%; min-height: 52px; resize: vertical;
+  border: 1px solid var(--line); border-radius: 7px;
+  padding: 6px 8px; font: inherit; font-size: 12px;
+  color: var(--ink); background: #fff; box-sizing: border-box;
+}
+.hist-item-edit textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.hist-item-edit-actions { display: flex; gap: 6px; }
+.hist-item-edit-save, .hist-item-edit-cancel {
+  border: 1px solid var(--line); background: #fff;
+  border-radius: 7px; padding: 5px 12px; cursor: pointer;
+  font-size: 11px; font-weight: 600; transition: .15s;
+}
+.hist-item-edit-save { color: var(--accent); border-color: #c4b5fd; }
+.hist-item-edit-save:hover { background: #f5f3ff; }
+.hist-item-edit-cancel { color: var(--ink3); }
+.hist-item-edit-cancel:hover { background: var(--bg); }
+
+/* History panel — normal panel size in multi-panel area */
+#histMainPanel { flex: 0 0 280px; min-width: 240px; max-width: 340px; }
+#histPanelArea { flex-wrap: nowrap; }
+#historyList.wb-panel-list { max-height: 520px; }
+
+/* WB panel ready to receive history drop */
+.wb-panel.wb-hist-drop-ready .wb-panel-head {
+  background: rgba(94,92,230,.06);
+  border-bottom-color: #c4b5fd;
+}
+.wb-panel.wb-hist-drop-ready { outline: 2px dashed #c4b5fd; outline-offset: -2px; }
+
+/* History panel toggle button in WB sidebar */
+.wb-hist-panel-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  color: var(--ink2);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: .15s;
+}
+.wb-hist-panel-toggle:hover {
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+  color: var(--accent);
+}
+.wb-hist-panel-toggle.active {
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+  color: var(--accent);
+}
+
+/* History panel displayed inside WB area — read-only indicator */
+#wbPanelsArea .wb-panel[data-hist-readonly] .wb-panel-head {
+  background: linear-gradient(to right, #fafafe, var(--surface));
+}
+#wbPanelsArea .wb-panel[data-hist-readonly] .wb-panel-list {
+  cursor: default;
+}
+
+/* ── Speak mode toggle (全文 / 選択) ── */
+.speak-mode-toggle {
+  padding: 3px 9px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--line) !important;
+  background: var(--bg) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: var(--ink3) !important;
+  gap: 0 !important;
+  transition: all .15s !important;
+  line-height: 1.4;
+}
+.speak-mode-toggle:hover {
+  border-color: var(--accent) !important;
+  background: rgba(94,92,230,.07) !important;
+  color: var(--accent) !important;
+}
+.speak-mode-toggle.is-selection {
+  background: rgba(94,92,230,.1) !important;
+  border-color: #c4b5fd !important;
+  color: var(--accent) !important;
+}
+.speak-mode-label { pointer-events: none; }
+
+/* ── Format button ── */
+.fmt-btn {
+  color: var(--ink3) !important;
+  transition: all .15s !important;
+}
+.fmt-btn:hover {
+  background: #f5f3ff !important;
+  color: var(--accent) !important;
+}
+.fmt-btn.fmt-active {
+  color: var(--accent) !important;
+  background: rgba(94,92,230,.08) !important;
+} */
+.voice-engine-section {
+  border-top: 1px solid var(--line);
+  padding: 12px 20px 10px;
+  display: none; /* shown via JS based on provider selection */
+}
+.voice-engine-section.vp-active { display: block; }
+.voice-engine-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.voice-engine-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  padding: 3px 9px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.voice-engine-badge.eleven { background: #1a1a2e; color: #e0d7ff; }
+.voice-engine-badge.vv     { background: #fff0f3; color: #c0392b; border: 1px solid #ffc9d0; }
+.voice-engine-badge.nemo   { background: #f0f4ff; color: #2563eb; border: 1px solid #bfcfff; }
+.voice-fetch-btn {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 5px 11px;
+  font-size: 11px;
+  font-family: inherit;
+  color: var(--ink2);
+  cursor: pointer;
+  transition: .15s;
+}
+.voice-fetch-btn:hover { background: #ede9fe; border-color: #c4b5fd; color: var(--accent); }
+.voice-engine-status {
+  font-size: 11px;
+  color: var(--ink3);
+  flex: 1;
+}
+.voice-engine-status.ok  { color: var(--green); }
+.voice-engine-status.err { color: var(--red); }
+
 </style>
 </head>
 <body>
@@ -1674,6 +2241,16 @@ body {
       <div class="logo-name">Kotoba</div>
       <div class="logo-sub">AI Translation</div>
     </div>
+  </div>
+  <div class="hd-nav">
+    <button class="hd-nav-btn" id="hdNavHistory" type="button" title="翻訳履歴">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+      履歴
+    </button>
+    <button class="hd-nav-btn" id="hdNavWordBook" type="button" title="Word Book">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 0-3 3V4z"/><path d="M8 20V7a3 3 0 0 1 3-3"/></svg>
+      Word Book
+    </button>
   </div>
 </div>
 
@@ -1755,11 +2332,20 @@ body {
         <button class="ib" id="spkSrc" title="原文を読み上げ">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
         </button>
+        <button class="ib speak-mode-toggle" id="speakModeSrc" title="再生範囲: 全文" data-mode="all">
+          <span class="speak-mode-label">全文</span>
+        </button>
         <button class="ib" id="cpySrc" title="原文をコピー">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
         </button>
         <button class="ib" id="voiceToggle" title="音声設定">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07M4.93 19.07a10 10 0 0 1 0-14.14M8.46 15.54a5 5 0 0 1 0-7.07"/></svg>
+        </button>
+        <button class="ib provider-toggle-btn" id="providerToggleSrc" title="音声エンジン切り替え（原文）" data-provider="browser">
+          <span class="provider-toggle-label">Browser</span>
+        </button>
+        <button class="ib fmt-btn" id="fmtBtn" title="句点で整形（．。！？…で改行・空行挿入）">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="5" x2="21" y2="5"/><line x1="3" y1="10" x2="14" y2="10"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="3" y1="20" x2="14" y2="20"/></svg>
         </button>
       </div>
       <span class="cc" id="cc">0 / 5000</span>
@@ -1768,6 +2354,12 @@ body {
       <div class="fp-left">
         <button class="ib" id="spkTgt" title="翻訳を読み上げ">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        </button>
+        <button class="ib speak-mode-toggle" id="speakModeTgt" title="再生範囲: 全文" data-mode="all">
+          <span class="speak-mode-label">全文</span>
+        </button>
+        <button class="ib provider-toggle-btn" id="providerToggleTgt" title="音声エンジン切り替え（訳文）" data-provider="browser">
+          <span class="provider-toggle-label">Browser</span>
         </button>
       </div>
       <div class="fp-right">
@@ -1786,6 +2378,25 @@ body {
 
   <!-- Voice settings panel -->
   <div class="voice-panel" id="voicePanel">
+    <!-- Provider selectors row -->
+    <div class="voice-row">
+      <span class="voice-label">原文方式</span>
+      <select class="voice-select" id="ttsProviderSrc">
+        <option value="browser">ブラウザ音声</option>
+        <option value="elevenlabs">ElevenLabs</option>
+        <option value="voicevox">VOICEVOX</option>
+        <option value="nemo">Style-Bert-VITS2 / Nemo</option>
+      </select>
+    </div>
+    <div class="voice-row">
+      <span class="voice-label">翻訳方式</span>
+      <select class="voice-select" id="ttsProviderTgt">
+        <option value="browser">ブラウザ音声</option>
+        <option value="elevenlabs">ElevenLabs</option>
+        <option value="voicevox">VOICEVOX</option>
+        <option value="nemo">Style-Bert-VITS2 / Nemo</option>
+      </select>
+    </div>
     <div class="voice-row">
       <span class="voice-label">原文の声</span>
       <select class="voice-select" id="voiceSrc"></select>
@@ -1794,6 +2405,112 @@ body {
       <span class="voice-label">翻訳の声</span>
       <select class="voice-select" id="voiceTgt"></select>
     </div>
+
+    <!-- ElevenLabs settings -->
+    <div class="voice-engine-section" id="voiceSecEleven">
+      <div class="voice-engine-header">
+        <span class="voice-engine-badge eleven">ElevenLabs</span>
+      </div>
+      <div class="voice-row" style="align-items:flex-start">
+        <span class="voice-label">設定</span>
+        <div style="flex:1;display:grid;gap:8px;">
+          <input class="voice-select" id="elevenApiKey" type="password" autocomplete="off" placeholder="APIキー（毎回入力・保存しません）">
+          <input class="voice-select" id="elevenVoiceId" type="text" autocomplete="off" placeholder="Voice ID（IndexedDB保存）">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <select class="voice-select" id="elevenModelId">
+              <option value="eleven_multilingual_v2">eleven_multilingual_v2</option>
+              <option value="eleven_flash_v2_5">eleven_flash_v2_5</option>
+              <option value="eleven_turbo_v2_5">eleven_turbo_v2_5</option>
+              <option value="eleven_v3">eleven_v3</option>
+            </select>
+            <select class="voice-select" id="elevenOutputFormat">
+              <option value="mp3_44100_128">mp3_44100_128</option>
+              <option value="mp3_44100_64">mp3_44100_64</option>
+              <option value="mp3_22050_32">mp3_22050_32</option>
+              <option value="opus_48000_128">opus_48000_128</option>
+              <option value="pcm_44100">pcm_44100</option>
+              <option value="ulaw_8000">ulaw_8000</option>
+            </select>
+          </div>
+          <div id="elevenStatus" style="font-size:12px;color:var(--ink3);line-height:1.6;">Voice ID・モデル・出力形式は保存、APIキーは毎回入力です。</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VOICEVOX settings -->
+    <div class="voice-engine-section" id="voiceSecVoicevox">
+      <div class="voice-engine-header">
+        <span class="voice-engine-badge vv">VOICEVOX</span>
+        <button class="voice-fetch-btn" id="vvFetchBtn" type="button">話者一覧を取得</button>
+        <span class="voice-engine-status" id="vvStatus"></span>
+      </div>
+      <div class="voice-row">
+        <span class="voice-label">エンジン</span>
+        <input class="voice-select" id="vvHost" type="text" value="http://localhost:50021" placeholder="http://localhost:50021">
+      </div>
+      <div class="voice-row">
+        <span class="voice-label">話者</span>
+        <select class="voice-select" id="vvSpeaker">
+          <option value="1">四国めたん（あまあま）</option>
+          <option value="0">四国めたん（ノーマル）</option>
+          <option value="2">四国めたん（ツンツン）</option>
+          <option value="3">四国めたん（セクシー）</option>
+          <option value="8">春日部つむぎ（ノーマル）</option>
+          <option value="10">雨晴はう（ノーマル）</option>
+          <option value="9">波音リツ（ノーマル）</option>
+          <option value="11">玄野武宏（ノーマル）</option>
+          <option value="14">冥鳴ひまり（ノーマル）</option>
+          <option value="16">白上虎太郎（ノーマル）</option>
+          <option value="21">ずんだもん（ノーマル）</option>
+          <option value="22">ずんだもん（あまあま）</option>
+          <option value="38">ずんだもん（ささやき）</option>
+          <option value="23">ずんだもん（ツンツン）</option>
+          <option value="24">ずんだもん（セクシー）</option>
+        </select>
+      </div>
+      <div class="voice-row">
+        <span class="voice-label">速さ</span>
+        <input type="range" id="vvSpeed" min="0.5" max="2" step="0.05" value="1" style="flex:1;accent-color:var(--accent)">
+        <span class="slider-val" id="vvSpeedVal">1.00</span>
+      </div>
+      <div class="voice-row">
+        <span class="voice-label">音程</span>
+        <input type="range" id="vvPitch" min="-0.15" max="0.15" step="0.01" value="0" style="flex:1;accent-color:var(--accent)">
+        <span class="slider-val" id="vvPitchVal">0.00</span>
+      </div>
+    </div>
+
+    <!-- Style-Bert-VITS2 / Nemo settings -->
+    <div class="voice-engine-section" id="voiceSecNemo">
+      <div class="voice-engine-header">
+        <span class="voice-engine-badge nemo">Style-Bert-VITS2 / Nemo</span>
+        <button class="voice-fetch-btn" id="nemoFetchBtn" type="button">モデル一覧を取得</button>
+        <span class="voice-engine-status" id="nemoStatus"></span>
+      </div>
+      <div class="voice-row">
+        <span class="voice-label">エンジン</span>
+        <input class="voice-select" id="nemoHost" type="text" value="http://localhost:5000" placeholder="http://localhost:5000">
+      </div>
+      <div class="voice-row">
+        <span class="voice-label">モデル</span>
+        <select class="voice-select" id="nemoModel">
+          <option value="0">モデル 0</option>
+        </select>
+      </div>
+      <div class="voice-row">
+        <span class="voice-label">スタイル</span>
+        <select class="voice-select" id="nemoStyle">
+          <option value="Neutral">Neutral</option>
+        </select>
+      </div>
+      <div class="voice-row">
+        <span class="voice-label">速さ</span>
+        <input type="range" id="nemoSpeed" min="0.5" max="2" step="0.05" value="1" style="flex:1;accent-color:var(--accent)">
+        <span class="slider-val" id="nemoSpeedVal">1.00</span>
+      </div>
+    </div>
+
+    <!-- Browser speed/pitch/volume sliders -->
     <div class="voice-row" style="margin-top:6px">
       <span class="voice-label">調整</span>
       <div class="voice-sliders">
@@ -1832,147 +2549,121 @@ body {
   <div class="top-meta">
     <div class="logo">
       <div class="logo-mark">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/><path d="M5 5h.01"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
       </div>
       <div>
         <div class="logo-name">Translation History</div>
         <div class="logo-sub">IndexedDB Archive</div>
       </div>
     </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="hist-count-badge" id="histCountBadge"></span>
+      <div class="hd-nav">
+        <button class="hd-nav-btn" id="histNavTranslate" type="button" title="AI Translation">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m5 8 4 4-4 4M11 12h8"/></svg>
+          Kotoba
+        </button>
+        <button class="hd-nav-btn" id="histNavWordBook" type="button" title="Word Book">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 0-3 3V4z"/><path d="M8 20V7a3 3 0 0 1 3-3"/></svg>
+          Word Book
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div class="history-card">
+  <div class="wb-multi-root">
 
-    <!-- Tab Navigation -->
-    <div class="panel-tab-header">
-      <div>
-        <div class="history-title" style="font-size:16px;font-weight:600;color:var(--ink)">翻訳履歴</div>
-        <div class="history-sub" style="font-size:11px;color:var(--ink3);margin-top:2px">検索・ループ・Book操作を切り替えて使用</div>
+    <!-- Left sidebar -->
+    <div class="wb-sidebar history-card">
+      <div class="wb-sidebar-head">
+        <div style="font-size:14px;font-weight:700;color:var(--ink)">履歴</div>
       </div>
-      <span class="panel-tab-badge" id="historyTabBadge">選択項目操作に対応</span>
-    </div>
 
-    <div class="panel-tabs" role="tablist" aria-label="翻訳履歴の操作">
-      <button class="panel-tab active" type="button" role="tab" aria-selected="true"
-        data-tab-group="history" data-tab-target="hist-tab-search"
-        id="histTabSearch">
-        <span class="panel-tab-icon">⌕</span>
-        検索と表示
-      </button>
-      <button class="panel-tab" type="button" role="tab" aria-selected="false"
-        data-tab-group="history" data-tab-target="hist-tab-loop"
-        id="histTabLoop">
-        <span class="panel-tab-icon">↻</span>
-        ループ再生
-      </button>
-      <button class="panel-tab" type="button" role="tab" aria-selected="false"
-        data-tab-group="history" data-tab-target="hist-tab-select"
-        id="histTabSelect">
-        <span class="panel-tab-icon">▣</span>
-        選択操作と保存
-      </button>
-    </div>
+      <!-- Search -->
+      <div style="padding:10px 10px 0">
+        <input id="historySearchInput" class="hist-sidebar-input" type="text" placeholder="検索…" autocomplete="off">
+      </div>
 
-    <!-- Tab: 検索と表示 -->
-    <div class="panel-tab-content active" id="hist-tab-search" role="tabpanel">
-      <div class="panel-tabs-body">
-        <div class="control-grid">
-          <div class="control-field span-6">
-            <label class="field-label" for="historySearchInput">履歴検索</label>
-            <input id="historySearchInput" class="history-search-input compact-input" type="text" placeholder="履歴を検索…">
-          </div>
-          <div class="control-field span-3">
-            <label class="field-label" for="historySortSelect">並び替え</label>
-            <select id="historySortSelect" class="history-sort-select compact-select" aria-label="履歴の並び替え">
-              <option value="manual">手動順</option>
-              <option value="newest">新しい順</option>
-              <option value="oldest">古い順</option>
-              <option value="source">原文A→Z</option>
-              <option value="target">訳文A→Z</option>
-            </select>
-          </div>
-          <div class="control-field span-3">
-            <label class="field-label" for="historyColumnsSelect">列表示</label>
-            <select id="historyColumnsSelect" class="history-column-toggle compact-select" aria-label="履歴の列表示">
-              <option value="1">1列表示</option>
-              <option value="2">2列表示</option>
-              <option value="3">3列表示</option>
-              <option value="4">4列表示</option>
-            </select>
+      <!-- Sort -->
+      <div style="padding:6px 10px 0;display:flex;align-items:center;gap:6px">
+        <label style="font-size:10px;color:var(--ink3);flex-shrink:0">並び替え</label>
+        <select id="historySortSelect" class="hist-sidebar-select" aria-label="履歴の並び替え">
+          <option value="manual">手動順</option>
+          <option value="newest">新しい順</option>
+          <option value="oldest">古い順</option>
+          <option value="source">原文A→Z</option>
+          <option value="target">訳文A→Z</option>
+        </select>
+      </div>
+
+      <!-- Loop -->
+      <div class="wb-sidebar-loop" style="margin-top:10px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">ループ再生</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <div class="segmented" data-sync-select="historyLoopScopeSelect" style="flex:1">
+            <button class="segmented-btn" type="button" data-value="selected">選択</button>
+            <button class="segmented-btn" type="button" data-value="all">全件</button>
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Tab: ループ再生 -->
-    <div class="panel-tab-content" id="hist-tab-loop" role="tabpanel">
-      <div class="panel-tabs-body">
-        <div class="control-grid">
-          <div class="control-field span-4">
-            <label class="field-label">再生対象</label>
-            <div class="segmented" data-sync-select="historyLoopScopeSelect">
-              <button class="segmented-btn" type="button" data-value="selected">選択</button>
-              <button class="segmented-btn" type="button" data-value="all">すべて</button>
-            </div>
-            <select id="historyLoopScopeSelect" class="history-mode-select visually-hidden-select" aria-label="履歴ループ対象"><option value="all">すべてループ</option><option value="selected">選択項目ループ</option></select>
-          </div>
-          <div class="control-field span-8">
-            <label class="field-label">再生モード</label>
-            <div class="action-row">
-              <button class="hist-btn" id="historyLoopSourceBtn" type="button">原文ループ</button>
-              <button class="hist-btn" id="historyLoopTargetBtn" type="button">訳語ループ</button>
-              <button class="hist-btn" id="historyLoopAlternateBtn" type="button">交互ループ</button>
-            </div>
-          </div>
+        <select id="historyLoopScopeSelect" class="visually-hidden-select" aria-label="履歴ループ対象"><option value="all">すべてループ</option><option value="selected">選択項目ループ</option></select>
+        <div class="action-row" style="gap:6px">
+          <button class="hist-btn" id="historyLoopSourceBtn" type="button" style="flex:1;font-size:12px;padding:7px 6px">原文</button>
+          <button class="hist-btn" id="historyLoopTargetBtn" type="button" style="flex:1;font-size:12px;padding:7px 6px">訳語</button>
+          <button class="hist-btn" id="historyLoopAlternateBtn" type="button" style="flex:1;font-size:12px;padding:7px 6px">交互</button>
         </div>
       </div>
-    </div>
 
-    <!-- Tab: 選択操作と保存 -->
-    <div class="panel-tab-content" id="hist-tab-select" role="tabpanel">
-      <div class="panel-tabs-body">
-        <div class="control-grid">
-          <div class="control-field span-4">
-            <label class="field-label" for="wordBookNameInput">新規 Word Book 名</label>
-            <input id="wordBookNameInput" class="history-name-input compact-input" type="text" placeholder="Word Book 名称" maxlength="80">
-          </div>
-          <div class="control-field span-3">
-            <label class="field-label" for="wordBookSaveMode">保存形式</label>
-            <select id="wordBookSaveMode" class="history-mode-select compact-select" aria-label="Word Book 保存形式">
-              <option value="full">全文保存</option>
-              <option value="firstline">1行抽出</option>
-              <option value="selection">選択範囲保存</option>
-            </select>
-          </div>
-          <div class="control-field span-5">
-            <label class="field-label" for="historyWordBookTargetSelect">操作対象 Book</label>
-            <select id="historyWordBookTargetSelect" class="history-mode-select compact-select" aria-label="履歴から操作する Word Book"></select>
-          </div>
-          <div class="control-field span-12">
-            <label class="field-label">選択と Book 操作</label>
-            <div class="action-row">
-              <button class="hist-btn" id="historySelectAllBtn" type="button">全選択</button>
-              <button class="hist-btn" id="historyDeselectAllBtn" type="button">全解除</button>
-              <button class="hist-btn" id="saveWordBookBtn" type="button">新規 Book に保存</button>
-              <button class="hist-btn" id="openSelectedWordBookBtn" type="button">Book を開く</button>
-              <button class="hist-btn" id="appendToSelectedWordBookBtn" type="button">開いている Book に追加</button>
-              <button class="hist-btn danger" id="removeFromSelectedWordBookBtn" type="button">開いている Book から削除</button>
-              <button class="hist-btn danger" id="historyDeleteSelectedBtn" type="button">選択項目を削除</button>
-              <button class="hist-btn danger" id="historyClearBtn" type="button">履歴を全削除</button>
-            </div>
-          </div>
+      <!-- Save to Word Book -->
+      <div class="wb-sidebar-loop" style="border-top:1px solid var(--line)">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">Word Book に保存</div>
+        <div style="font-size:11px;color:var(--ink3);line-height:1.6;margin-bottom:10px">
+          カードを Word Book パネルへドラッグして移動。新規 Book には現在表示中の全件が保存されます。
+        </div>
+        <input id="wordBookNameInput" class="hist-sidebar-input" type="text" placeholder="新規 Book 名" maxlength="80" style="margin-bottom:8px">
+        <button class="hist-btn" id="saveWordBookBtn" type="button" style="font-size:11px;padding:6px 8px;width:100%">表示中を新規 Book に保存</button>
+        <div style="margin-top:8px;display:grid;gap:5px">
+          <select id="historyWordBookTargetSelect" class="hist-sidebar-select" aria-label="操作対象 Book"></select>
+          <button class="hist-btn danger" id="historyClearBtn" type="button" style="font-size:11px;padding:5px 8px;margin-top:4px">履歴を全削除</button>
         </div>
       </div>
-    </div>
 
-    <!-- Words — always visible -->
-    <div class="words-always-visible">
-      <div class="history-list" id="historyList">
-        <div class="history-empty">履歴はまだありません。</div>
+      <!-- Trash zone -->
+      <div class="wb-trash-zone" id="histTrashZone" title="ここにドラッグして削除">
+        <span class="wb-trash-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </span>
+        ここにドラッグして削除
       </div>
     </div>
 
-  </div>
+    <!-- Panels area: history panel fixed left + WB panels scrollable to the right -->
+    <div class="wb-panels-area" id="histPanelArea">
+      <!-- Fixed history panel — always present -->
+      <div class="wb-panel" id="histMainPanel">
+        <div class="wb-panel-head">
+          <div class="wb-panel-color" style="background:var(--accent)"></div>
+          <div class="wb-panel-title">翻訳履歴</div>
+          <div class="wb-panel-count" id="histPanelCount"></div>
+        </div>
+        <div class="wb-panel-list" id="historyList">
+          <div class="wordbook-empty">履歴はまだありません。</div>
+        </div>
+      </div>
+      <!-- Word Book panels injected here by JS -->
+    </div>
+
+  </div><!-- /wb-multi-root -->
+
+  <!-- hidden compat selects -->
+  <select id="historyColumnsSelect" class="visually-hidden-select" aria-label="履歴の列表示"><option value="1">1列</option><option value="2">2列</option></select>
+  <select id="wordBookSaveMode" class="visually-hidden-select" aria-label="保存形式"><option value="full">全文保存</option></select>
+  <button id="openSelectedWordBookBtn" style="display:none" type="button"></button>
+  <button id="appendToSelectedWordBookBtn" style="display:none" type="button"></button>
+  <button id="removeFromSelectedWordBookBtn" style="display:none" type="button"></button>
+  <button id="historySelectAllBtn" style="display:none" type="button"></button>
+  <button id="historyDeselectAllBtn" style="display:none" type="button"></button>
+  <button id="historyDeleteSelectedBtn" style="display:none" type="button"></button>
+
 </div>
 
 <div class="view-panel" id="viewWordBook">
@@ -1986,140 +2677,106 @@ body {
         <div class="logo-sub">IndexedDB Collection</div>
       </div>
     </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="history-chip" id="wordBookNameChip">未選択</span>
+      <span class="wordbook-count" id="wordBookCount" aria-hidden="true"></span>
+      <div class="hd-nav">
+        <button class="hd-nav-btn" id="wbNavTranslate" type="button" title="AI Translation">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m5 8 4 4-4 4M11 12h8"/></svg>
+          Kotoba
+        </button>
+        <button class="hd-nav-btn" id="wbNavHistory" type="button" title="翻訳履歴">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+          履歴
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div class="history-card">
+  <!-- ── Multi-panel container ── -->
+  <div class="wb-multi-root">
 
-    <!-- Tab Navigation -->
-    <div class="panel-tab-header">
-      <div>
-        <div class="history-title" style="font-size:16px;font-weight:600;color:var(--ink)">Word Book</div>
-        <div class="history-sub" style="font-size:11px;color:var(--ink3);margin-top:2px">Book管理・検索・ループ再生を切り替えて使用</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        <span class="history-chip" id="wordBookNameChip">未選択</span>
-        <span class="wordbook-count" id="wordBookCount" aria-hidden="true"></span>
-      </div>
-    </div>
-
-    <div class="panel-tabs" role="tablist" aria-label="Word Bookの操作">
-      <button class="panel-tab active" type="button" role="tab" aria-selected="true"
-        data-tab-group="wordbook" data-tab-target="wb-tab-manage"
-        id="wbTabManage">
-        <span class="panel-tab-icon">📚</span>
-        Book管理
-      </button>
-      <button class="panel-tab" type="button" role="tab" aria-selected="false"
-        data-tab-group="wordbook" data-tab-target="wb-tab-search"
-        id="wbTabSearch">
-        <span class="panel-tab-icon">⌕</span>
-        検索と表示
-      </button>
-      <button class="panel-tab" type="button" role="tab" aria-selected="false"
-        data-tab-group="wordbook" data-tab-target="wb-tab-loop"
-        id="wbTabLoop">
-        <span class="panel-tab-icon">↻</span>
-        ループ再生
-      </button>
-    </div>
-
-    <!-- Tab: Book管理 -->
-    <div class="panel-tab-content active" id="wb-tab-manage" role="tabpanel">
-      <div class="panel-tabs-body">
-        <div class="control-grid">
-          <div class="control-field span-4">
-            <label class="field-label" for="wordBookSelect">Book 切替</label>
-            <select id="wordBookSelect" class="wordbook-select compact-select" aria-label="Word Book 切替"></select>
-          </div>
-          <div class="control-field span-4">
-            <label class="field-label" for="wordBookBooksSortSelect">Book 並び</label>
-            <select id="wordBookBooksSortSelect" class="wordbook-sort-select compact-select" aria-label="Word Book 一覧の並び替え">
-              <option value="manual">Book手動順</option>
-              <option value="newest">Book新しい順</option>
-              <option value="oldest">Book古い順</option>
-              <option value="name">Book名A→Z</option>
-            </select>
-          </div>
-          <div class="control-field span-4">
-            <label class="field-label" for="wordBookItemsSortSelect">項目並び</label>
-            <select id="wordBookItemsSortSelect" class="wordbook-sort-select compact-select" aria-label="Word Book 項目の並び替え">
-              <option value="manual">項目手動順</option>
-              <option value="source">原文A→Z</option>
-              <option value="target">訳文A→Z</option>
-            </select>
-          </div>
-          <div class="control-field span-12">
-            <label class="field-label">Book 操作</label>
-            <div class="action-row">
-              <button class="hist-btn danger" id="wordBookDeleteSelectedBtn" type="button">選択項目を削除</button>
-              <button class="hist-btn" id="wordBookRenameBtn" type="button">名前変更</button>
-              <button class="hist-btn danger" id="wordBookDeleteBtn" type="button">Book 削除</button>
-            </div>
-          </div>
+    <!-- Left sidebar: book list + controls -->
+    <div class="wb-sidebar history-card">
+      <div class="wb-sidebar-head">
+        <div style="font-size:14px;font-weight:700;color:var(--ink)">Word Books</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <select id="wordBookBooksSortSelect" class="wordbook-sort-select wb-sidebar-select" aria-label="Word Book 一覧の並び替え" title="Book 並び替え">
+            <option value="manual">手動順</option>
+            <option value="newest">新しい順</option>
+            <option value="oldest">古い順</option>
+            <option value="name">名前順</option>
+          </select>
         </div>
       </div>
-      <!-- Book list always shown in this tab -->
-      <div class="wordbook-books-wrap">
-        <div class="wordbook-books-title">Word Book 一覧</div>
-        <div class="wordbook-books" id="wordBookBooksList">
-          <div class="wordbook-empty">Word Book はまだありません。</div>
-        </div>
+      <!-- History panel toggle -->
+      <div style="padding:8px 10px 0">
+        <button class="wb-hist-panel-toggle" id="wbShowHistoryBtn" type="button">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+          履歴パネルを表示
+        </button>
       </div>
-    </div>
-
-    <!-- Tab: 検索と表示 -->
-    <div class="panel-tab-content" id="wb-tab-search" role="tabpanel">
-      <div class="panel-tabs-body">
-        <div class="control-grid">
-          <div class="control-field span-6">
-            <label class="field-label" for="wordBookSearchInput">Book 内検索</label>
-            <input id="wordBookSearchInput" class="history-search-input compact-input" type="text" placeholder="Word Book 内を検索…">
-          </div>
-          <div class="control-field span-3">
-            <label class="field-label" for="wordBookColumnsSelect">列表示</label>
-            <select id="wordBookColumnsSelect" class="wordbook-column-toggle compact-select" aria-label="Word Book の列表示">
-              <option value="1">1列</option>
-              <option value="2">2列</option>
-              <option value="3">3列</option>
-              <option value="4">4列</option>
-            </select>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Tab: ループ再生 -->
-    <div class="panel-tab-content" id="wb-tab-loop" role="tabpanel">
-      <div class="panel-tabs-body">
-        <div class="control-grid">
-          <div class="control-field span-4">
-            <label class="field-label">再生対象</label>
-            <div class="segmented" data-sync-select="wordBookLoopScopeSelect">
-              <button class="segmented-btn" type="button" data-value="selected">選択</button>
-              <button class="segmented-btn" type="button" data-value="all">すべて</button>
-            </div>
-            <select id="wordBookLoopScopeSelect" class="wordbook-sort-select visually-hidden-select" aria-label="Word Book ループ対象"><option value="all">すべてループ</option><option value="selected">選択項目ループ</option></select>
-          </div>
-          <div class="control-field span-8">
-            <label class="field-label">再生モード</label>
-            <div class="action-row">
-              <button class="hist-btn" id="wordBookLoopSourceBtn" type="button">原文</button>
-              <button class="hist-btn" id="wordBookLoopTargetBtn" type="button">訳語</button>
-              <button class="hist-btn" id="wordBookLoopAlternateBtn" type="button">交互</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Words — always visible -->
-    <div class="words-always-visible">
-      <div class="wordbook-list" id="wordBookList">
+      <div class="wordbook-books" id="wordBookBooksList" style="padding:10px;gap:8px;display:grid">
         <div class="wordbook-empty">Word Book はまだありません。</div>
       </div>
+      <!-- Trash drop zone -->
+      <div class="wb-trash-zone" id="wbTrashZone" title="ここにドラッグして削除">
+        <span class="wb-trash-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </span>
+        ここにドラッグして削除
+      </div>
+      <!-- Loop controls (legacy, hidden select for compat) -->
+      <div class="wb-sidebar-loop">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px">ループ再生</div>
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+          <div class="segmented" data-sync-select="wordBookLoopScopeSelect" style="flex:1">
+            <button class="segmented-btn" type="button" data-value="selected">選択</button>
+            <button class="segmented-btn" type="button" data-value="all">すべて</button>
+          </div>
+        </div>
+        <select id="wordBookLoopScopeSelect" class="wordbook-sort-select visually-hidden-select" aria-label="Word Book ループ対象"><option value="all">すべてループ</option><option value="selected">選択項目ループ</option></select>
+        <div class="action-row" style="gap:6px">
+          <button class="hist-btn" id="wordBookLoopSourceBtn" type="button" style="flex:1;font-size:12px;padding:7px 6px">原文</button>
+          <button class="hist-btn" id="wordBookLoopTargetBtn" type="button" style="flex:1;font-size:12px;padding:7px 6px">訳語</button>
+          <button class="hist-btn" id="wordBookLoopAlternateBtn" type="button" style="flex:1;font-size:12px;padding:7px 6px">交互</button>
+        </div>
+      </div>
     </div>
 
-  </div>
+    <!-- Right area: open book panels (+ optional history panel injected by JS) -->
+    <div class="wb-panels-area" id="wbPanelsArea">
+      <div class="wb-panels-empty" id="wbPanelsEmpty">
+        <div style="font-size:32px;margin-bottom:12px">📚</div>
+        <div style="font-weight:700;font-size:15px;color:var(--ink);margin-bottom:6px">Word Bookを開く</div>
+        <div style="font-size:13px;color:var(--ink3);line-height:1.7">左側のリストからBookをクリックして開いてください。<br>複数のBookを同時に開いて比較・移動ができます。</div>
+      </div>
+    </div>
+
+  </div><!-- /wb-multi-root -->
+
+  <!-- hidden selects for legacy compat -->
+  <select id="wordBookSelect" class="visually-hidden-select" aria-label="Word Book 切替"></select>
+  <select id="wordBookItemsSortSelect" class="visually-hidden-select" aria-label="Word Book 項目の並び替え">
+    <option value="manual">項目手動順</option>
+    <option value="source">原文A→Z</option>
+    <option value="target">訳文A→Z</option>
+  </select>
+  <select id="wordBookColumnsSelect" class="visually-hidden-select" aria-label="Word Book の列表示">
+    <option value="1">1列</option><option value="2">2列</option>
+    <option value="3">3列</option><option value="4">4列</option>
+  </select>
+  <!-- legacy list (hidden, kept for loop compat) -->
+  <div id="wordBookList" style="display:none"></div>
+
+  <!-- Legacy action buttons (hidden, kept for compat) -->
+  <button id="wordBookDeleteSelectedBtn" style="display:none" type="button"></button>
+  <button id="wordBookRenameBtn" style="display:none" type="button"></button>
+  <button id="wordBookDeleteBtn" style="display:none" type="button"></button>
+  <button id="wordBookMoveUpBtn" style="display:none" type="button"></button>
+  <button id="wordBookMoveDownBtn" style="display:none" type="button"></button>
+  <input id="wordBookSearchInput" style="display:none" type="text">
+
 </div>
 
 
@@ -2608,8 +3265,15 @@ const cpyBtn     = document.getElementById('cpyBtn');
 const cpySrc     = document.getElementById('cpySrc');
 const voiceToggle= document.getElementById('voiceToggle');
 const voicePanel = document.getElementById('voicePanel');
+const ttsProviderSrc = document.getElementById('ttsProviderSrc');
+const ttsProviderTgt = document.getElementById('ttsProviderTgt');
 const voiceSrc   = document.getElementById('voiceSrc');
 const voiceTgt   = document.getElementById('voiceTgt');
+const elevenApiKey = document.getElementById('elevenApiKey');
+const elevenVoiceId = document.getElementById('elevenVoiceId');
+const elevenModelId = document.getElementById('elevenModelId');
+const elevenOutputFormat = document.getElementById('elevenOutputFormat');
+const elevenStatus = document.getElementById('elevenStatus');
 const rateSlider = document.getElementById('rateSlider');
 const pitchSlider= document.getElementById('pitchSlider');
 const volSlider  = document.getElementById('volSlider');
@@ -3000,6 +3664,8 @@ const VOICE_SETTINGS_KEY = 'voice_settings';
 let dbPromise = null;
 let currentView = 0;
 let pendingVoiceSettings = null;
+let currentAudioPlayback = null;
+let currentElevenRequestToken = 0;
 
 function formatDate(ts) {
   const d = new Date(ts);
@@ -3080,32 +3746,31 @@ function transformHistoryItemForWordBook(item, mode) {
 }
 
 function buildHistoryItemHTML(item) {
-  return `
-  <article class="history-item history-item-minimal sort-enabled" draggable="true" data-id="${item.id}">
-    <div class="history-body has-select">
-      <div class="history-select-col">
-        <input class="history-check" type="checkbox" data-history-select="${item.id}" aria-label="履歴 ${item.id} を選択">
+  return `<div class="hist-item" draggable="true" data-hist-id="${item.id}">
+    <div class="hist-item-view">
+      <div class="hist-item-body">
+        <div class="hist-item-col" data-hist-speak="source" data-hist-id="${item.id}">
+          <div class="hist-item-text">${esc(item.sourceText || '')}</div>
+        </div>
+        <div class="hist-item-col" data-hist-speak="target" data-hist-id="${item.id}">
+          <div class="hist-item-text">${esc(item.translatedText || '')}</div>
+        </div>
       </div>
-      <div>
-        <div class="history-cols history-view-mode">
-          <div class="history-col" data-history-side="source">
-            <div class="history-text" data-action="speak-source" data-id="${item.id}" title="クリックで発音">${esc(item.sourceText)}</div>
-          </div>
-          <div class="history-col" data-history-side="target">
-            <div class="history-text" data-action="speak-target" data-id="${item.id}" title="クリックで発音">${esc(item.translatedText)}</div>
-          </div>
-        </div>
-        <div class="history-cols history-edit-mode">
-          <div class="history-col">
-            <textarea class="history-edit-box" data-edit-source="${item.id}" aria-label="翻訳元を編集">${esc(item.sourceText)}</textarea>
-          </div>
-          <div class="history-col">
-            <textarea class="history-edit-box" data-edit-target="${item.id}" aria-label="翻訳先を編集">${esc(item.translatedText)}</textarea>
-          </div>
-        </div>
+      <div class="hist-item-date-row">
+        <span class="hist-item-date">${formatDate(item.createdAt || 0)}</span>
       </div>
     </div>
-  </article>`;
+    <div class="hist-item-edit">
+      <div class="hist-item-edit-row">
+        <textarea data-hist-edit-src="${item.id}">${esc(item.sourceText || '')}</textarea>
+        <textarea data-hist-edit-tgt="${item.id}">${esc(item.translatedText || '')}</textarea>
+      </div>
+      <div class="hist-item-edit-actions">
+        <button class="hist-item-edit-save" data-hist-save="${item.id}">保存</button>
+        <button class="hist-item-edit-cancel" data-hist-cancel="${item.id}">キャンセル</button>
+      </div>
+    </div>
+  </div>`;
 }
 
 function buildWordBookItemHTML(item, index) {
@@ -3358,14 +4023,14 @@ function speakCurrentSource(text, langKey) {
   stopHistoryLoopPlayback(false);
   stopHistoryLoopPlayback(false);
   updateSearchInputFromSpeech(text);
-  speak(text, langKey || srcLang.value, voiceSrc);
+  speak(text, langKey || srcLang.value, voiceSrc, ttsProviderSrc);
 }
 
 function speakCurrentTarget(text, langKey) {
   stopWordBookLoopPlayback(false);
   stopHistoryLoopPlayback(false);
   updateSearchInputFromSpeech(text);
-  speak(text, langKey || tgtLang.value, voiceTgt);
+  speak(text, langKey || tgtLang.value, voiceTgt, ttsProviderTgt);
 }
 
 function getSelectedWordBookItemIndexes() {
@@ -3400,7 +4065,7 @@ function stopWordBookLoopPlayback(cancelSpeech = true) {
   wordBookLoopState.mode = null;
   wordBookLoopState.button = null;
   wordBookLoopState.token += 1;
-  if (cancelSpeech && window.speechSynthesis) window.speechSynthesis.cancel();
+  if (cancelSpeech) stopAllSpeechPlayback(true);
   updateWordBookLoopButtons();
 }
 
@@ -3432,7 +4097,7 @@ function stopHistoryLoopPlayback(cancelSpeech = true) {
   historyLoopState.mode = null;
   historyLoopState.button = null;
   historyLoopState.token += 1;
-  if (cancelSpeech && window.speechSynthesis) window.speechSynthesis.cancel();
+  if (cancelSpeech) stopAllSpeechPlayback(true);
   updateHistoryLoopButtons();
 }
 
@@ -3440,47 +4105,23 @@ function scheduleLoopStep(fn, delay = 8) {
   setTimeout(fn, delay);
 }
 
-function speakLoopChunk(loopState, text, langKey, voiceSel, token, onend) {
-  if (!text || !window.speechSynthesis || token !== loopState.token || !loopState.active) {
+function speakLoopChunk(loopState, text, langKey, voiceSel, providerSel, token, onend) {
+  if (!text || token !== loopState.token || !loopState.active) {
     onend && onend();
     return;
   }
-  const bcp = LANG_BCP[langKey] || 'ja-JP';
-  const fire = () => {
-    if (token !== loopState.token || !loopState.active) return;
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = bcp;
-    u.rate = +rateSlider.value;
-    u.pitch = +pitchSlider.value;
-    u.volume = +volSlider.value;
-    const chosen = getVoiceFromSelect(voiceSel);
-    if (chosen) {
-      u.voice = chosen;
-    } else {
-      const vs = window.speechSynthesis.getVoices();
-      const v = vs.find(v => v.lang === bcp) || vs.find(v => (v.lang || '').startsWith(bcp.split('-')[0]));
-      if (v) u.voice = v;
-    }
-    u.onend = () => {
+  playSpeechChunk(loopState, text, langKey, voiceSel, providerSel, token)
+    .then(() => {
       if (token !== loopState.token || !loopState.active) return;
       scheduleLoopStep(() => onend && onend(), 8);
-    };
-    u.onerror = () => {
+    })
+    .catch((err) => {
+      const provider = getProviderForSelect(providerSel);
+      const message = err && err.message ? err.message : String(err || '音声再生に失敗しました。');
+      if (provider === 'elevenlabs') setElevenStatus(message, true);
       if (token !== loopState.token || !loopState.active) return;
       scheduleLoopStep(() => onend && onend(), 8);
-    };
-    window.speechSynthesis.speak(u);
-  };
-  if (window.speechSynthesis.getVoices().length > 0) {
-    fire();
-  } else {
-    let done = false;
-    window.speechSynthesis.addEventListener('voiceschanged', function h() {
-      window.speechSynthesis.removeEventListener('voiceschanged', h);
-      if (!done) { done = true; fire(); }
     });
-    setTimeout(() => { if (!done) { done = true; fire(); } }, 60);
-  }
 }
 
 function runLoopSequence(loopState, mode, items, startIndex, token) {
@@ -3507,30 +4148,31 @@ function runLoopSequence(loopState, mode, items, startIndex, token) {
     }
     if (!source) {
       updateSearchInputFromSpeech(target);
-      speakLoopChunk(loopState, target, item.tgtLang || tgtLang.value, voiceTgt, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
+      speakLoopChunk(loopState, target, item.tgtLang || tgtLang.value, voiceTgt, ttsProviderTgt, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
       return;
     }
     updateSearchInputFromSpeech(source);
-    speakLoopChunk(loopState, source, item.srcLang || srcLang.value, voiceSrc, token, () => {
+    speakLoopChunk(loopState, source, item.srcLang || srcLang.value, voiceSrc, ttsProviderSrc, token, () => {
       if (!loopState.active || token !== loopState.token) return;
       if (!target) {
         runLoopSequence(loopState, mode, items, safeIndex + 1, token);
         return;
       }
       updateSearchInputFromSpeech(target);
-      speakLoopChunk(loopState, target, item.tgtLang || tgtLang.value, voiceTgt, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
+      speakLoopChunk(loopState, target, item.tgtLang || tgtLang.value, voiceTgt, ttsProviderTgt, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
     });
     return;
   }
   const text = mode === 'target' ? (item.translatedText || '').trim() : (item.sourceText || '').trim();
   const lang = mode === 'target' ? (item.tgtLang || tgtLang.value) : (item.srcLang || srcLang.value);
   const voiceSel = mode === 'target' ? voiceTgt : voiceSrc;
+  const providerSel = mode === 'target' ? ttsProviderTgt : ttsProviderSrc;
   if (!text) {
     runLoopSequence(loopState, mode, items, safeIndex + 1, token);
     return;
   }
   updateSearchInputFromSpeech(text);
-  speakLoopChunk(loopState, text, lang, voiceSel, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
+  speakLoopChunk(loopState, text, lang, voiceSel, providerSel, token, () => runLoopSequence(loopState, mode, items, safeIndex + 1, token));
 }
 
 function startHistoryLoopPlayback(mode, button) {
@@ -3539,7 +4181,7 @@ function startHistoryLoopPlayback(mode, button) {
     alert('再生できる翻訳履歴がありません。');
     return;
   }
-  window.speechSynthesis && window.speechSynthesis.cancel();
+  stopAllSpeechPlayback(true);
   stopWordBookLoopPlayback(false);
   historyLoopState.active = true;
   historyLoopState.mode = mode;
@@ -3564,7 +4206,7 @@ function startWordBookLoopPlayback(mode, button) {
     alert('再生できる Word Book 項目がありません。');
     return;
   }
-  window.speechSynthesis && window.speechSynthesis.cancel();
+  stopAllSpeechPlayback(true);
   stopHistoryLoopPlayback(false);
   wordBookLoopState.active = true;
   wordBookLoopState.mode = mode;
@@ -3585,7 +4227,6 @@ function toggleWordBookLoopPlayback(mode, button) {
 
 async function renderHistory() {
   if (!historyList) return;
-  applyHistoryLayoutClasses();
   try {
     const rows = await getAllHistory();
     const keyword = historySearchInput ? historySearchInput.value : '';
@@ -3598,22 +4239,201 @@ async function renderHistory() {
       srcLang: item.srcLang || srcLang.value,
       tgtLang: item.tgtLang || tgtLang.value
     }));
+
+    // Update count badges
+    const badge = document.getElementById('histCountBadge');
+    const panelCount = document.getElementById('histPanelCount');
+    if (badge) badge.textContent = rows.length + ' 件';
+    if (panelCount) panelCount.textContent = `${sorted.length}/${rows.length} items`;
+
     if (!rows.length) {
-      historyList.innerHTML = '<div class="history-empty">履歴はまだありません。</div>';
+      historyList.innerHTML = '<div class="wordbook-empty">履歴はまだありません。</div>';
       updateHistoryLoopButtons();
       return;
     }
     if (!sorted.length) {
-      historyList.innerHTML = '<div class="history-empty">検索条件に一致する履歴はありません。</div>';
+      historyList.innerHTML = '<div class="wordbook-empty">検索条件に一致する履歴はありません。</div>';
       updateHistoryLoopButtons();
       return;
     }
     historyList.innerHTML = sorted.map(buildHistoryItemHTML).join('');
     updateHistoryLoopButtons();
+    initHistoryListEvents(historyList, sorted);
+    // Keep WB embedded history fresh
+    if (typeof wbHistoryPanelOpen !== 'undefined' && wbHistoryPanelOpen) openWbHistoryPanel();
   } catch (err) {
     renderedHistoryLoopItems = [];
-    historyList.innerHTML = '<div class="history-empty">履歴の読み込みに失敗しました: ' + esc(err.message || err) + '</div>';
+    historyList.innerHTML = '<div class="wordbook-empty">履歴の読み込みに失敗しました: ' + esc(err.message || err) + '</div>';
     updateHistoryLoopButtons();
+  }
+}
+
+// ── History list events (drag, contextmenu-edit, click-speak, dblclick-search) ──
+let histDragId = null;
+let histDragRow = null; // full row data for cross-drops into WB panels
+let histDragOverEl = null;
+let histDragSide = null;
+
+function initHistoryListEvents(list, sortedRows) {
+  const trashZone = document.getElementById('histTrashZone');
+
+  list.querySelectorAll('.hist-item').forEach(itemEl => {
+    const id = Number(itemEl.getAttribute('data-hist-id'));
+    const row = sortedRows.find(r => Number(r.id) === id);
+
+    // Drag start
+    itemEl.addEventListener('dragstart', e => {
+      if (itemEl.classList.contains('editing')) { e.preventDefault(); return; }
+      histDragId = id;
+      histDragRow = row || null;
+      e.dataTransfer.effectAllowed = 'copyMove';
+      e.dataTransfer.setData('text/plain', `hist:${id}`);
+      itemEl.classList.add('hist-dragging');
+      if (trashZone) trashZone.style.borderStyle = 'solid';
+      // Highlight all open WB panels as drop targets
+      document.querySelectorAll('[data-wb-panel-book]').forEach(p => p.classList.add('wb-hist-drop-ready'));
+    });
+    itemEl.addEventListener('dragend', () => {
+      itemEl.classList.remove('hist-dragging');
+      clearHistDragOver();
+      histDragId = null;
+      histDragRow = null;
+      if (trashZone) { trashZone.classList.remove('drag-over'); trashZone.style.borderStyle = ''; }
+      document.querySelectorAll('[data-wb-panel-book]').forEach(p => p.classList.remove('wb-hist-drop-ready'));
+    });
+
+    // Drag over for reorder within history
+    itemEl.addEventListener('dragover', e => {
+      if (!histDragId) return;
+      e.preventDefault();
+      const rect = itemEl.getBoundingClientRect();
+      const side = e.clientY < rect.top + rect.height / 2 ? 'top' : 'bot';
+      if (histDragOverEl !== itemEl || histDragSide !== side) {
+        clearHistDragOver();
+        histDragOverEl = itemEl;
+        histDragSide = side;
+        itemEl.classList.add(side === 'top' ? 'hist-drag-over-top' : 'hist-drag-over-bot');
+      }
+    });
+    itemEl.addEventListener('dragleave', () => {
+      if (histDragOverEl === itemEl) clearHistDragOver();
+    });
+    itemEl.addEventListener('drop', async e => {
+      e.preventDefault();
+      if (!histDragId) return;
+      const toId = Number(itemEl.getAttribute('data-hist-id'));
+      if (histDragId === toId) { clearHistDragOver(); return; }
+      const side = histDragSide;
+      clearHistDragOver();
+      const allRows = await getAllHistory();
+      const fromIdx = allRows.findIndex(r => Number(r.id) === histDragId);
+      const toIdx = allRows.findIndex(r => Number(r.id) === toId);
+      if (fromIdx < 0 || toIdx < 0) return;
+      const reordered = allRows.slice();
+      const [moved] = reordered.splice(fromIdx, 1);
+      let insert = side === 'top' ? toIdx : toIdx + 1;
+      if (fromIdx < toIdx) insert = Math.max(0, insert - 1);
+      reordered.splice(Math.max(0, Math.min(insert, reordered.length)), 0, moved);
+      await Promise.all(reordered.map((r, i) => updateHistoryEntry(r.id, { sortOrder: i })));
+      histDragId = null;
+      histDragRow = null;
+      await renderHistory();
+    });
+
+    // Right-click: edit
+    itemEl.addEventListener('contextmenu', e => {
+      if (itemEl.classList.contains('editing')) return;
+      e.preventDefault();
+      itemEl.classList.add('editing');
+      const ta = itemEl.querySelector('textarea');
+      if (ta) { ta.focus(); const l = ta.value.length; ta.setSelectionRange(l, l); }
+    });
+
+    // Click column: speak
+    let histColTimer = null;
+    itemEl.querySelectorAll('[data-hist-speak]').forEach(col => {
+      col.addEventListener('click', e => {
+        if (e.target.closest('input,button,textarea')) return;
+        if (itemEl.classList.contains('editing')) return;
+        clearTimeout(histColTimer);
+        if (!row) return;
+        const field = col.getAttribute('data-hist-speak');
+        histColTimer = setTimeout(() => {
+          if (field === 'source') speakCurrentSource(row.sourceText, row.srcLang);
+          else speakCurrentTarget(row.translatedText, row.tgtLang);
+        }, 200);
+      });
+      col.addEventListener('dblclick', e => {
+        if (e.target.closest('input,button,textarea')) return;
+        if (itemEl.classList.contains('editing')) return;
+        clearTimeout(histColTimer);
+        if (!row) return;
+        const field = col.getAttribute('data-hist-speak');
+        const sel = window.getSelection ? window.getSelection().toString().trim() : '';
+        const q = sel || (field === 'source' ? row.sourceText : row.translatedText) || '';
+        if (q) iwinOpen(q, { mode: iwinState.mode || 'general' });
+      });
+    });
+
+    // Save edit
+    const saveBtn3 = itemEl.querySelector('[data-hist-save]');
+    if (saveBtn3) {
+      saveBtn3.addEventListener('click', async e => {
+        e.stopPropagation();
+        const srcTA = itemEl.querySelector('[data-hist-edit-src]');
+        const tgtTA = itemEl.querySelector('[data-hist-edit-tgt]');
+        const s = (srcTA ? srcTA.value : '').trim();
+        const t = (tgtTA ? tgtTA.value : '').trim();
+        if (!s || !t) { alert('翻訳元と翻訳先の両方を入力してください。'); return; }
+        await updateHistoryEntry(id, { sourceText: s, translatedText: t });
+        await renderHistory();
+      });
+    }
+    const cancelBtn2 = itemEl.querySelector('[data-hist-cancel]');
+    if (cancelBtn2) {
+      cancelBtn2.addEventListener('click', e => {
+        e.stopPropagation();
+        itemEl.classList.remove('editing');
+      });
+    }
+    itemEl.addEventListener('keydown', async e => {
+      if (!itemEl.classList.contains('editing')) return;
+      if (e.key === 'Escape') { itemEl.classList.remove('editing'); }
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        const sb = itemEl.querySelector('[data-hist-save]');
+        if (sb) sb.click();
+      }
+    });
+  });
+
+  // Trash zone for history
+  if (trashZone) {
+    const newTrash = trashZone.cloneNode(true);
+    trashZone.parentNode.replaceChild(newTrash, trashZone);
+    newTrash.addEventListener('dragover', e => {
+      if (!histDragId) return;
+      e.preventDefault();
+      newTrash.classList.add('drag-over');
+    });
+    newTrash.addEventListener('dragleave', () => newTrash.classList.remove('drag-over'));
+    newTrash.addEventListener('drop', async e => {
+      e.preventDefault();
+      newTrash.classList.remove('drag-over');
+      if (!histDragId) return;
+      const delId = histDragId;
+      histDragId = null;
+      histDragRow = null;
+      await deleteHistoryEntry(delId);
+      await renderHistory();
+    });
+  }
+}
+
+function clearHistDragOver() {
+  if (histDragOverEl) {
+    histDragOverEl.classList.remove('hist-drag-over-top', 'hist-drag-over-bot');
+    histDragOverEl = null;
+    histDragSide = null;
   }
 }
 
@@ -3664,7 +4484,7 @@ function renderTranslateSaveTargetOptions(books) {
   if (!translateSaveTarget) return;
   const picked = localStorage.getItem(TRANSLATE_SAVE_TARGET_KEY) || translateSaveTarget.value || 'history';
   const options = ['<option value="history">翻訳履歴に保存</option>'].concat(
-    (books || []).map(book => `<option value="wordbook:${book.id}">Word Book: ${esc(book.name || '無題')} に保存</option>`)
+    (books || []).map(book => `<option value="wordbook:${book.id}">${esc(book.name || '無題')} に保存</option>`)
   );
   translateSaveTarget.innerHTML = options.join('');
   const exists = Array.from(translateSaveTarget.options).some(opt => opt.value === picked);
@@ -3674,60 +4494,31 @@ function renderTranslateSaveTargetOptions(books) {
 
 
 async function renderWordBooks(preferredId) {
-  if (!wordBookList || !wordBookSelect) return;
-  applyWordBookLayoutClasses();
+  // Legacy compat: update wordBookSelect hidden select
   try {
     const books = await getAllWordBooks();
     const sortedBooks = sortWordBooks(books, getWordBookBooksSortMode());
-    renderWordBookSelectOptions(sortedBooks, preferredId || wordBookSelect.value);
+    renderWordBookSelectOptions(sortedBooks, preferredId || (wordBookSelect ? wordBookSelect.value : ''));
     renderHistoryWordBookTargetOptions(sortedBooks, preferredId || (historyWordBookTargetSelect ? historyWordBookTargetSelect.value : ''));
     renderTranslateSaveTargetOptions(sortedBooks);
-    if (!books.length) {
-      wordBookNameChip.textContent = '未選択';
-      wordBookCount.textContent = '';
-      updateTranslateSaveButtonTitle();
-      if (wordBookBooksList) wordBookBooksList.innerHTML = '<div class="wordbook-empty">Word Book はまだありません。</div>';
-      if (historyWordBookTargetSelect) {
-        historyWordBookTargetSelect.innerHTML = '<option value="">Word Book がありません</option>';
-        historyWordBookTargetSelect.value = '';
-      }
-      renderedWordBookLoopItems = [];
-      wordBookList.innerHTML = '<div class="wordbook-empty">Word Book はまだありません。</div>';
-      updateWordBookLoopButtons();
-      return;
-    }
-    const active = sortedBooks.find(book => String(book.id) === String(wordBookSelect.value)) || sortedBooks[0];
-    wordBookSelect.value = String(active.id);
-    wordBookNameChip.textContent = active.name || '無題';
-    if (wordBookBooksList) {
-      wordBookBooksList.innerHTML = sortedBooks.map(book => buildWordBookBookCardHTML(book, Number(book.id) === Number(active.id))).join('');
-    }
-    const items = Array.isArray(active.items) ? active.items : [];
-    const keyword = wordBookSearchInput ? wordBookSearchInput.value : '';
-    const filteredItems = items.map((item, index) => ({ item, index })).filter(row => matchesKeyword(row.item, keyword));
-    const sortedItems = sortWordBookItems(filteredItems, getWordBookItemsSortMode());
-    renderedWordBookLoopItems = sortedItems.map(row => ({
-      index: row.index,
-      sourceText: row.item.sourceText || '',
-      translatedText: row.item.translatedText || '',
-      srcLang: row.item.srcLang || srcLang.value,
-      tgtLang: row.item.tgtLang || tgtLang.value
-    }));
-    wordBookCount.textContent = `${sortedItems.length} / ${items.length} items`;
-    if (!items.length) {
-      renderedWordBookLoopItems = [];
-      wordBookList.innerHTML = '<div class="wordbook-empty">この Word Book に項目はありません。</div>';
-      updateWordBookLoopButtons();
-      return;
-    }
-    if (!sortedItems.length) {
-      wordBookList.innerHTML = '<div class="wordbook-empty">検索条件に一致する項目はありません。</div>';
-      return;
-    }
-    wordBookList.innerHTML = sortedItems.map(({ item, index }) => buildWordBookItemHTML(item, index)).join('');
+
+    // Update sidebar book list
+    renderWbSidebar(sortedBooks);
+
+    // Update any open panels
+    wbOpenBookIds.forEach(id => renderWbPanel(id, books));
+
+    // Update name chip (for first open book or selected)
+    const activeId = preferredId || (wordBookSelect ? wordBookSelect.value : '');
+    const active = books.find(b => String(b.id) === String(activeId)) || books[0];
+    if (wordBookNameChip) wordBookNameChip.textContent = active ? (active.name || '無題') : '未選択';
+    if (wordBookCount) wordBookCount.textContent = active ? `${Array.isArray(active.items) ? active.items.length : 0} items` : '';
+
+    // Loop items: collect from all open panels
+    rebuildLoopItemsFromOpenPanels(books);
+    updateWordBookLoopButtons();
   } catch (err) {
     renderedWordBookLoopItems = [];
-    wordBookList.innerHTML = '<div class="wordbook-empty">Word Book の読み込みに失敗しました: ' + esc(err.message || err) + '</div>';
     updateWordBookLoopButtons();
   }
 }
@@ -3735,8 +4526,652 @@ async function renderWordBooks(preferredId) {
 async function getActiveWordBook() {
   const books = await getAllWordBooks();
   if (!books.length) return null;
-  return books.find(book => String(book.id) === String(wordBookSelect ? wordBookSelect.value : '')) || books[0];
+  // Use first open panel's book if available, else fall back to wordBookSelect
+  const firstOpen = wbOpenBookIds.size > 0 ? Array.from(wbOpenBookIds)[0] : null;
+  const activeId = firstOpen || (wordBookSelect ? wordBookSelect.value : '');
+  return books.find(book => String(book.id) === String(activeId)) || books[0];
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ── Multi-panel Word Book system ──────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
+
+const WB_PANEL_COLORS = ['wb-color-0','wb-color-1','wb-color-2','wb-color-3','wb-color-4','wb-color-5','wb-color-6','wb-color-7'];
+const wbOpenBookIds = new Set(); // Set<bookId as string>
+const wbPanelSearches = new Map(); // bookId -> search string
+const wbPanelSorts = new Map(); // bookId -> sort mode
+let wbColorMap = new Map(); // bookId -> color index
+
+// Drag state
+let wbDragState = null; // { fromBookId, itemIndex, sourceText, translatedText }
+let wbItemDragOverEl = null;
+let wbItemDragSide = null; // 'top' | 'bot'
+
+function wbGetColor(bookId) {
+  const key = String(bookId);
+  if (!wbColorMap.has(key)) {
+    wbColorMap.set(key, wbColorMap.size % WB_PANEL_COLORS.length);
+  }
+  return WB_PANEL_COLORS[wbColorMap.get(key)];
+}
+
+function renderWbSidebar(sortedBooks) {
+  const container = document.getElementById('wordBookBooksList');
+  if (!container) return;
+  if (!sortedBooks.length) {
+    container.innerHTML = '<div class="wordbook-empty" style="margin:8px">Word Book はまだありません。</div>';
+    return;
+  }
+  container.innerHTML = sortedBooks.map(book => {
+    const isOpen = wbOpenBookIds.has(String(book.id));
+    const count = Array.isArray(book.items) ? book.items.length : 0;
+    const colorCls = wbGetColor(book.id);
+    return `<div class="wb-book-row${isOpen ? ' wb-book-open' : ''}" data-wb-book-id="${book.id}" draggable="true" title="${esc(book.name || '無題')}">
+      <div class="wb-book-row-dot ${colorCls}" style="background:${getWbColorHex(colorCls)}"></div>
+      <div class="wb-book-row-name">${esc(book.name || '無題')}</div>
+      <div class="wb-book-row-count">${count}</div>
+      <div class="wb-book-row-drag" title="ドラッグで並び替え">⋮⋮</div>
+    </div>`;
+  }).join('');
+
+  // Sidebar click: toggle open
+  container.querySelectorAll('.wb-book-row').forEach(row => {
+    row.addEventListener('click', async (e) => {
+      if (e.target.closest('.wb-book-row-drag')) return;
+      const id = String(row.getAttribute('data-wb-book-id'));
+      if (wbOpenBookIds.has(id)) {
+        wbClosePanel(id);
+      } else {
+        wbOpenPanel(id);
+      }
+    });
+  });
+
+  // Sidebar drag for reordering books
+  initWbSidebarDrag(container, sortedBooks);
+}
+
+function getWbColorHex(cls) {
+  const map = {
+    'wb-color-0': '#5e5ce6', 'wb-color-1': '#bf5af2', 'wb-color-2': '#30d158',
+    'wb-color-3': '#ff9f0a', 'wb-color-4': '#0a84ff', 'wb-color-5': '#ff453a',
+    'wb-color-6': '#64d2ff', 'wb-color-7': '#ffd60a'
+  };
+  return map[cls] || '#8e8e93';
+}
+
+function wbOpenPanel(bookId) {
+  const id = String(bookId);
+  wbOpenBookIds.add(id);
+  if (wordBookSelect) wordBookSelect.value = id;
+  getAllWordBooks().then(books => {
+    renderWbSidebar(sortWordBooks(books, getWordBookBooksSortMode()));
+    renderWbPanel(id, books);
+    updateWbPanelsEmpty();
+    rebuildLoopItemsFromOpenPanels(books);
+    updateWordBookLoopButtons();
+    const active = books.find(b => String(b.id) === id);
+    if (wordBookNameChip && active) wordBookNameChip.textContent = active.name || '無題';
+  });
+}
+
+function wbClosePanel(bookId) {
+  const id = String(bookId);
+  wbOpenBookIds.delete(id);
+  const panel = document.getElementById('wb-panel-' + id);
+  if (panel) panel.remove();
+  getAllWordBooks().then(books => {
+    renderWbSidebar(sortWordBooks(books, getWordBookBooksSortMode()));
+    updateWbPanelsEmpty();
+    rebuildLoopItemsFromOpenPanels(books);
+    updateWordBookLoopButtons();
+  });
+}
+
+function updateWbPanelsEmpty() {
+  const empty = document.getElementById('wbPanelsEmpty');
+  if (empty) empty.style.display = wbOpenBookIds.size === 0 ? 'block' : 'none';
+}
+
+function wbGetPanelSearch(bookId) {
+  return wbPanelSearches.get(String(bookId)) || '';
+}
+
+function wbGetPanelSort(bookId) {
+  return wbPanelSorts.get(String(bookId)) || 'manual';
+}
+
+function renderWbPanel(bookId, allBooks) {
+  const id = String(bookId);
+  const area = document.getElementById('wbPanelsArea');
+  if (!area) return;
+  const book = (allBooks || []).find(b => String(b.id) === id);
+  if (!book) { wbClosePanel(id); return; }
+
+  const colorCls = wbGetColor(id);
+  const colorHex = getWbColorHex(colorCls);
+  const items = Array.isArray(book.items) ? book.items : [];
+  const search = wbGetPanelSearch(id);
+  const sort = wbGetPanelSort(id);
+
+  // Filter + sort
+  const filtered = items.map((item, index) => ({ item, index })).filter(r => {
+    if (!search) return true;
+    const q = search.toLowerCase();
+    return (r.item.sourceText || '').toLowerCase().includes(q) || (r.item.translatedText || '').toLowerCase().includes(q);
+  });
+  const sorted = sortWordBookItems(filtered, sort);
+
+  const otherBooks = (allBooks || []).filter(b => String(b.id) !== id);
+
+  // Build items HTML
+  const itemsHtml = sorted.length === 0
+    ? `<div class="wordbook-empty">${items.length === 0 ? 'この Book に項目はありません。' : '検索条件に一致する項目はありません。'}</div>`
+    : sorted.map(({ item, index }) => buildWbPanelItemHTML(item, index, id, otherBooks)).join('');
+
+  const panelHtml = `
+  <div class="wb-panel" id="wb-panel-${id}" data-wb-panel-book="${id}">
+    <div class="wb-panel-head">
+      <div class="wb-panel-color" style="background:${colorHex}"></div>
+      <div class="wb-panel-title">${esc(book.name || '無題')}</div>
+      <div class="wb-panel-count">${sorted.length}/${items.length} items</div>
+      <div class="wb-panel-btns">
+        <button class="wb-panel-btn" data-wb-rename="${id}" title="名前変更">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+        </button>
+        <button class="wb-panel-btn danger" data-wb-delete-book="${id}" title="Book を削除">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+        <button class="wb-panel-btn" data-wb-close="${id}" title="閉じる">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="wb-panel-toolbar">
+      <input type="text" placeholder="絞り込み…" value="${esc(search)}" data-wb-search="${id}">
+      <select data-wb-sort="${id}">
+        <option value="manual"${sort==='manual'?' selected':''}>手動順</option>
+        <option value="source"${sort==='source'?' selected':''}>原文順</option>
+        <option value="target"${sort==='target'?' selected':''}>訳文順</option>
+      </select>
+    </div>
+    <div class="wb-panel-list" data-wb-list="${id}">${itemsHtml}</div>
+  </div>`;
+
+  const existing = document.getElementById('wb-panel-' + id);
+  if (existing) {
+    existing.outerHTML = panelHtml;
+  } else {
+    area.insertAdjacentHTML('beforeend', panelHtml);
+  }
+
+  // Re-query the freshly rendered panel
+  const panel = document.getElementById('wb-panel-' + id);
+  if (!panel) return;
+
+  // Toolbar search
+  const searchEl = panel.querySelector(`[data-wb-search="${id}"]`);
+  if (searchEl) {
+    searchEl.addEventListener('input', () => {
+      wbPanelSearches.set(id, searchEl.value);
+      getAllWordBooks().then(books => renderWbPanel(id, books));
+    });
+  }
+
+  // Toolbar sort
+  const sortEl = panel.querySelector(`[data-wb-sort="${id}"]`);
+  if (sortEl) {
+    sortEl.addEventListener('change', () => {
+      wbPanelSorts.set(id, sortEl.value);
+      getAllWordBooks().then(books => renderWbPanel(id, books));
+    });
+  }
+
+  // Panel buttons
+  panel.querySelector(`[data-wb-close="${id}"]`)?.addEventListener('click', () => wbClosePanel(id));
+  panel.querySelector(`[data-wb-rename="${id}"]`)?.addEventListener('click', async () => {
+    const name = prompt('新しい名前を入力してください：', book.name || '');
+    if (name === null) return;
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    await updateWordBookName(book.id, trimmed);
+    await renderWordBooks(id);
+  });
+  panel.querySelector(`[data-wb-delete-book="${id}"]`)?.addEventListener('click', async () => {
+    if (!window.confirm(`「${book.name || '無題'}」を削除しますか？`)) return;
+    wbOpenBookIds.delete(id);
+    await deleteWordBook(book.id);
+    await normalizeWordBookOrder();
+    await renderWordBooks();
+  });
+
+  // Item buttons (speak, search, move, copy, delete, edit)
+  initWbPanelItemEvents(panel, id, allBooks);
+  // Item drag-to-move
+  initWbItemDrag(panel, id);
+}
+
+function buildWbPanelItemHTML(item, index, bookId, otherBooks) {
+  return `<div class="wb-item" data-wb-item-index="${index}" data-wb-item-book="${bookId}" draggable="true">
+    <div class="wb-item-view">
+      <div class="wb-item-body">
+        <div class="wb-item-col" data-wb-speak="source" data-wb-item-index="${index}" data-wb-item-book="${bookId}">
+          <div class="wb-item-text">${esc(item.sourceText || '')}</div>
+        </div>
+        <div class="wb-item-col" data-wb-speak="target" data-wb-item-index="${index}" data-wb-item-book="${bookId}">
+          <div class="wb-item-text">${esc(item.translatedText || '')}</div>
+        </div>
+      </div>
+    </div>
+    <div class="wb-item-edit">
+      <div class="wb-item-edit-row">
+        <textarea data-wb-edit-src="${index}">${esc(item.sourceText || '')}</textarea>
+        <textarea data-wb-edit-tgt="${index}">${esc(item.translatedText || '')}</textarea>
+      </div>
+      <div class="wb-item-edit-actions">
+        <button class="wb-item-edit-save" data-wb-edit-save="${index}">保存</button>
+        <button class="wb-item-edit-cancel" data-wb-edit-cancel="${index}">キャンセル</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function initWbPanelItemEvents(panel, bookId, allBooks) {
+  const id = String(bookId);
+  const book = (allBooks || []).find(b => String(b.id) === id);
+  if (!book) return;
+
+  // Single click on col → speak
+  let wbColClickTimer = null;
+  panel.querySelectorAll('[data-wb-speak]').forEach(col => {
+    col.addEventListener('click', e => {
+      if (e.target.closest('button,textarea')) return;
+      clearTimeout(wbColClickTimer);
+      const itemEl = col.closest('.wb-item');
+      if (itemEl && itemEl.classList.contains('editing')) return;
+      const index = Number(col.getAttribute('data-wb-item-index'));
+      const field = col.getAttribute('data-wb-speak');
+      const items = Array.isArray(book.items) ? book.items : [];
+      const item = items[index];
+      if (!item) return;
+      wbColClickTimer = setTimeout(() => {
+        if (field === 'source') speak(item.sourceText || '', item.srcLang || srcLang.value, voiceSrc, ttsProviderSrc);
+        else speak(item.translatedText || '', item.tgtLang || tgtLang.value, voiceTgt, ttsProviderTgt);
+      }, 200);
+    });
+
+    // Dblclick → internal search
+    col.addEventListener('dblclick', e => {
+      if (e.target.closest('button,textarea')) return;
+      clearTimeout(wbColClickTimer);
+      const itemEl = col.closest('.wb-item');
+      if (itemEl && itemEl.classList.contains('editing')) return;
+      const index = Number(col.getAttribute('data-wb-item-index'));
+      const field = col.getAttribute('data-wb-speak');
+      const items = Array.isArray(book.items) ? book.items : [];
+      const item = items[index];
+      if (!item) return;
+      const sel = window.getSelection ? window.getSelection().toString().trim() : '';
+      const q = sel || (field === 'source' ? item.sourceText : item.translatedText) || '';
+      if (q) iwinOpen(q, { mode: iwinState.mode || 'general' });
+    });
+  });
+
+  // Right-click → enter edit mode
+  panel.querySelectorAll('.wb-item').forEach(itemEl => {
+    itemEl.addEventListener('contextmenu', e => {
+      if (itemEl.classList.contains('editing')) return;
+      e.preventDefault();
+      e.stopPropagation();
+      itemEl.classList.add('editing');
+      const ta = itemEl.querySelector('textarea');
+      if (ta) { ta.focus(); const l = ta.value.length; ta.setSelectionRange(l, l); }
+    });
+  });
+
+  // Edit save
+  panel.querySelectorAll('[data-wb-edit-save]').forEach(btn => {
+    btn.addEventListener('click', async e => {
+      e.stopPropagation();
+      const index = Number(btn.getAttribute('data-wb-edit-save'));
+      const itemEl = panel.querySelector(`.wb-item[data-wb-item-index="${index}"]`);
+      if (!itemEl) return;
+      const srcVal = (itemEl.querySelector(`[data-wb-edit-src]`) || {}).value;
+      const tgtVal = (itemEl.querySelector(`[data-wb-edit-tgt]`) || {}).value;
+      const s = (srcVal || '').trim(); const t = (tgtVal || '').trim();
+      if (!s || !t) { alert('翻訳元と翻訳先の両方を入力してください。'); return; }
+      const books = await getAllWordBooks();
+      const b = books.find(bk => String(bk.id) === id);
+      if (!b) return;
+      const items = Array.isArray(b.items) ? b.items.slice() : [];
+      if (!items[index]) return;
+      items[index] = { ...items[index], sourceText: s, translatedText: t };
+      await updateWordBookItems(b.id, items);
+      await renderWordBooks(id);
+    });
+  });
+
+  // Edit cancel
+  panel.querySelectorAll('[data-wb-edit-cancel]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const index = Number(btn.getAttribute('data-wb-edit-cancel'));
+      const itemEl = panel.querySelector(`.wb-item[data-wb-item-index="${index}"]`);
+      if (itemEl) itemEl.classList.remove('editing');
+    });
+  });
+
+  // Escape to cancel edit
+  panel.addEventListener('keydown', async e => {
+    if (e.key === 'Escape') {
+      const editing = panel.querySelector('.wb-item.editing');
+      if (editing) { editing.classList.remove('editing'); }
+    }
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      const editing = panel.querySelector('.wb-item.editing');
+      if (!editing) return;
+      const saveBtn2 = editing.querySelector('[data-wb-edit-save]');
+      if (saveBtn2) saveBtn2.click();
+    }
+  });
+}
+
+// ── Item drag-to-move (drag within and between panels) ──
+function initWbItemDrag(panel, bookId) {
+  const list = panel.querySelector(`[data-wb-list="${bookId}"]`);
+  if (!list) return;
+  const trashZone = document.getElementById('wbTrashZone');
+
+  list.querySelectorAll('.wb-item').forEach(itemEl => {
+    itemEl.addEventListener('dragstart', e => {
+      if (itemEl.classList.contains('editing')) { e.preventDefault(); return; }
+      const index = Number(itemEl.getAttribute('data-wb-item-index'));
+      const fromId = String(itemEl.getAttribute('data-wb-item-book'));
+      wbDragState = { fromBookId: fromId, itemIndex: index };
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', `wb:${fromId}:${index}`);
+      itemEl.classList.add('wb-dragging');
+      // Show trash zone highlight
+      if (trashZone) trashZone.style.borderStyle = 'solid';
+    });
+
+    itemEl.addEventListener('dragend', () => {
+      itemEl.classList.remove('wb-dragging');
+      clearWbItemDragOver();
+      wbDragState = null;
+      // Reset trash zone
+      if (trashZone) { trashZone.classList.remove('drag-over'); trashZone.style.borderStyle = ''; }
+    });
+
+    itemEl.addEventListener('dragover', e => {
+      if (!wbDragState && !histDragRow) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const rect = itemEl.getBoundingClientRect();
+      const side = e.clientY < rect.top + rect.height / 2 ? 'top' : 'bot';
+      if (wbItemDragOverEl !== itemEl || wbItemDragSide !== side) {
+        clearWbItemDragOver();
+        wbItemDragOverEl = itemEl;
+        wbItemDragSide = side;
+        itemEl.classList.add(side === 'top' ? 'wb-drag-over-top' : 'wb-drag-over-bot');
+      }
+    });
+
+    itemEl.addEventListener('dragleave', () => {
+      if (wbItemDragOverEl === itemEl) clearWbItemDragOver();
+    });
+
+    itemEl.addEventListener('drop', async e => {
+      e.preventDefault();
+      const toIndex = Number(itemEl.getAttribute('data-wb-item-index'));
+      const side = wbItemDragSide;
+      clearWbItemDragOver();
+      const toBookId = String(bookId);
+
+      // ── History item dropped onto a specific WB item position ──
+      if (histDragRow) {
+        const row = histDragRow;
+        histDragId = null;
+        histDragRow = null;
+        document.querySelectorAll('[data-wb-panel-book]').forEach(p => p.classList.remove('wb-hist-drop-ready'));
+        const books = await getAllWordBooks();
+        const toBook = books.find(b => String(b.id) === toBookId);
+        if (!toBook) return;
+        const toItems = Array.isArray(toBook.items) ? toBook.items.slice() : [];
+        const candidate = {
+          sourceText: row.sourceText || '',
+          translatedText: row.translatedText || '',
+          srcLang: row.srcLang || '',
+          tgtLang: row.tgtLang || '',
+          createdAt: Date.now()
+        };
+        const key = buildWordBookCompareKey(candidate);
+        if (!toItems.some(i => buildWordBookCompareKey(i) === key)) {
+          const insertAt = side === 'top' ? toIndex : toIndex + 1;
+          toItems.splice(Math.max(0, Math.min(insertAt, toItems.length)), 0, candidate);
+          await updateWordBookItems(toBook.id, toItems);
+        }
+        await renderWordBooks(toBookId);
+        return;
+      }
+
+      if (!wbDragState) return;
+      const fromBookId = wbDragState.fromBookId;
+      const fromIndex = wbDragState.itemIndex;
+
+      const books = await getAllWordBooks();
+      const fromBook = books.find(b => String(b.id) === fromBookId);
+      const toBook = books.find(b => String(b.id) === toBookId);
+      if (!fromBook || !toBook) return;
+
+      const fromItems = Array.isArray(fromBook.items) ? fromBook.items.slice() : [];
+      const item = fromItems[fromIndex];
+      if (!item) return;
+
+      if (fromBookId === toBookId) {
+        fromItems.splice(fromIndex, 1);
+        let insertAt = side === 'top' ? toIndex : toIndex + 1;
+        if (fromIndex < toIndex) insertAt = Math.max(0, insertAt - 1);
+        fromItems.splice(Math.max(0, Math.min(insertAt, fromItems.length)), 0, item);
+        await updateWordBookItems(fromBook.id, fromItems);
+      } else {
+        const toItems = Array.isArray(toBook.items) ? toBook.items.slice() : [];
+        let insertAt = side === 'top' ? toIndex : toIndex + 1;
+        toItems.splice(Math.max(0, Math.min(insertAt, toItems.length)), 0, { ...item });
+        fromItems.splice(fromIndex, 1);
+        await updateWordBookItems(toBook.id, toItems);
+        await updateWordBookItems(fromBook.id, fromItems);
+      }
+      wbDragState = null;
+      await renderWordBooks(toBookId);
+    });
+  });
+
+  // Drop on list area — handles both WB-to-WB and History-to-WB
+  list.addEventListener('dragover', e => {
+    if (!wbDragState && !histDragRow) return;
+    e.preventDefault();
+    list.classList.add('wb-list-drag-target');
+  });
+  list.addEventListener('dragleave', () => list.classList.remove('wb-list-drag-target'));
+  list.addEventListener('drop', async e => {
+    list.classList.remove('wb-list-drag-target');
+    e.preventDefault();
+
+    // ── History item → WB panel ──
+    if (histDragRow) {
+      const row = histDragRow;
+      const toBookId = String(bookId);
+      histDragId = null;
+      histDragRow = null;
+      document.querySelectorAll('[data-wb-panel-book]').forEach(p => p.classList.remove('wb-hist-drop-ready'));
+      const books = await getAllWordBooks();
+      const toBook = books.find(b => String(b.id) === toBookId);
+      if (!toBook) return;
+      const toItems = Array.isArray(toBook.items) ? toBook.items.slice() : [];
+      const candidate = {
+        sourceText: row.sourceText || '',
+        translatedText: row.translatedText || '',
+        srcLang: row.srcLang || '',
+        tgtLang: row.tgtLang || '',
+        createdAt: Date.now()
+      };
+      const key = buildWordBookCompareKey(candidate);
+      if (!toItems.some(i => buildWordBookCompareKey(i) === key)) {
+        toItems.push(candidate);
+        await updateWordBookItems(toBook.id, toItems);
+      }
+      await renderWordBooks(toBookId);
+      return;
+    }
+
+    // ── WB item → empty area of another panel ──
+    if (!wbDragState) return;
+    if (e.target !== list) return;
+    const toBookId = String(bookId);
+    const fromBookId = wbDragState.fromBookId;
+    if (fromBookId === toBookId) return;
+    const fromIndex = wbDragState.itemIndex;
+    const books = await getAllWordBooks();
+    const fromBook = books.find(b => String(b.id) === fromBookId);
+    const toBook = books.find(b => String(b.id) === toBookId);
+    if (!fromBook || !toBook) return;
+    const fromItems = Array.isArray(fromBook.items) ? fromBook.items.slice() : [];
+    const toItems = Array.isArray(toBook.items) ? toBook.items.slice() : [];
+    const item = fromItems[fromIndex];
+    if (!item) return;
+    toItems.push({ ...item });
+    fromItems.splice(fromIndex, 1);
+    await updateWordBookItems(toBook.id, toItems);
+    await updateWordBookItems(fromBook.id, fromItems);
+    wbDragState = null;
+    await renderWordBooks(toBookId);
+  });
+}
+
+// ── Trash zone drag ──
+function initWbTrashZone() {
+  const trashZone = document.getElementById('wbTrashZone');
+  if (!trashZone) return;
+  trashZone.addEventListener('dragover', e => {
+    if (!wbDragState) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    trashZone.classList.add('drag-over');
+  });
+  trashZone.addEventListener('dragleave', () => trashZone.classList.remove('drag-over'));
+  trashZone.addEventListener('drop', async e => {
+    e.preventDefault();
+    trashZone.classList.remove('drag-over');
+    if (!wbDragState) return;
+    const { fromBookId, itemIndex } = wbDragState;
+    wbDragState = null;
+    const books = await getAllWordBooks();
+    const fromBook = books.find(b => String(b.id) === fromBookId);
+    if (!fromBook) return;
+    const fromItems = Array.isArray(fromBook.items) ? fromBook.items.slice() : [];
+    const item = fromItems[itemIndex];
+    if (!item) return;
+    fromItems.splice(itemIndex, 1);
+    await updateWordBookItems(fromBook.id, fromItems);
+    await renderWordBooks(fromBookId);
+  });
+}
+
+function clearWbItemDragOver() {
+  if (wbItemDragOverEl) {
+    wbItemDragOverEl.classList.remove('wb-drag-over-top', 'wb-drag-over-bot');
+    wbItemDragOverEl = null;
+    wbItemDragSide = null;
+  }
+}
+
+// ── Sidebar book drag-to-reorder ──
+function initWbSidebarDrag(container, books) {
+  let dragBookId = null;
+  let dragOverRow = null;
+  let dragOverSide = null;
+
+  container.querySelectorAll('.wb-book-row').forEach(row => {
+    row.addEventListener('dragstart', e => {
+      dragBookId = String(row.getAttribute('data-wb-book-id'));
+      e.dataTransfer.effectAllowed = 'move';
+      row.classList.add('dragging');
+    });
+    row.addEventListener('dragend', () => {
+      row.classList.remove('dragging');
+      if (dragOverRow) {
+        dragOverRow.classList.remove('drop-before', 'drop-after');
+        dragOverRow = null;
+      }
+      dragBookId = null;
+    });
+    row.addEventListener('dragover', e => {
+      if (!dragBookId || String(row.getAttribute('data-wb-book-id')) === dragBookId) return;
+      e.preventDefault();
+      const rect = row.getBoundingClientRect();
+      const side = e.clientY < rect.top + rect.height / 2 ? 'before' : 'after';
+      if (dragOverRow !== row || dragOverSide !== side) {
+        if (dragOverRow) dragOverRow.classList.remove('drop-before', 'drop-after');
+        dragOverRow = row;
+        dragOverSide = side;
+        row.classList.add(side === 'before' ? 'drop-before' : 'drop-after');
+      }
+    });
+    row.addEventListener('dragleave', () => {
+      if (dragOverRow === row) {
+        row.classList.remove('drop-before', 'drop-after');
+        dragOverRow = null;
+      }
+    });
+    row.addEventListener('drop', async e => {
+      e.preventDefault();
+      if (!dragBookId) return;
+      const toId = String(row.getAttribute('data-wb-book-id'));
+      if (toId === dragBookId) return;
+      const side = dragOverSide;
+      if (dragOverRow) { dragOverRow.classList.remove('drop-before', 'drop-after'); dragOverRow = null; }
+
+      const allBooks = await getAllWordBooks();
+      const sorted = sortWordBooks(allBooks, getWordBookBooksSortMode());
+      const fromIdx = sorted.findIndex(b => String(b.id) === dragBookId);
+      const toIdx = sorted.findIndex(b => String(b.id) === toId);
+      if (fromIdx < 0 || toIdx < 0) return;
+      const reordered = sorted.slice();
+      const [moved] = reordered.splice(fromIdx, 1);
+      const insertAt = side === 'before' ? (toIdx > fromIdx ? toIdx - 1 : toIdx) : (toIdx > fromIdx ? toIdx : toIdx + 1);
+      reordered.splice(Math.max(0, insertAt), 0, moved);
+      await Promise.all(reordered.map((b, i) => updateWordBook(b.id, { sortOrder: i })));
+      await normalizeWordBookOrder();
+      await renderWordBooks(dragBookId);
+    });
+  });
+}
+
+// ── Loop items: collect from all open panels ──
+function rebuildLoopItemsFromOpenPanels(books) {
+  if (wbOpenBookIds.size === 0) {
+    renderedWordBookLoopItems = [];
+    return;
+  }
+  const items = [];
+  wbOpenBookIds.forEach(id => {
+    const book = (books || []).find(b => String(b.id) === id);
+    if (!book || !Array.isArray(book.items)) return;
+    book.items.forEach((item, index) => {
+      items.push({
+        index,
+        sourceText: item.sourceText || '',
+        translatedText: item.translatedText || '',
+        srcLang: item.srcLang || (srcLang ? srcLang.value : 'en'),
+        tgtLang: item.tgtLang || (tgtLang ? tgtLang.value : 'ja')
+      });
+    });
+  });
+  renderedWordBookLoopItems = items;
+}
+
+// Close move menus - no longer used (menus removed)
 
 async function startWordBookInlineEdit(card, index, focusSide) {
   if (!card) return;
@@ -4691,11 +6126,167 @@ function switchView(index) {
   views.forEach((el, i) => el.classList.toggle('active', i === currentView));
   pageDots.forEach((dot, i) => dot.classList.toggle('cur', i === currentView));
   if (currentView === 1) renderHistory();
-  if (currentView === 2) renderWordBooks();
+  if (currentView === 2) {
+    renderWordBooks();
+    updateWbPanelsEmpty();
+    // Refresh embedded history panel if open
+    if (typeof wbHistoryPanelOpen !== 'undefined' && wbHistoryPanelOpen) openWbHistoryPanel();
+  }
   if (currentView === 4) {
     refreshQuizSourceOptions(wordBookSelect && wordBookSelect.value ? `wordbook:${wordBookSelect.value}` : getQuizSourceValue()).then(() => renderQuizReviewList());
   }
 }
+
+// Init trash zone once
+initWbTrashZone();
+
+// ── Translation panel quick-nav buttons ──
+const hdNavHistory = document.getElementById('hdNavHistory');
+const hdNavWordBook = document.getElementById('hdNavWordBook');
+if (hdNavHistory) hdNavHistory.addEventListener('click', () => switchView(1));
+if (hdNavWordBook) hdNavWordBook.addEventListener('click', () => switchView(2));
+
+// ── History page nav buttons ──
+const histNavTranslate = document.getElementById('histNavTranslate');
+const histNavWordBook  = document.getElementById('histNavWordBook');
+if (histNavTranslate) histNavTranslate.addEventListener('click', () => switchView(0));
+if (histNavWordBook)  histNavWordBook.addEventListener('click',  () => switchView(2));
+
+// ── Word Book page nav buttons ──
+const wbNavTranslate = document.getElementById('wbNavTranslate');
+const wbNavHistory   = document.getElementById('wbNavHistory');
+if (wbNavTranslate) wbNavTranslate.addEventListener('click', () => switchView(0));
+if (wbNavHistory)   wbNavHistory.addEventListener('click',   () => switchView(1));
+
+// ── WB: History panel toggle ──────────────────────────────────────────────────
+let wbHistoryPanelOpen = false;
+const WB_HIST_PANEL_ID = 'wbEmbeddedHistPanel';
+
+function buildWbHistoryPanelHTML(sortedRows) {
+  const itemsHtml = sortedRows.length === 0
+    ? '<div class="wordbook-empty">履歴はまだありません。</div>'
+    : sortedRows.map(item => `
+      <div class="wb-item wb-hist-embed" draggable="true"
+           data-hist-embed-id="${item.id}"
+           data-hist-src="${esc(item.sourceText || '')}"
+           data-hist-tgt="${esc(item.translatedText || '')}"
+           data-hist-srclang="${esc(item.srcLang || '')}"
+           data-hist-tgtlang="${esc(item.tgtLang || '')}">
+        <div class="wb-item-body">
+          <div class="wb-item-col">
+            <div class="wb-item-text">${esc(item.sourceText || '')}</div>
+          </div>
+          <div class="wb-item-col">
+            <div class="wb-item-text">${esc(item.translatedText || '')}</div>
+          </div>
+        </div>
+          <div class="hist-item-date-row">
+          <span class="hist-item-date">${formatDate(item.createdAt || 0)}</span>
+        </div>
+      </div>`).join('');
+
+  return `<div class="wb-panel" id="${WB_HIST_PANEL_ID}" data-hist-readonly="1">
+    <div class="wb-panel-head">
+      <div class="wb-panel-color" style="background:var(--accent)"></div>
+      <div class="wb-panel-title">翻訳履歴</div>
+      <div class="wb-panel-count">${sortedRows.length} items</div>
+      <div class="wb-panel-btns">
+        <button class="wb-panel-btn" id="wbHistPanelCloseBtn" title="閉じる">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="wb-panel-list" data-wb-list-hist="1">${itemsHtml}</div>
+  </div>`;
+}
+
+async function openWbHistoryPanel() {
+  const area = document.getElementById('wbPanelsArea');
+  if (!area) return;
+  // Remove if already there
+  const existing = document.getElementById(WB_HIST_PANEL_ID);
+  if (existing) existing.remove();
+
+  const rows = await getAllHistory();
+  const keyword = historySearchInput ? historySearchInput.value : '';
+  const filtered = rows.filter(row => matchesKeyword(row, keyword));
+  const sorted = sortHistoryRows(filtered, getHistorySortMode());
+
+  area.insertAdjacentHTML('afterbegin', buildWbHistoryPanelHTML(sorted));
+  wbHistoryPanelOpen = true;
+  updateWbHistoryToggleBtn();
+  updateWbPanelsEmpty();
+
+  // Close button
+  const closeBtn = document.getElementById('wbHistPanelCloseBtn');
+  if (closeBtn) closeBtn.addEventListener('click', closeWbHistoryPanel);
+
+  // Draggable items: drag from embedded history panel into WB panels
+  const panel = document.getElementById(WB_HIST_PANEL_ID);
+  if (!panel) return;
+  panel.querySelectorAll('.wb-hist-embed').forEach(itemEl => {
+    itemEl.addEventListener('dragstart', e => {
+      const id = Number(itemEl.getAttribute('data-hist-embed-id'));
+      histDragId = id;
+      histDragRow = {
+        id,
+        sourceText: itemEl.getAttribute('data-hist-src') || '',
+        translatedText: itemEl.getAttribute('data-hist-tgt') || '',
+        srcLang: itemEl.getAttribute('data-hist-srclang') || '',
+        tgtLang: itemEl.getAttribute('data-hist-tgtlang') || ''
+      };
+      e.dataTransfer.effectAllowed = 'copyMove';
+      e.dataTransfer.setData('text/plain', `hist:${id}`);
+      itemEl.style.opacity = '0.4';
+      document.querySelectorAll('[data-wb-panel-book]').forEach(p => p.classList.add('wb-hist-drop-ready'));
+    });
+    itemEl.addEventListener('dragend', () => {
+      itemEl.style.opacity = '';
+      histDragId = null;
+      histDragRow = null;
+      document.querySelectorAll('[data-wb-panel-book]').forEach(p => p.classList.remove('wb-hist-drop-ready'));
+    });
+    // Single click: speak source
+    itemEl.querySelector('.wb-item-col:first-child')?.addEventListener('click', () => {
+      const text = itemEl.getAttribute('data-hist-src') || '';
+      const lang = itemEl.getAttribute('data-hist-srclang') || srcLang.value;
+      if (text) speak(text, lang, voiceSrc, ttsProviderSrc);
+    });
+    itemEl.querySelector('.wb-item-col:last-child')?.addEventListener('click', () => {
+      const text = itemEl.getAttribute('data-hist-tgt') || '';
+      const lang = itemEl.getAttribute('data-hist-tgtlang') || tgtLang.value;
+      if (text) speak(text, lang, voiceTgt, ttsProviderTgt);
+    });
+  });
+}
+
+function closeWbHistoryPanel() {
+  const panel = document.getElementById(WB_HIST_PANEL_ID);
+  if (panel) panel.remove();
+  wbHistoryPanelOpen = false;
+  updateWbHistoryToggleBtn();
+  updateWbPanelsEmpty();
+}
+
+function updateWbHistoryToggleBtn() {
+  const btn = document.getElementById('wbShowHistoryBtn');
+  if (!btn) return;
+  btn.classList.toggle('active', wbHistoryPanelOpen);
+  btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg> ${wbHistoryPanelOpen ? '履歴パネルを閉じる' : '履歴パネルを表示'}`;
+}
+
+const wbShowHistoryBtn = document.getElementById('wbShowHistoryBtn');
+if (wbShowHistoryBtn) {
+  wbShowHistoryBtn.addEventListener('click', async () => {
+    if (wbHistoryPanelOpen) {
+      closeWbHistoryPanel();
+    } else {
+      await openWbHistoryPanel();
+    }
+  });
+}
+
+// WB history panel refresh handled in switchView and renderHistory directly
 
 
 
@@ -4787,6 +6378,242 @@ swapBtn.addEventListener('click', () => {
 // ── Voice selector ─────────────────────────────────────────────────────────
 let allVoices = [];
 
+function setElevenStatus(message, isError = false) {
+  if (!elevenStatus) return;
+  elevenStatus.textContent = message || 'Voice ID・モデル・出力形式は保存、APIキーは毎回入力です。';
+  elevenStatus.style.color = isError ? 'var(--red)' : 'var(--ink3)';
+}
+
+function stopExternalAudioPlayback() {
+  currentElevenRequestToken += 1;
+  if (currentAudioPlayback && currentAudioPlayback.audio) {
+    try { currentAudioPlayback.audio.pause(); } catch (_) {}
+    try {
+      if (currentAudioPlayback.objectUrl) URL.revokeObjectURL(currentAudioPlayback.objectUrl);
+    } catch (_) {}
+  }
+  currentAudioPlayback = null;
+}
+
+function stopAllSpeechPlayback(cancelBrowserSpeech = true) {
+  stopExternalAudioPlayback();
+  if (cancelBrowserSpeech && window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+function getProviderForSelect(providerSel) {
+  const v = providerSel && providerSel.value;
+  if (v === 'elevenlabs') return 'elevenlabs';
+  if (v === 'voicevox')   return 'voicevox';
+  if (v === 'nemo')       return 'nemo';
+  return 'browser';
+}
+
+// ── VOICEVOX ──────────────────────────────────────────────────────────────────
+function getVoicevoxSettings() {
+  return {
+    host:    String((document.getElementById('vvHost')    || {value:'http://localhost:50021'}).value || 'http://localhost:50021').replace(/\/+$/, ''),
+    speaker: Number((document.getElementById('vvSpeaker') || {value:'1'}).value || 1),
+    speed:   Number((document.getElementById('vvSpeed')   || {value:'1'}).value || 1),
+    pitch:   Number((document.getElementById('vvPitch')   || {value:'0'}).value || 0),
+  };
+}
+
+function setVvStatus(msg, isErr = false) {
+  const el = document.getElementById('vvStatus');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'voice-engine-status' + (isErr ? ' err' : msg ? ' ok' : '');
+}
+
+async function playVoicevoxAudio(text, settings, token) {
+  if (!text) return;
+  const base = settings.host;
+  // 1. audio_query
+  const qRes = await fetch(`${base}/audio_query?text=${encodeURIComponent(text)}&speaker=${settings.speaker}`, { method: 'POST' })
+    .catch(() => { throw new Error(`VOICEVOX エンジンに接続できません (${base})。起動しているか確認してください。`); });
+  if (!qRes.ok) throw new Error(`VOICEVOX audio_query エラー: ${qRes.status}`);
+  const query = await qRes.json();
+  // Apply speed/pitch
+  query.speedScale  = settings.speed;
+  query.pitchScale  = settings.pitch;
+  query.volumeScale = 1.0;
+  // 2. synthesis
+  const sRes = await fetch(`${base}/synthesis?speaker=${settings.speaker}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(query)
+  }).catch(() => { throw new Error('VOICEVOX synthesis リクエストに失敗しました。'); });
+  if (!sRes.ok) throw new Error(`VOICEVOX synthesis エラー: ${sRes.status}`);
+  const blob = await sRes.blob();
+  if (token !== currentElevenRequestToken) return;
+  stopExternalAudioPlayback();
+  const objectUrl = URL.createObjectURL(blob);
+  const audio = new Audio(objectUrl);
+  currentAudioPlayback = { audio, objectUrl, token };
+  await new Promise((resolve, reject) => {
+    let settled = false;
+    const done = fn => { if (settled) return; settled = true; try { audio.onended = null; audio.onerror = null; } catch(_){} fn(); };
+    audio.onended = () => done(resolve);
+    audio.onerror = () => done(() => reject(new Error('VOICEVOX 音声の再生に失敗しました。')));
+    audio.play().catch(() => done(() => reject(new Error('ブラウザが VOICEVOX 音声を再生できませんでした。'))));
+  }).finally(() => {
+    if (currentAudioPlayback && currentAudioPlayback.objectUrl === objectUrl) {
+      try { URL.revokeObjectURL(objectUrl); } catch(_){}
+      currentAudioPlayback = null;
+    }
+  });
+}
+
+async function fetchVoicevoxSpeakers() {
+  const btn = document.getElementById('vvFetchBtn');
+  if (btn) btn.disabled = true;
+  setVvStatus('取得中…');
+  try {
+    const base = (document.getElementById('vvHost') || {value:'http://localhost:50021'}).value.replace(/\/+$/, '');
+    const res = await fetch(`${base}/speakers`);
+    if (!res.ok) throw new Error(`${res.status}`);
+    const speakers = await res.json();
+    const sel = document.getElementById('vvSpeaker');
+    if (!sel) return;
+    sel.innerHTML = '';
+    speakers.forEach(sp => {
+      (sp.styles || []).forEach(st => {
+        const opt = document.createElement('option');
+        opt.value = String(st.id);
+        opt.textContent = `${sp.name}（${st.name}）`;
+        sel.appendChild(opt);
+      });
+    });
+    setVvStatus(`✓ ${speakers.length} 話者取得`);
+    saveVoiceSettingsToIndexedDB();
+  } catch(e) {
+    setVvStatus(`接続失敗: ${e.message}`, true);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+// ── Style-Bert-VITS2 / Nemo ───────────────────────────────────────────────────
+function getNemoSettings() {
+  return {
+    host:    String((document.getElementById('nemoHost')  || {value:'http://localhost:5000'}).value || 'http://localhost:5000').replace(/\/+$/, ''),
+    model:   Number((document.getElementById('nemoModel') || {value:'0'}).value || 0),
+    style:   String((document.getElementById('nemoStyle') || {value:'Neutral'}).value || 'Neutral'),
+    speed:   Number((document.getElementById('nemoSpeed') || {value:'1'}).value || 1),
+  };
+}
+
+function setNemoStatus(msg, isErr = false) {
+  const el = document.getElementById('nemoStatus');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'voice-engine-status' + (isErr ? ' err' : msg ? ' ok' : '');
+}
+
+async function playNemoAudio(text, settings, token) {
+  if (!text) return;
+  const base = settings.host;
+  // Style-Bert-VITS2 API: POST /voice  or  GET /voice
+  // Support both /voice (SBVITS2) and /synthesis (Nemo compat)
+  // Try /voice first
+  let url = `${base}/voice?text=${encodeURIComponent(text)}&model_id=${settings.model}&style=${encodeURIComponent(settings.style)}&speed=${settings.speed}&language=JP`;
+  const res = await fetch(url)
+    .catch(() => { throw new Error(`Nemo/Style-Bert-VITS2 エンジンに接続できません (${base})。起動しているか確認してください。`); });
+  if (!res.ok) throw new Error(`Nemo エラー: ${res.status}`);
+  const blob = await res.blob();
+  if (token !== currentElevenRequestToken) return;
+  stopExternalAudioPlayback();
+  const objectUrl = URL.createObjectURL(blob);
+  const audio = new Audio(objectUrl);
+  currentAudioPlayback = { audio, objectUrl, token };
+  await new Promise((resolve, reject) => {
+    let settled = false;
+    const done = fn => { if (settled) return; settled = true; try { audio.onended = null; audio.onerror = null; } catch(_){} fn(); };
+    audio.onended = () => done(resolve);
+    audio.onerror = () => done(() => reject(new Error('Nemo 音声の再生に失敗しました。')));
+    audio.play().catch(() => done(() => reject(new Error('ブラウザが Nemo 音声を再生できませんでした。'))));
+  }).finally(() => {
+    if (currentAudioPlayback && currentAudioPlayback.objectUrl === objectUrl) {
+      try { URL.revokeObjectURL(objectUrl); } catch(_){}
+      currentAudioPlayback = null;
+    }
+  });
+}
+
+async function fetchNemoModels() {
+  const btn = document.getElementById('nemoFetchBtn');
+  if (btn) btn.disabled = true;
+  setNemoStatus('取得中…');
+  try {
+    const base = (document.getElementById('nemoHost') || {value:'http://localhost:5000'}).value.replace(/\/+$/, '');
+    const res = await fetch(`${base}/models/info`);
+    if (!res.ok) throw new Error(`${res.status}`);
+    const info = await res.json();
+    const modelSel = document.getElementById('nemoModel');
+    const styleSel = document.getElementById('nemoStyle');
+    if (!modelSel || !styleSel) return;
+    modelSel.innerHTML = '';
+    // info is either array or object keyed by model_id
+    const entries = Array.isArray(info) ? info.map((m,i) => ({id:i, ...m})) : Object.entries(info).map(([id, m]) => ({id: Number(id), ...m}));
+    entries.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = String(m.id ?? m.model_id ?? 0);
+      opt.textContent = m.id !== undefined ? `${m.id}: ${m.spk2id ? Object.keys(m.spk2id).join(', ') : 'モデル' + m.id}` : String(m.id);
+      modelSel.appendChild(opt);
+    });
+    // Populate styles from first model
+    if (entries[0]) {
+      const styles = entries[0].style2id ? Object.keys(entries[0].style2id) : (entries[0].styles || ['Neutral']);
+      styleSel.innerHTML = styles.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+    }
+    modelSel.addEventListener('change', () => {
+      const selId = Number(modelSel.value);
+      const m = entries.find(e => Number(e.id ?? e.model_id) === selId);
+      if (!m) return;
+      const styles = m.style2id ? Object.keys(m.style2id) : (m.styles || ['Neutral']);
+      if (styleSel) styleSel.innerHTML = styles.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+    });
+    setNemoStatus(`✓ ${entries.length} モデル取得`);
+    saveVoiceSettingsToIndexedDB();
+  } catch(e) {
+    setNemoStatus(`接続失敗: ${e.message}`, true);
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
+// ── Show/hide engine sections based on provider selection ─────────────────────
+function syncVoiceEngineSections() {
+  const srcVal = ttsProviderSrc ? ttsProviderSrc.value : 'browser';
+  const tgtVal = ttsProviderTgt ? ttsProviderTgt.value : 'browser';
+  const providers = new Set([srcVal, tgtVal]);
+
+  const secEleven  = document.getElementById('voiceSecEleven');
+  const secVV      = document.getElementById('voiceSecVoicevox');
+  const secNemo    = document.getElementById('voiceSecNemo');
+  const rowBrowser = document.querySelector('#voicePanel .voice-row:nth-child(3)'); // voiceSrc row
+  const rowBrowser2 = document.querySelector('#voicePanel .voice-row:nth-child(4)'); // voiceTgt row
+  // Browser voice select rows: show only if any provider is 'browser'
+  const showBrowser = providers.has('browser');
+  if (rowBrowser)  rowBrowser.style.display  = showBrowser ? '' : 'none';
+  if (rowBrowser2) rowBrowser2.style.display = showBrowser ? '' : 'none';
+  if (secEleven) secEleven.classList.toggle('vp-active',  providers.has('elevenlabs'));
+  if (secVV)     secVV.classList.toggle('vp-active',     providers.has('voicevox'));
+  if (secNemo)   secNemo.classList.toggle('vp-active',   providers.has('nemo'));
+  // Browser sliders row: show only for browser
+  const browserSliderRow = document.querySelector('#voicePanel .voice-row[style*="margin-top"]') ||
+        Array.from(document.querySelectorAll('#voicePanel .voice-row')).find(r => r.querySelector('#rateSlider'));
+  if (browserSliderRow) browserSliderRow.style.display = showBrowser ? '' : 'none';
+}
+
+function getElevenLabsSettings() {
+  return {
+    apiKey: String(elevenApiKey && elevenApiKey.value || '').trim(),
+    voiceId: String(elevenVoiceId && elevenVoiceId.value || '').trim(),
+    modelId: String(elevenModelId && elevenModelId.value || 'eleven_multilingual_v2').trim(),
+    outputFormat: String(elevenOutputFormat && elevenOutputFormat.value || 'mp3_44100_128').trim()
+  };
+}
 
 async function saveVoiceSettingsToIndexedDB() {
   const payload = {
@@ -4794,9 +6621,24 @@ async function saveVoiceSettingsToIndexedDB() {
     tgtLang: tgtLang ? tgtLang.value : 'ja',
     voiceSrcValue: voiceSrc ? (voiceSrc.value || '') : '',
     voiceTgtValue: voiceTgt ? (voiceTgt.value || '') : '',
+    ttsProviderSrc: ttsProviderSrc ? (ttsProviderSrc.value || 'browser') : 'browser',
+    ttsProviderTgt: ttsProviderTgt ? (ttsProviderTgt.value || 'browser') : 'browser',
+    elevenVoiceId: elevenVoiceId ? (elevenVoiceId.value || '') : '',
+    elevenModelId: elevenModelId ? (elevenModelId.value || 'eleven_multilingual_v2') : 'eleven_multilingual_v2',
+    elevenOutputFormat: elevenOutputFormat ? (elevenOutputFormat.value || 'mp3_44100_128') : 'mp3_44100_128',
     rate: rateSlider ? +rateSlider.value : 0.95,
     pitch: pitchSlider ? +pitchSlider.value : 1,
     volume: volSlider ? +volSlider.value : 1,
+    // VOICEVOX
+    vvHost:    (document.getElementById('vvHost')    || {value:'http://localhost:50021'}).value,
+    vvSpeaker: (document.getElementById('vvSpeaker') || {value:'1'}).value,
+    vvSpeed:   (document.getElementById('vvSpeed')   || {value:'1'}).value,
+    vvPitch:   (document.getElementById('vvPitch')   || {value:'0'}).value,
+    // Nemo
+    nemoHost:  (document.getElementById('nemoHost')  || {value:'http://localhost:5000'}).value,
+    nemoModel: (document.getElementById('nemoModel') || {value:'0'}).value,
+    nemoStyle: (document.getElementById('nemoStyle') || {value:'Neutral'}).value,
+    nemoSpeed: (document.getElementById('nemoSpeed') || {value:'1'}).value,
     savedAt: Date.now()
   };
   pendingVoiceSettings = payload;
@@ -4810,6 +6652,11 @@ async function saveVoiceSettingsToIndexedDB() {
 function applyVoiceSettingsToControls(settings) {
   if (!settings) return;
   pendingVoiceSettings = settings;
+  if (ttsProviderSrc && settings.ttsProviderSrc) ttsProviderSrc.value = settings.ttsProviderSrc;
+  if (ttsProviderTgt && settings.ttsProviderTgt) ttsProviderTgt.value = settings.ttsProviderTgt;
+  if (elevenVoiceId && typeof settings.elevenVoiceId === 'string') elevenVoiceId.value = settings.elevenVoiceId;
+  if (elevenModelId && settings.elevenModelId) elevenModelId.value = settings.elevenModelId;
+  if (elevenOutputFormat && settings.elevenOutputFormat) elevenOutputFormat.value = settings.elevenOutputFormat;
   if (rateSlider && Number.isFinite(+settings.rate)) {
     rateSlider.value = String(settings.rate);
     rateVal.textContent = (+rateSlider.value).toFixed(2);
@@ -4822,6 +6669,33 @@ function applyVoiceSettingsToControls(settings) {
     volSlider.value = String(settings.volume);
     volVal.textContent = (+volSlider.value).toFixed(2);
   }
+  // VOICEVOX
+  const vvHost = document.getElementById('vvHost');
+  const vvSpeaker = document.getElementById('vvSpeaker');
+  const vvSpeed = document.getElementById('vvSpeed');
+  const vvPitch = document.getElementById('vvPitch');
+  const vvSpeedVal = document.getElementById('vvSpeedVal');
+  const vvPitchVal = document.getElementById('vvPitchVal');
+  if (vvHost && settings.vvHost) vvHost.value = settings.vvHost;
+  if (vvSpeaker && settings.vvSpeaker) vvSpeaker.value = settings.vvSpeaker;
+  if (vvSpeed && settings.vvSpeed) { vvSpeed.value = settings.vvSpeed; if (vvSpeedVal) vvSpeedVal.textContent = (+settings.vvSpeed).toFixed(2); }
+  if (vvPitch && settings.vvPitch !== undefined) { vvPitch.value = settings.vvPitch; if (vvPitchVal) vvPitchVal.textContent = (+settings.vvPitch).toFixed(2); }
+  // Nemo
+  const nemoHost = document.getElementById('nemoHost');
+  const nemoModel = document.getElementById('nemoModel');
+  const nemoStyle = document.getElementById('nemoStyle');
+  const nemoSpeed = document.getElementById('nemoSpeed');
+  const nemoSpeedVal = document.getElementById('nemoSpeedVal');
+  if (nemoHost && settings.nemoHost) nemoHost.value = settings.nemoHost;
+  if (nemoModel && settings.nemoModel !== undefined) nemoModel.value = settings.nemoModel;
+  if (nemoStyle && settings.nemoStyle) nemoStyle.value = settings.nemoStyle;
+  if (nemoSpeed && settings.nemoSpeed) { nemoSpeed.value = settings.nemoSpeed; if (nemoSpeedVal) nemoSpeedVal.textContent = (+settings.nemoSpeed).toFixed(2); }
+  // Sync provider toggle buttons and engine sections
+  const ptSrc = document.getElementById('providerToggleSrc');
+  const ptTgt = document.getElementById('providerToggleTgt');
+  if (ptSrc && ttsProviderSrc) syncProviderToggleBtn(ptSrc, ttsProviderSrc);
+  if (ptTgt && ttsProviderTgt) syncProviderToggleBtn(ptTgt, ttsProviderTgt);
+  syncVoiceEngineSections();
 }
 
 async function loadVoiceSettingsFromIndexedDB() {
@@ -4883,6 +6757,183 @@ function getVoiceFromSelect(sel) {
   return allVoices.find(v=>v.name===name) || null;
 }
 
+function explainElevenLabsError(rawMessage) {
+  const msg = String(rawMessage || '').toLowerCase();
+  if (msg.includes('invalid_api_key')) return 'APIキーが無効です。';
+  if (msg.includes('voice_not_found')) return 'Voice ID が見つかりません。';
+  if (msg.includes('quota_exceeded')) return '利用上限に達しています。';
+  if (msg.includes('max_character_limit_exceeded')) return '文字数上限を超えています。';
+  if (msg.includes('401')) return '401 認証エラーです。APIキーを確認してください。';
+  if (msg.includes('403')) return '403 エラーです。プランや権限を確認してください。';
+  if (msg.includes('422')) return '422 エラーです。Voice ID・モデル・出力形式の組合せを確認してください。';
+  return rawMessage || 'ElevenLabs の音声生成に失敗しました。';
+}
+
+async function playElevenLabsAudio(text, providerSettings, token) {
+  if (!text) return;
+  if (!providerSettings.apiKey) throw new Error('ElevenLabs APIキーを入力してください。');
+  if (!providerSettings.voiceId) throw new Error('ElevenLabs Voice ID を入力してください。');
+  const url = `https://api.elevenlabs.io/v1/text-to-speech/${encodeURIComponent(providerSettings.voiceId)}?output_format=${encodeURIComponent(providerSettings.outputFormat)}`;
+  const payload = {
+    text,
+    model_id: providerSettings.modelId,
+    voice_settings: {
+      stability: 0.5,
+      similarity_boost: 0.75
+    }
+  };
+  setElevenStatus('ElevenLabs で音声生成中...');
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'xi-api-key': providerSettings.apiKey
+    },
+    body: JSON.stringify(payload)
+  });
+  if (!response.ok) {
+    let detail = `${response.status} ${response.statusText}`;
+    try {
+      const data = await response.json();
+      if (data && data.detail) {
+        if (typeof data.detail === 'string') detail = data.detail;
+        else if (data.detail.message) detail = data.detail.message;
+        else if (data.detail.status) detail = data.detail.status;
+        else detail = JSON.stringify(data.detail);
+      }
+    } catch (_) {}
+    throw new Error(explainElevenLabsError(detail));
+  }
+  const blob = await response.blob();
+  if (token !== currentElevenRequestToken) return;
+  stopExternalAudioPlayback();
+  const objectUrl = URL.createObjectURL(blob);
+  const audio = new Audio(objectUrl);
+  currentAudioPlayback = { audio, objectUrl, token };
+  await new Promise((resolve, reject) => {
+    let settled = false;
+    const finalize = (fn) => {
+      if (settled) return;
+      settled = true;
+      try { audio.onended = null; audio.onerror = null; } catch (_) {}
+      fn();
+    };
+    audio.onended = () => finalize(resolve);
+    audio.onerror = () => finalize(() => reject(new Error('音声の再生に失敗しました。')));
+    audio.play().then(() => {
+      setElevenStatus('ElevenLabs を使用中。Voice ID・モデル・出力形式は保存済み、APIキーは今回のみ。');
+    }).catch(() => {
+      finalize(() => reject(new Error('ブラウザが音声再生を開始できませんでした。')));
+    });
+  }).finally(() => {
+    if (currentAudioPlayback && currentAudioPlayback.objectUrl === objectUrl) {
+      try { URL.revokeObjectURL(objectUrl); } catch (_) {}
+      currentAudioPlayback = null;
+    }
+  });
+}
+
+function playBrowserSpeech(text, langKey, voiceSel) {
+  return new Promise((resolve, reject) => {
+    if (!text) { resolve(); return; }
+    if (!window.speechSynthesis) { reject(new Error('このブラウザは音声読み上げ非対応です。')); return; }
+    const bcp = LANG_BCP[langKey] || 'ja-JP';
+    const fire = () => {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang   = bcp;
+      u.rate   = +rateSlider.value;
+      u.pitch  = +pitchSlider.value;
+      u.volume = +volSlider.value;
+      const chosen = getVoiceFromSelect(voiceSel);
+      if (chosen) {
+        u.voice = chosen;
+      } else {
+        const vs = window.speechSynthesis.getVoices();
+        const v = vs.find(v=>v.lang===bcp) || vs.find(v=>(v.lang || '').startsWith(bcp.split('-')[0]));
+        if (v) u.voice = v;
+      }
+      u.onend = () => resolve();
+      u.onerror = e => {
+        const err = e && e.error;
+        // 'interrupted' and 'canceled' are normal — fired when cancel() is called
+        // before a new utterance starts. Treat as resolved, not an error.
+        if (err === 'interrupted' || err === 'canceled' || err === 'cancelled') {
+          resolve();
+        } else {
+          reject(new Error(err || 'TTS error'));
+        }
+      };
+      window.speechSynthesis.speak(u);
+    };
+    if (window.speechSynthesis.getVoices().length > 0) {
+      fire();
+    } else {
+      let done = false;
+      window.speechSynthesis.addEventListener('voiceschanged', function h() {
+        window.speechSynthesis.removeEventListener('voiceschanged', h);
+        if (!done) { done=true; fire(); }
+      });
+      setTimeout(()=>{ if(!done){done=true;fire();} }, 80);
+    }
+  });
+}
+
+async function speak(text, langKey, voiceSel, providerSel) {
+  stopWordBookLoopPlayback(false);
+  stopHistoryLoopPlayback(false);
+  if (!text) return;
+  const provider = getProviderForSelect(providerSel);
+  // Always stop ALL playback (browser + external) before starting new
+  stopAllSpeechPlayback(true);
+  try {
+    if (provider === 'elevenlabs') {
+      const token = ++currentElevenRequestToken;
+      await playElevenLabsAudio(text, getElevenLabsSettings(), token);
+      return;
+    }
+    if (provider === 'voicevox') {
+      const token = ++currentElevenRequestToken;
+      setVvStatus('合成中…');
+      await playVoicevoxAudio(text, getVoicevoxSettings(), token);
+      setVvStatus('完了');
+      return;
+    }
+    if (provider === 'nemo') {
+      const token = ++currentElevenRequestToken;
+      setNemoStatus('合成中…');
+      await playNemoAudio(text, getNemoSettings(), token);
+      setNemoStatus('完了');
+      return;
+    }
+    await playBrowserSpeech(text, langKey, voiceSel);
+  } catch (err) {
+    const message = err && err.message ? err.message : String(err || '音声再生に失敗しました。');
+    if (provider === 'elevenlabs') setElevenStatus(message, true);
+    else if (provider === 'voicevox') setVvStatus(message, true);
+    else if (provider === 'nemo') setNemoStatus(message, true);
+    // For browser speech: only alert on real errors, not interrupted/canceled
+    else if (!/interrupted|canceled|cancelled/i.test(message)) alert(message);
+  }
+}
+
+async function playSpeechChunk(loopState, text, langKey, voiceSel, providerSel, token) {
+  if (!text) return;
+  const provider = getProviderForSelect(providerSel);
+  if (provider === 'elevenlabs') {
+    await playElevenLabsAudio(text, getElevenLabsSettings(), token);
+    return;
+  }
+  if (provider === 'voicevox') {
+    await playVoicevoxAudio(text, getVoicevoxSettings(), token);
+    return;
+  }
+  if (provider === 'nemo') {
+    await playNemoAudio(text, getNemoSettings(), token);
+    return;
+  }
+  await playBrowserSpeech(text, langKey, voiceSel);
+}
+
 if (window.speechSynthesis) {
   window.speechSynthesis.addEventListener('voiceschanged', populateVoiceSelects);
   setTimeout(populateVoiceSelects, 300);
@@ -4893,60 +6944,255 @@ if (window.speechSynthesis) {
 voiceToggle.addEventListener('click', () => {
   voicePanel.classList.toggle('open');
   voiceToggle.classList.toggle('playing', voicePanel.classList.contains('open'));
-  if (voicePanel.classList.contains('open')) populateVoiceSelects();
+  if (voicePanel.classList.contains('open')) {
+    populateVoiceSelects();
+    syncVoiceEngineSections();
+  }
 });
 
-[voiceSrc, voiceTgt].forEach(sel => {
+// VOICEVOX sliders
+const vvSpeed = document.getElementById('vvSpeed');
+const vvPitch = document.getElementById('vvPitch');
+const vvSpeedVal = document.getElementById('vvSpeedVal');
+const vvPitchVal = document.getElementById('vvPitchVal');
+if (vvSpeed) vvSpeed.addEventListener('input', () => { if (vvSpeedVal) vvSpeedVal.textContent = (+vvSpeed.value).toFixed(2); saveVoiceSettingsToIndexedDB(); });
+if (vvPitch) vvPitch.addEventListener('input', () => { if (vvPitchVal) vvPitchVal.textContent = (+vvPitch.value).toFixed(2); saveVoiceSettingsToIndexedDB(); });
+const vvSpeakerEl = document.getElementById('vvSpeaker');
+const vvHostEl = document.getElementById('vvHost');
+if (vvSpeakerEl) vvSpeakerEl.addEventListener('change', () => saveVoiceSettingsToIndexedDB());
+if (vvHostEl) vvHostEl.addEventListener('change', () => saveVoiceSettingsToIndexedDB());
+const vvFetchBtn = document.getElementById('vvFetchBtn');
+if (vvFetchBtn) vvFetchBtn.addEventListener('click', fetchVoicevoxSpeakers);
+
+// Nemo sliders
+const nemoSpeedEl = document.getElementById('nemoSpeed');
+const nemoSpeedValEl = document.getElementById('nemoSpeedVal');
+if (nemoSpeedEl) nemoSpeedEl.addEventListener('input', () => { if (nemoSpeedValEl) nemoSpeedValEl.textContent = (+nemoSpeedEl.value).toFixed(2); saveVoiceSettingsToIndexedDB(); });
+const nemoModelEl = document.getElementById('nemoModel');
+const nemoStyleEl = document.getElementById('nemoStyle');
+const nemoHostEl = document.getElementById('nemoHost');
+if (nemoModelEl) nemoModelEl.addEventListener('change', () => saveVoiceSettingsToIndexedDB());
+if (nemoStyleEl) nemoStyleEl.addEventListener('change', () => saveVoiceSettingsToIndexedDB());
+if (nemoHostEl) nemoHostEl.addEventListener('change', () => saveVoiceSettingsToIndexedDB());
+const nemoFetchBtn = document.getElementById('nemoFetchBtn');
+if (nemoFetchBtn) nemoFetchBtn.addEventListener('click', fetchNemoModels);
+
+// Initial section visibility
+syncVoiceEngineSections();
+
+// ── Provider toggle buttons (Browser ⇄ ElevenLabs) ──────────────────────────
+function syncProviderToggleBtn(btn, providerSelect) {
+  if (!btn || !providerSelect) return;
+  const v = providerSelect.value;
+  const labels = { browser: 'Browser', elevenlabs: 'ElevenLabs', voicevox: 'VOICEVOX', nemo: 'Nemo' };
+  btn.classList.remove('is-eleven', 'is-vv', 'is-nemo');
+  if (v === 'elevenlabs') btn.classList.add('is-eleven');
+  else if (v === 'voicevox') btn.classList.add('is-vv');
+  else if (v === 'nemo') btn.classList.add('is-nemo');
+  const lbl = btn.querySelector('.provider-toggle-label');
+  if (lbl) lbl.textContent = labels[v] || 'Browser';
+  btn.title = `音声エンジン: ${labels[v] || 'Browser'}（クリックで切替）`;
+}
+
+const providerToggleSrc = document.getElementById('providerToggleSrc');
+const providerToggleTgt = document.getElementById('providerToggleTgt');
+const PROVIDER_CYCLE = ['browser', 'elevenlabs', 'voicevox', 'nemo'];
+
+if (providerToggleSrc && ttsProviderSrc) {
+  syncProviderToggleBtn(providerToggleSrc, ttsProviderSrc);
+  providerToggleSrc.addEventListener('click', () => {
+    const cur = ttsProviderSrc.value;
+    const next = PROVIDER_CYCLE[(PROVIDER_CYCLE.indexOf(cur) + 1) % PROVIDER_CYCLE.length];
+    ttsProviderSrc.value = next;
+    syncProviderToggleBtn(providerToggleSrc, ttsProviderSrc);
+    syncVoiceEngineSections();
+    saveVoiceSettingsToIndexedDB();
+  });
+}
+
+if (providerToggleTgt && ttsProviderTgt) {
+  syncProviderToggleBtn(providerToggleTgt, ttsProviderTgt);
+  providerToggleTgt.addEventListener('click', () => {
+    const cur = ttsProviderTgt.value;
+    const next = PROVIDER_CYCLE[(PROVIDER_CYCLE.indexOf(cur) + 1) % PROVIDER_CYCLE.length];
+    ttsProviderTgt.value = next;
+    syncProviderToggleBtn(providerToggleTgt, ttsProviderTgt);
+    syncVoiceEngineSections();
+    saveVoiceSettingsToIndexedDB();
+  });
+}
+
+if (ttsProviderSrc) {
+  ttsProviderSrc.addEventListener('change', () => {
+    syncProviderToggleBtn(providerToggleSrc, ttsProviderSrc);
+    syncVoiceEngineSections();
+  });
+}
+if (ttsProviderTgt) {
+  ttsProviderTgt.addEventListener('change', () => {
+    syncProviderToggleBtn(providerToggleTgt, ttsProviderTgt);
+    syncVoiceEngineSections();
+  });
+}
+
+// ── Double-click to open internal search (AI Translation panels) ────────────
+if (srcText) {
+  srcText.addEventListener('dblclick', () => {
+    const sel = window.getSelection ? window.getSelection().toString().trim() : '';
+    const query = sel || srcText.value.trim();
+    if (!query) return;
+    iwinOpen(query, { mode: iwinState.mode || 'general' });
+  });
+}
+
+if (tgtOut) {
+  tgtOut.addEventListener('dblclick', () => {
+    const sel = window.getSelection ? window.getSelection().toString().trim() : '';
+    const query = sel || getCurrentTargetText();
+    if (!query) return;
+    iwinOpen(query, { mode: iwinState.mode || 'general' });
+  });
+}
+[ttsProviderSrc, ttsProviderTgt, voiceSrc, voiceTgt, elevenVoiceId, elevenModelId, elevenOutputFormat].forEach(sel => {
   if (!sel) return;
   sel.addEventListener('change', () => { saveVoiceSettingsToIndexedDB(); });
 });
+
+if (elevenApiKey) {
+  elevenApiKey.addEventListener('input', () => {
+    setElevenStatus(elevenApiKey.value.trim() ? 'APIキーはこのセッションだけ使用します。保存されません。' : 'Voice ID・モデル・出力形式は保存、APIキーは毎回入力です。');
+  });
+}
 
 rateSlider.addEventListener('input', ()=> { rateVal.textContent = (+rateSlider.value).toFixed(2); saveVoiceSettingsToIndexedDB(); });
 pitchSlider.addEventListener('input', ()=> { pitchVal.textContent = (+pitchSlider.value).toFixed(2); saveVoiceSettingsToIndexedDB(); });
 volSlider.addEventListener('input', ()=> { volVal.textContent = (+volSlider.value).toFixed(2); saveVoiceSettingsToIndexedDB(); });
 
 // ── Speech synthesis ────────────────────────────────────────────────────────
-function speak(text, langKey, voiceSel) {
-  stopWordBookLoopPlayback(false);
-  if (!text) return;
-  if (!window.speechSynthesis) { alert('このブラウザは音声読み上げ非対応です。'); return; }
-  const bcp = LANG_BCP[langKey] || 'ja-JP';
-  window.speechSynthesis.cancel();
 
-  function fire() {
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang   = bcp;
-    u.rate   = +rateSlider.value;
-    u.pitch  = +pitchSlider.value;
-    u.volume = +volSlider.value;
+// Speak mode state: 'all' | 'selection'
+let speakModeSrcState = 'all';
+let speakModeTgtState = 'all';
 
-    const chosen = getVoiceFromSelect(voiceSel);
-    if (chosen) {
-      u.voice = chosen;
-    } else {
-      const vs = window.speechSynthesis.getVoices();
-      const v = vs.find(v=>v.lang===bcp) || vs.find(v=>v.lang.startsWith(bcp.split('-')[0]));
-      if (v) u.voice = v;
-    }
-    u.onerror = e => console.warn('TTS:', e.error);
-    window.speechSynthesis.speak(u);
-  }
-
-  if (window.speechSynthesis.getVoices().length > 0) {
-    fire();
-  } else {
-    let done = false;
-    window.speechSynthesis.addEventListener('voiceschanged', function h() {
-      window.speechSynthesis.removeEventListener('voiceschanged', h);
-      if (!done) { done=true; fire(); }
-    });
-    setTimeout(()=>{ if(!done){done=true;fire();} }, 80);
-  }
+function updateSpeakModeBtn(btn, state) {
+  if (!btn) return;
+  const isSelection = state === 'selection';
+  btn.classList.toggle('is-selection', isSelection);
+  const lbl = btn.querySelector('.speak-mode-label');
+  if (lbl) lbl.textContent = isSelection ? '選択' : '全文';
+  btn.title = isSelection ? '再生範囲: 選択テキスト（クリックで全文に戻す）' : '再生範囲: 全文（クリックで選択テキストに切替）';
 }
 
-spkSrc.addEventListener('click', () => speakCurrentSource(getCurrentSourceText(), srcLang.value));
-spkTgt.addEventListener('click', () => speakCurrentTarget(getCurrentTargetText(), tgtLang.value));
+const speakModeSrcBtn = document.getElementById('speakModeSrc');
+const speakModeTgtBtn = document.getElementById('speakModeTgt');
 
+if (speakModeSrcBtn) {
+  updateSpeakModeBtn(speakModeSrcBtn, speakModeSrcState);
+  speakModeSrcBtn.addEventListener('click', () => {
+    speakModeSrcState = speakModeSrcState === 'all' ? 'selection' : 'all';
+    updateSpeakModeBtn(speakModeSrcBtn, speakModeSrcState);
+  });
+}
+if (speakModeTgtBtn) {
+  updateSpeakModeBtn(speakModeTgtBtn, speakModeTgtState);
+  speakModeTgtBtn.addEventListener('click', () => {
+    speakModeTgtState = speakModeTgtState === 'all' ? 'selection' : 'all';
+    updateSpeakModeBtn(speakModeTgtBtn, speakModeTgtState);
+  });
+}
+
+function getSelectionText() {
+  return window.getSelection ? window.getSelection().toString().trim() : '';
+}
+
+spkSrc.addEventListener('click', () => {
+  let text;
+  if (speakModeSrcState === 'selection') {
+    // First try textarea selection, then window selection
+    const ta = srcText;
+    const sel = ta && ta.selectionStart !== ta.selectionEnd
+      ? ta.value.slice(ta.selectionStart, ta.selectionEnd).trim()
+      : getSelectionText();
+    text = sel || getCurrentSourceText();
+  } else {
+    text = getCurrentSourceText();
+  }
+  speakCurrentSource(text, srcLang.value);
+});
+
+spkTgt.addEventListener('click', () => {
+  let text;
+  if (speakModeTgtState === 'selection') {
+    const sel = getSelectionText();
+    text = sel || getCurrentTargetText();
+  } else {
+    text = getCurrentTargetText();
+  }
+  speakCurrentTarget(text, tgtLang.value);
+});
+
+// ── Format button ──────────────────────────────────────────────────────────
+const fmtBtn = document.getElementById('fmtBtn');
+
+function formatSourceText(raw) {
+  if (!raw || !raw.trim()) return raw;
+
+  // Step 1: Flatten — normalize ALL line endings and collapse multiple whitespace
+  // to produce a single clean line, regardless of existing breaks
+  const flat = raw
+    .replace(/\r\n/g, '\n')   // CRLF → LF
+    .replace(/\r/g, '\n')     // CR → LF
+    .replace(/\n+/g, ' ')     // all newlines → space
+    .replace(/[ \t]{2,}/g, ' ')// multiple spaces → single
+    .trim();
+
+  if (!flat) return raw;
+
+  // Step 2: Insert line break + empty line after each sentence-ending punctuation
+  // Covers: 。 ． ！ ？ … ! ? (and multiples like !!)
+  const broken = flat.replace(/([。．！？…!?]+)/g, '$1\n\n');
+
+  // Step 3: Clean up — trim each line, collapse 3+ newlines to 2
+  const cleaned = broken
+    .split('\n')
+    .map(l => l.trim())
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  return cleaned;
+}
+
+if (fmtBtn) {
+  fmtBtn.addEventListener('click', () => {
+    const raw = srcText.value;
+    if (!raw.trim()) return;
+
+    const formatted = formatSourceText(raw);
+
+    // Always apply if result differs (normalize both for comparison)
+    const normalizedRaw = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+    if (!formatted || formatted === normalizedRaw) {
+      // Nothing to do — still give feedback
+      fmtBtn.classList.add('fmt-active');
+      setTimeout(() => fmtBtn.classList.remove('fmt-active'), 400);
+      return;
+    }
+
+    srcText.value = formatted;
+    cc.textContent = formatted.length + ' / 5000';
+    clrBtn.style.display = formatted.length ? 'flex' : 'none';
+
+    // Visual feedback
+    fmtBtn.classList.add('fmt-active');
+    setTimeout(() => fmtBtn.classList.remove('fmt-active'), 700);
+
+    // Re-trigger translation
+    clearTimeout(timer);
+    startProgress();
+    timer = setTimeout(translate, 1000);
+  });
+}
 // ── Copy ────────────────────────────────────────────────────────────────────
 cpyBtn.addEventListener('click', () => {
   if (!current) return;
@@ -5261,18 +7507,16 @@ document.addEventListener('mousedown', async (e) => {
 
 
 if (historyList) {
+  // Legacy drag handlers for old .history-item[data-id] elements.
+  // New UI uses .hist-item elements handled by initHistoryListEvents().
   historyList.addEventListener('dragstart', (e) => {
-    if (getHistorySortMode() !== 'manual') { e.preventDefault(); return; }
+    // Only handle old-style cards (none in new UI)
     const card = e.target.closest('.history-item[data-id]');
-    if (!card || card.classList.contains('editing')) {
-      e.preventDefault();
-      return;
-    }
+    if (!card) return;
+    if (getHistorySortMode() !== 'manual') { e.preventDefault(); return; }
+    if (card.classList.contains('editing')) { e.preventDefault(); return; }
     const t = getEventElement(e.target);
-    if (t && (t.closest('.history-check') || t.closest('.history-edit-box'))) {
-      e.preventDefault();
-      return;
-    }
+    if (t && (t.closest('.history-check') || t.closest('.history-edit-box'))) { e.preventDefault(); return; }
     dragHistoryId = card.getAttribute('data-id');
     card.classList.add('dragging');
     if (e.dataTransfer) {
@@ -5280,44 +7524,57 @@ if (historyList) {
       e.dataTransfer.setData('text/plain', String(dragHistoryId || ''));
     }
   });
-
   historyList.addEventListener('dragend', (e) => {
     const card = e.target.closest('.history-item[data-id]');
     if (card) card.classList.remove('dragging');
-    historyList.querySelectorAll('.history-item').forEach(el => el.classList.remove('drop-before', 'drop-after'));
   });
-
   historyList.addEventListener('dragover', (e) => {
+    if (e.target.closest('.hist-item')) return; // new items handle their own
     if (getHistorySortMode() !== 'manual') return;
     e.preventDefault();
-    const target = e.target.closest('.history-item[data-id]');
-    if (!target || !dragHistoryId) return;
-    const dragging = historyList.querySelector('.history-item.dragging');
-    if (!dragging || dragging === target) return;
-    historyList.querySelectorAll('.history-item').forEach(el => el.classList.remove('drop-before', 'drop-after'));
-    const rect = target.getBoundingClientRect();
-    const after = e.clientY > rect.top + rect.height / 2;
-    target.classList.add(after ? 'drop-after' : 'drop-before');
-    if (after) target.after(dragging);
-    else target.before(dragging);
   });
-
   historyList.addEventListener('drop', async (e) => {
+    if (e.target.closest('.hist-item')) return; // new items handle their own
     if (getHistorySortMode() !== 'manual') return;
     e.preventDefault();
-    const orderedIds = Array.from(historyList.querySelectorAll('.history-item[data-id]')).map(el => Number(el.getAttribute('data-id'))).filter(Boolean);
-    historyList.querySelectorAll('.history-item').forEach(el => el.classList.remove('drop-before', 'drop-after', 'dragging'));
-    if (!orderedIds.length) return;
-    await reorderHistoryByIds(orderedIds);
-    dragHistoryId = null;
-    await renderHistory();
   });
 }
 
 if (saveWordBookBtn) {
   saveWordBookBtn.addEventListener('click', async () => {
+    const name = (wordBookNameInput ? wordBookNameInput.value : '').trim();
+    if (!name) {
+      alert('新規 Book 名を入力してください。');
+      if (wordBookNameInput) wordBookNameInput.focus();
+      return;
+    }
     try {
-      await saveSelectedHistoryToWordBook();
+      // Save ALL currently displayed history items (filtered/sorted view)
+      const rows = await getAllHistory();
+      const keyword = historySearchInput ? historySearchInput.value : '';
+      const filtered = rows.filter(row => matchesKeyword(row, keyword));
+      const sorted = sortHistoryRows(filtered, getHistorySortMode());
+      if (!sorted.length) {
+        alert('保存できる履歴がありません。');
+        return;
+      }
+      const items = sorted.map(item => ({
+        sourceText: item.sourceText || '',
+        translatedText: item.translatedText || '',
+        srcLang: item.srcLang || '',
+        tgtLang: item.tgtLang || '',
+        createdAt: item.createdAt || Date.now()
+      }));
+      const books = await getAllWordBooks();
+      const newId = await addWordBook({
+        name,
+        items,
+        createdAt: Date.now(),
+        sortOrder: books.length
+      });
+      if (wordBookNameInput) wordBookNameInput.value = '';
+      await renderWordBooks(newId);
+      alert(`「${name}」に ${items.length} 件保存しました。`);
     } catch (err) {
       alert('Word Book 保存に失敗しました: ' + (err.message || err));
     }
@@ -5376,53 +7633,18 @@ if (wordBookBooksList) {
   let dragBookId = null;
 
   wordBookBooksList.addEventListener('click', async (e) => {
+    // New UI uses .wb-book-row; old .wordbook-book-card no longer exists
     const card = e.target.closest('[data-wordbook-book-id]');
     if (!card) return;
     const id = card.getAttribute('data-wordbook-book-id');
     if (!id) return;
     if (wordBookSelect) wordBookSelect.value = String(id);
-    await renderWordBooks(id);
+    // New UI: toggle open
+    if (wbOpenBookIds.has(String(id))) wbClosePanel(id);
+    else wbOpenPanel(id);
   });
 
-  wordBookBooksList.addEventListener('dragstart', (e) => {
-    const card = e.target.closest('[data-wordbook-book-id]');
-    if (!card) return;
-    dragBookId = card.getAttribute('data-wordbook-book-id');
-    card.classList.add('dragging');
-    if (e.dataTransfer) {
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', String(dragBookId || ''));
-    }
-  });
-
-  wordBookBooksList.addEventListener('dragend', (e) => {
-    const card = e.target.closest('[data-wordbook-book-id]');
-    if (card) card.classList.remove('dragging');
-  });
-
-  wordBookBooksList.addEventListener('dragover', (e) => {
-    if (getWordBookBooksSortMode() !== 'manual') return;
-    e.preventDefault();
-    const target = e.target.closest('[data-wordbook-book-id]');
-    if (!target || !dragBookId) return;
-    const dragging = wordBookBooksList.querySelector('.wordbook-book-card.dragging');
-    if (!dragging || dragging === target) return;
-    const rect = target.getBoundingClientRect();
-    const after = e.clientY > rect.top + rect.height / 2;
-    if (after) target.after(dragging);
-    else target.before(dragging);
-  });
-
-  wordBookBooksList.addEventListener('drop', async (e) => {
-    if (getWordBookBooksSortMode() !== 'manual') return;
-    e.preventDefault();
-    const ids = Array.from(wordBookBooksList.querySelectorAll('[data-wordbook-book-id]')).map(el => Number(el.getAttribute('data-wordbook-book-id'))).filter(Boolean);
-    if (!ids.length) return;
-    await reorderWordBooksByIds(ids);
-    const keepId = dragBookId || (wordBookSelect ? wordBookSelect.value : '');
-    dragBookId = null;
-    await renderWordBooks(keepId);
-  });
+  // Drag handlers now delegated to initWbSidebarDrag inside renderWbSidebar
 }
 
 if (wordBookList) {
