@@ -3226,7 +3226,283 @@ body {
    白と紙をテーマにした文書スタイル
    ══════════════════════════════════════════════════════════════ */
 
-/* ── Page wrapper ── */
+/* ── WB Fullscreen Modal ── */
+/* ── WB Fullscreen Modal ── */
+.wb-fullscreen-modal {
+  position: fixed; inset: 0; z-index: 2000;
+  background: var(--bg);
+  display: flex; flex-direction: column;
+  animation: wbfs-in .18s ease;
+}
+@keyframes wbfs-in { from{opacity:0;transform:scale(.98)} to{opacity:1;transform:scale(1)} }
+.wb-fullscreen-inner {
+  display: flex; flex-direction: column;
+  width: 100%; height: 100%;
+  max-width: 1280px; margin: 0 auto;
+  padding: 0 20px 24px;
+}
+.wb-fullscreen-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 0 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 14px; flex-shrink: 0; gap: 12px;
+}
+.wb-fullscreen-title {
+  font-size: 18px; font-weight: 800; color: var(--ink);
+  letter-spacing: -.02em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.wb-fullscreen-toolbar {
+  display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+}
+.wb-fs-col-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid var(--line); background: var(--surface);
+  color: var(--ink3); cursor: pointer; font-size: 11px; font-weight: 700;
+  font-family: 'DM Mono', monospace; transition: .15s;
+}
+.wb-fs-col-btn:hover { background: var(--panel-r); color: var(--ink); }
+.wb-fs-col-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.wb-fullscreen-close {
+  background: var(--panel-r); border: 1px solid var(--line);
+  border-radius: 10px; width: 34px; height: 34px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--ink3); transition: .15s; flex-shrink: 0;
+}
+.wb-fullscreen-close:hover { background: var(--surf3); color: var(--ink); }
+
+/* Body: each row is one word card (src + tgt) */
+.wb-fullscreen-body {
+  flex: 1; overflow-y: auto;
+  display: grid;
+  gap: 8px; align-content: start;
+  padding-top: 4px;
+  /* columns set by JS via --wbfs-cols */
+  grid-template-columns: repeat(var(--wbfs-cols, 2), 1fr);
+}
+
+/* Selected card in fullscreen loop */
+.wb-fs-item.fs-selected {
+  border-color: var(--accent) !important;
+  background: rgba(94,92,230,.04);
+  box-shadow: 0 0 0 2px rgba(94,92,230,.2), 0 4px 16px rgba(0,0,0,.06);
+}
+[data-theme="dark"] .wb-fs-item.fs-selected {
+  background: rgba(94,92,230,.1);
+}
+/* In select mode, show pointer on cards */
+#wbFsBody.fs-select-mode .wb-fs-item { cursor: pointer; }
+#wbFsBody.fs-select-mode .wb-fs-item:hover { border-color: var(--accent); }
+
+/* Always side-by-side: no override needed */
+
+.wb-fs-cell {
+  padding: 12px 14px;
+  font-size: 13px; line-height: 1.65;
+  word-break: break-word;
+  cursor: pointer;
+  transition: background .12s;
+  position: relative;
+}
+.wb-fs-src {
+  color: var(--ink);
+  border-right: 1px solid var(--line);
+  background: var(--surface);
+  font-weight: 500;
+}
+.wb-fs-tgt {
+  color: var(--ink2);
+  background: var(--panel-r);
+}
+.wb-fs-src:hover { background: rgba(94,92,230,.05); }
+.wb-fs-tgt:hover { background: var(--surf3); }
+.wb-fs-cell:active { transform: scale(.98); }
+
+/* Speak indicator on hover */
+.wb-fs-src::after {
+  content: '🔊';
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  font-size: 10px; opacity: 0; transition: opacity .15s; pointer-events: none;
+}
+.wb-fs-src:hover::after { opacity: .5; }
+
+/* 1/2/3-col: the outer grid controls how many wb-fs-item per row.
+   Each wb-fs-item ALWAYS shows src | tgt side by side regardless of column count. */
+.wb-fullscreen-body.wbfs-col-1 { --wbfs-cols: 1; }
+.wb-fullscreen-body.wbfs-col-2 { --wbfs-cols: 2; }
+.wb-fullscreen-body.wbfs-col-3 { --wbfs-cols: 3; }
+
+/* Always side-by-side inside each card */
+.wb-fs-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--line);
+  border-radius: 12px; overflow: hidden;
+  background: var(--surface);
+  transition: box-shadow .15s, border-color .15s;
+  cursor: default;
+  user-select: none;
+  min-width: 0;
+}
+.wb-fs-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); border-color: rgba(94,92,230,.3); }
+.wb-fs-item.dragging { opacity: .45; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.wb-fs-item.drag-over { border-color: var(--accent); background: rgba(94,92,230,.04); }
+
+/* Dark mode */
+[data-theme="dark"] .wb-fullscreen-modal { background: var(--bg); }
+[data-theme="dark"] .wb-fs-item { background: var(--surface); border-color: var(--line); }
+[data-theme="dark"] .wb-fs-src  { color: var(--ink); background: var(--surface); }
+[data-theme="dark"] .wb-fs-tgt  { color: var(--ink2); background: var(--panel-r); }
+[data-theme="dark"] .wb-fs-src:hover { background: rgba(94,92,230,.1); }
+[data-theme="dark"] .wb-fs-tgt:hover { background: var(--surf3); }
+
+/* holdpad pad-num badge */
+.holdpad-pad-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-size: 10px; font-weight: 800;
+  margin-left: 4px; flex-shrink: 0;
+}
+
+/* ── WB Fullscreen loop mini-panel ── */
+.wbfs-loop-panel {
+  position: fixed;
+  z-index: 2050;
+  bottom: 32px; right: 32px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.16), 0 2px 8px rgba(0,0,0,.08);
+  padding: 12px 14px 14px;
+  min-width: 210px;
+  user-select: none;
+  cursor: default;
+}
+/* Header row: drag area + "選択" toggle button */
+.wbfs-loop-handle {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px; gap: 8px;
+}
+.wbfs-loop-title {
+  font-size: 10px; font-weight: 800; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--ink3);
+  cursor: grab; flex: 1;
+  display: flex; align-items: center; gap: 5px;
+}
+.wbfs-loop-title::before {
+  content: '⠿'; font-size: 12px; color: var(--ink3); opacity: .5;
+}
+.wbfs-loop-title:active { cursor: grabbing; }
+
+/* "選択" toggle button — matches sel-mode-toggle style */
+.wbfs-sel-toggle {
+  font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--bg); color: var(--ink3);
+  cursor: pointer; font-family: inherit; transition: .15s;
+}
+.wbfs-sel-toggle:hover  { border-color: var(--accent); color: var(--accent); }
+.wbfs-sel-toggle.active {
+  background: rgba(94,92,230,.1);
+  border-color: #c4b5fd; color: var(--accent);
+}
+
+/* Scope row (shown only in select mode) */
+.wbfs-scope-row {
+  display: none;
+  gap: 6px; margin-bottom: 10px;
+}
+.wbfs-scope-row.visible { display: flex; }
+.wbfs-scope-btn {
+  flex: 1; padding: 7px 6px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--bg);
+  font: inherit; font-size: 12px; font-weight: 700;
+  color: var(--ink3); cursor: pointer; transition: .12s; text-align: center;
+}
+.wbfs-scope-btn.active {
+  background: rgba(94,92,230,.08);
+  border-color: #c4b5fd; color: var(--accent);
+}
+
+/* Loop play buttons */
+.wbfs-loop-btns {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+}
+.wbfs-loop-btn {
+  padding: 9px 4px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--bg);
+  font: inherit; font-size: 12px; font-weight: 700;
+  color: var(--ink2); cursor: pointer; transition: .12s;
+  text-align: center; white-space: nowrap;
+}
+.wbfs-loop-btn:hover { background: var(--panel-r); color: var(--ink); }
+.wbfs-loop-btn.playing {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-color: var(--accent); color: #fff;
+  box-shadow: 0 2px 10px rgba(94,92,230,.35);
+}
+[data-theme="dark"] .wbfs-loop-panel {
+  background: var(--surface); border-color: var(--line);
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+}
+
+/* ── Fullscreen card checkbox ── */
+/* Checkbox col hidden by default, shown in fs-select-mode */
+.wb-fs-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--line);
+  border-radius: 12px; overflow: hidden;
+  background: var(--surface);
+  transition: box-shadow .15s, border-color .15s, grid-template-columns .15s;
+  cursor: default;
+  user-select: none;
+  min-width: 0;
+}
+.wb-fs-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); border-color: rgba(94,92,230,.3); }
+.wb-fs-item.dragging { opacity: .45; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+.wb-fs-item.drag-over { border-color: var(--accent); background: rgba(94,92,230,.04); }
+
+/* Checkbox column */
+.wb-fs-check-col {
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 0 12px;
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  cursor: pointer; flex-shrink: 0;
+  min-width: 40px;
+}
+.wb-fs-check-col input[type="checkbox"] {
+  width: 16px; height: 16px;
+  accent-color: var(--accent); cursor: pointer;
+}
+
+/* Show checkbox col when select mode is active */
+#wbFsBody.fs-select-mode .wb-fs-item {
+  grid-template-columns: 40px 1fr 1fr;
+  cursor: pointer;
+}
+#wbFsBody.fs-select-mode .wb-fs-check-col {
+  display: flex;
+}
+#wbFsBody.fs-select-mode .wb-fs-item:hover {
+  border-color: var(--accent);
+}
+
+/* Selected state */
+.wb-fs-item.fs-selected {
+  border-color: var(--accent) !important;
+  background: rgba(94,92,230,.04);
+  box-shadow: 0 0 0 2px rgba(94,92,230,.2);
+}
+[data-theme="dark"] .wb-fs-item.fs-selected {
+  background: rgba(94,92,230,.1);
+}
+
 .paper-page {
   max-width: 740px;
   padding: 8px 0 72px;
@@ -3720,6 +3996,10 @@ body {
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 0-3 3V4z"/><path d="M8 20V7a3 3 0 0 1 3-3"/></svg>
       Word Book
     </button>
+    <button class="hd-nav-btn" id="hdNavWordDrop" type="button" title="Word Drop">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Word Drop
+    </button>
   </div>
 </div>
 
@@ -4036,6 +4316,10 @@ body {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 0-3 3V4z"/><path d="M8 20V7a3 3 0 0 1 3-3"/></svg>
           Word Book
         </button>
+        <button class="hd-nav-btn" id="histNavWordDrop" type="button" title="Word Drop">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          Word Drop
+        </button>
       </div>
     </div>
   </div>
@@ -4161,6 +4445,10 @@ body {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
           History
         </button>
+        <button class="hd-nav-btn" id="wbNavWordDrop" type="button" title="Word Drop">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          Word Drop
+        </button>
       </div>
     </div>
   </div>
@@ -4181,8 +4469,14 @@ body {
           </select>
         </div>
       </div>
-      <!-- Lang-pair filter tabs -->
-      <div class="wb-lang-pair-bar" id="wbLangPairBar">
+      <!-- Lang-pair filter -->
+      <div style="padding:8px 10px 6px">
+        <select id="wbLangPairSelect" class="wb-sidebar-select" style="width:100%;font-size:12px;padding:6px 10px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font-family:inherit">
+          <option value="all">すべて</option>
+        </select>
+      </div>
+      <!-- Legacy hidden bar for compat -->
+      <div class="wb-lang-pair-bar" id="wbLangPairBar" style="display:none">
         <button class="wb-lp-tab active" data-lp="all">すべて</button>
       </div>
       <!-- History panel toggle -->
@@ -4484,6 +4778,20 @@ body {
         <div class="logo-name">Word Drop</div>
         <div class="logo-sub">Vocabulary Game</div>
       </div>
+    </div>
+    <div class="hd-nav">
+      <button class="hd-nav-btn" id="gameNavTranslate" type="button" title="AI Translation">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m5 8 4 4-4 4M11 12h8"/></svg>
+        Kotoba
+      </button>
+      <button class="hd-nav-btn" id="gameNavHistory" type="button" title="翻訳履歴">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="9"/></svg>
+        History
+      </button>
+      <button class="hd-nav-btn" id="gameNavWordBook" type="button" title="Word Book">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 0-3 3V4z"/><path d="M8 20V7a3 3 0 0 1 3-3"/></svg>
+        Word Book
+      </button>
     </div>
   </div>
 
@@ -6444,41 +6752,31 @@ function collectLangPairs(books) {
 }
 
 function renderWbLangPairBar(books) {
-  const bar = document.getElementById('wbLangPairBar');
-  if (!bar) return;
+  // Dropdown version
+  const sel = document.getElementById('wbLangPairSelect');
+  if (!sel) return;
   const pairs = collectLangPairs(books);
-
-  // Count books per pair
   const counts = {};
-  (books || []).forEach(b => {
-    const key = b.langPair || '__none__';
-    counts[key] = (counts[key] || 0) + 1;
-  });
-  const allCount = books ? books.length : 0;
-
-  const tabAll = `<button class="wb-lp-tab${wbActiveLangPair === 'all' ? ' active' : ''}" data-lp="all">すべて<span class="wb-lp-tab-count">${allCount}</span></button>`;
-  const tabPairs = pairs.map(p =>
-    `<button class="wb-lp-tab${wbActiveLangPair === p ? ' active' : ''}" data-lp="${esc(p)}">${esc(buildLangPairLabel(p))}<span class="wb-lp-tab-count">${counts[p] || 0}</span></button>`
-  ).join('');
-
-  // Tab for books without langPair (legacy)
+  (books || []).forEach(b => { const key = b.langPair || '__none__'; counts[key] = (counts[key]||0)+1; });
   const noLpCount = counts['__none__'] || 0;
-  const tabNone = noLpCount > 0
-    ? `<button class="wb-lp-tab${wbActiveLangPair === '__none__' ? ' active' : ''}" data-lp="__none__">未分類<span class="wb-lp-tab-count">${noLpCount}</span></button>`
-    : '';
-
-  bar.innerHTML = tabAll + tabPairs + tabNone;
-
-  bar.querySelectorAll('.wb-lp-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      wbActiveLangPair = tab.getAttribute('data-lp');
-      bar.querySelectorAll('.wb-lp-tab').forEach(t => t.classList.toggle('active', t === tab));
+  const allCount  = books ? books.length : 0;
+  sel.innerHTML = `<option value="all">すべて (${allCount})</option>`
+    + pairs.map(p => `<option value="${esc(p)}">${esc(buildLangPairLabel(p))} (${counts[p]||0})</option>`).join('')
+    + (noLpCount > 0 ? `<option value="__none__">未分類 (${noLpCount})</option>` : '');
+  // Sync current selection
+  sel.value = wbActiveLangPair || 'all';
+  if (!sel.value) sel.value = 'all';
+  // Attach listener only once
+  if (!sel._lpInit) {
+    sel._lpInit = true;
+    sel.addEventListener('change', () => {
+      wbActiveLangPair = sel.value;
       getAllWordBooks().then(allBooks => {
         const sorted = sortWordBooks(allBooks, getWordBookBooksSortMode());
         renderWbSidebar(sorted);
       });
     });
-  });
+  }
 }
 
 // Drag state
@@ -6631,6 +6929,9 @@ function renderWbPanel(bookId, allBooks) {
       ${book.langPair ? `<span class="wb-book-row-lp" style="font-size:10px;margin-right:2px">${esc(book.langPair)}</span>` : ''}
       <div class="wb-panel-count">${sorted.length}/${items.length} items</div>
       <div class="wb-panel-btns">
+        <button class="wb-panel-btn" data-wb-expand="${id}" title="全画面表示">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        </button>
         <button class="wb-panel-btn" data-wb-rename="${id}" title="名前変更">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
         </button>
@@ -6684,6 +6985,10 @@ function renderWbPanel(bookId, allBooks) {
 
   // Panel buttons
   panel.querySelector(`[data-wb-close="${id}"]`)?.addEventListener('click', () => wbClosePanel(id));
+  panel.querySelector(`[data-wb-expand="${id}"]`)?.addEventListener('click', () => {
+    const plainItems = sorted.map(r => r.item);
+    openWbFullscreen(id, book, plainItems);
+  });
   panel.querySelector(`[data-wb-rename="${id}"]`)?.addEventListener('click', async () => {
     const name = prompt('新しい名前を入力してください：', book.name || '');
     if (name === null) return;
@@ -8265,20 +8570,34 @@ document.addEventListener('change', e => {
 // ── Translation panel quick-nav buttons ──
 const hdNavHistory = document.getElementById('hdNavHistory');
 const hdNavWordBook = document.getElementById('hdNavWordBook');
-if (hdNavHistory) hdNavHistory.addEventListener('click', () => switchView(1));
+const hdNavWordDrop = document.getElementById('hdNavWordDrop');
+if (hdNavHistory)  hdNavHistory.addEventListener('click',  () => switchView(1));
 if (hdNavWordBook) hdNavWordBook.addEventListener('click', () => switchView(2));
+if (hdNavWordDrop) hdNavWordDrop.addEventListener('click', () => switchView(5));
 
 // ── History page nav buttons ──
 const histNavTranslate = document.getElementById('histNavTranslate');
 const histNavWordBook  = document.getElementById('histNavWordBook');
+const histNavWordDrop  = document.getElementById('histNavWordDrop');
 if (histNavTranslate) histNavTranslate.addEventListener('click', () => switchView(0));
 if (histNavWordBook)  histNavWordBook.addEventListener('click',  () => switchView(2));
+if (histNavWordDrop)  histNavWordDrop.addEventListener('click',  () => switchView(5));
 
 // ── Word Book page nav buttons ──
 const wbNavTranslate = document.getElementById('wbNavTranslate');
 const wbNavHistory   = document.getElementById('wbNavHistory');
+const wbNavWordDrop  = document.getElementById('wbNavWordDrop');
 if (wbNavTranslate) wbNavTranslate.addEventListener('click', () => switchView(0));
 if (wbNavHistory)   wbNavHistory.addEventListener('click',   () => switchView(1));
+if (wbNavWordDrop)  wbNavWordDrop.addEventListener('click',  () => switchView(5));
+
+// ── Word Drop page nav buttons ──
+const gameNavTranslate = document.getElementById('gameNavTranslate');
+const gameNavHistory   = document.getElementById('gameNavHistory');
+const gameNavWordBook  = document.getElementById('gameNavWordBook');
+if (gameNavTranslate) gameNavTranslate.addEventListener('click', () => switchView(0));
+if (gameNavHistory)   gameNavHistory.addEventListener('click',   () => switchView(1));
+if (gameNavWordBook)  gameNavWordBook.addEventListener('click',  () => switchView(2));
 
 // ── WB: History panel toggle ──────────────────────────────────────────────────
 let wbHistoryPanelOpen = false;
@@ -10105,19 +10424,34 @@ document.addEventListener('keydown', (e) => {
   const onlyCtrl = e.key === 'Control' && !e.altKey && !e.shiftKey && !e.metaKey;
   const onlyAlt = e.key === 'Alt' && !e.ctrlKey && !e.shiftKey && !e.metaKey;
 
-  if (onlyCtrl) {
-    const sourceText = getCurrentSourceText();
-    if (!sourceText) return;
-    e.preventDefault();
-    speakCurrentSource(sourceText, srcLang.value);
-    return;
+  // Ctrl+Shift → speak source
+  if (e.ctrlKey && e.shiftKey && !e.altKey && !e.metaKey && (e.key === 'Control' || e.key === 'Shift')) {
+    if (e.key === 'Shift') { // fire only on Shift (the second key)
+      const sourceText = getCurrentSourceText();
+      if (!sourceText) return;
+      e.preventDefault();
+      speakCurrentSource(sourceText, srcLang.value);
+      return;
+    }
   }
 
-  if (onlyAlt) {
-    const targetText = getCurrentTargetText();
-    if (!targetText) return;
+  // Ctrl+Alt → speak target
+  if (e.ctrlKey && e.altKey && !e.shiftKey && !e.metaKey && (e.key === 'Control' || e.key === 'Alt')) {
+    if (e.key === 'Alt') { // fire only on Alt
+      const targetText = getCurrentTargetText();
+      if (!targetText) return;
+      e.preventDefault();
+      speakCurrentTarget(targetText, tgtLang.value);
+      return;
+    }
+  }
+
+  // Ctrl+Shift+Alt → Hold Pad toggle
+  if (e.ctrlKey && e.shiftKey && e.altKey && !e.metaKey) {
     e.preventDefault();
-    speakCurrentTarget(targetText, tgtLang.value);
+    const toggleBtn = document.getElementById('holdPadToggleBtn');
+    if (toggleBtn) toggleBtn.click();
+    return;
   }
 });
 
@@ -11070,43 +11404,66 @@ updateFullscreenButtonState();
 // ── Hold Pad ─────────────────────────────────────────────────────────────────
 // ─────────────────────────────────────────────────────────────────────────────
 function initHoldPad() {
-  const HOLDPAD_DB_KEY = 'holdpad_text';
-  const pad           = document.getElementById('holdPad');
-  const toggleBtn     = document.getElementById('holdPadToggleBtn');
-  const header        = document.getElementById('holdPadHeader');
-  const textarea      = document.getElementById('holdPadText');
-  const countEl       = document.getElementById('holdPadCount');
-  const clearBtn      = document.getElementById('holdPadClearBtn');
-  const closeBtn      = document.getElementById('holdPadCloseBtn');
-  const copyBtn       = document.getElementById('holdPadCopyBtn');
-  const sendBtn       = document.getElementById('holdPadSendBtn');
+  const HOLDPAD_KEYS = ['holdpad_text_1', 'holdpad_text_2'];
+  const pad       = document.getElementById('holdPad');
+  const toggleBtn = document.getElementById('holdPadToggleBtn');
+  const header    = document.getElementById('holdPadHeader');
+  const textarea  = document.getElementById('holdPadText');
+  const countEl   = document.getElementById('holdPadCount');
+  const clearBtn  = document.getElementById('holdPadClearBtn');
+  const closeBtn  = document.getElementById('holdPadCloseBtn');
+  const copyBtn   = document.getElementById('holdPadCopyBtn');
+  const sendBtn   = document.getElementById('holdPadSendBtn');
+  const switchBtn = document.getElementById('holdPadSwitchBtn');
+  const expandBtn = document.getElementById('holdPadExpandBtn');
+  const padNumEl  = document.getElementById('holdPadPadNum');
   if (!pad || !textarea) return;
 
-  // ── Persist to IndexedDB ──
+  let currentPad = 1; // 1 or 2
+  const padContents = ['', '']; // in-memory cache
+
+  // ── Persist ──
   let saveTimer = null;
   function scheduleSave() {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
-      setAppSetting(HOLDPAD_DB_KEY, textarea.value).catch(() => {});
-    }, 600);
+      setAppSetting(HOLDPAD_KEYS[currentPad - 1], textarea.value).catch(() => {});
+    }, 500);
   }
-  async function loadSaved() {
-    try {
-      const val = await getAppSetting(HOLDPAD_DB_KEY);
-      if (typeof val === 'string' && val) {
-        textarea.value = val;
-        updateCount();
-      }
-    } catch (_) {}
+  async function loadAll() {
+    for (let i = 0; i < 2; i++) {
+      try {
+        const val = await getAppSetting(HOLDPAD_KEYS[i]);
+        padContents[i] = (typeof val === 'string') ? val : '';
+      } catch (_) {}
+    }
+    textarea.value = padContents[currentPad - 1];
+    updateCount();
   }
 
-  // ── Count ──
   function updateCount() {
-    const n = textarea.value.length;
-    if (countEl) countEl.textContent = n + ' 文字';
+    if (countEl) countEl.textContent = textarea.value.length + ' 文字';
+  }
+  function updatePadNum() {
+    if (padNumEl) padNumEl.textContent = currentPad;
+    textarea.placeholder = `パッド ${currentPad} — テキストを入力・ペースト\nまたは原文・訳文をここにドラッグ…`;
   }
 
-  textarea.addEventListener('input', () => { updateCount(); scheduleSave(); });
+  textarea.addEventListener('input', () => {
+    padContents[currentPad - 1] = textarea.value;
+    updateCount();
+    scheduleSave();
+  });
+
+  // ── Switch pad ──
+  if (switchBtn) switchBtn.addEventListener('click', () => {
+    padContents[currentPad - 1] = textarea.value; // save current before switching
+    currentPad = currentPad === 1 ? 2 : 1;
+    textarea.value = padContents[currentPad - 1];
+    updateCount();
+    updatePadNum();
+    textarea.focus();
+  });
 
   // ── Open / Close ──
   let isOpen = false;
@@ -11114,7 +11471,6 @@ function initHoldPad() {
     pad.classList.add('open');
     isOpen = true;
     if (toggleBtn) toggleBtn.classList.add('active');
-    // Small delay so layout is ready before focus
     setTimeout(() => textarea.focus(), 50);
   }
   function closePad() {
@@ -11123,22 +11479,49 @@ function initHoldPad() {
     if (toggleBtn) toggleBtn.classList.remove('active');
   }
   if (toggleBtn) toggleBtn.addEventListener('click', () => isOpen ? closePad() : openPad());
-  if (closeBtn) closeBtn.addEventListener('click', closePad);
+  if (closeBtn)  closeBtn.addEventListener('click', closePad);
+
+  // ── Ctrl+Shift+Alt to toggle ── (handled in global keydown, but expose openPad/closePad)
+  window._holdPadOpen  = openPad;
+  window._holdPadClose = closePad;
+  window._holdPadIsOpen = () => isOpen;
 
   // ── Clear ──
   if (clearBtn) clearBtn.addEventListener('click', () => {
     textarea.value = '';
+    padContents[currentPad - 1] = '';
     updateCount();
     scheduleSave();
     textarea.focus();
+  });
+
+  // ── Fullscreen ──
+  if (expandBtn) expandBtn.addEventListener('click', () => {
+    const modal = document.createElement('div');
+    modal.className = 'wb-fullscreen-modal';
+    modal.style.zIndex = '3000';
+    const padLabel = `保持パッド ${currentPad}`;
+    modal.innerHTML = `
+      <div class="wb-fullscreen-inner">
+        <div class="wb-fullscreen-head">
+          <div class="wb-fullscreen-title">${padLabel}</div>
+          <button class="wb-fullscreen-close" id="hpFsClose" title="閉じる">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <textarea style="flex:1;width:100%;border:1px solid var(--line);border-radius:12px;padding:16px;font:inherit;font-size:14px;line-height:1.75;color:var(--ink);background:var(--surface);resize:none;outline:none">${esc(textarea.value)}</textarea>
+      </div>`;
+    document.body.appendChild(modal);
+    const ta = modal.querySelector('textarea');
+    if (ta) { ta.focus(); ta.addEventListener('input', () => { textarea.value = ta.value; padContents[currentPad-1]=ta.value; updateCount(); scheduleSave(); }); }
+    modal.querySelector('#hpFsClose').addEventListener('click', () => modal.remove());
   });
 
   // ── Copy ──
   if (copyBtn) copyBtn.addEventListener('click', () => {
     if (!textarea.value) return;
     navigator.clipboard.writeText(textarea.value).then(() => {
-      const orig = copyBtn.textContent;
-      copyBtn.textContent = '✓';
+      const orig = copyBtn.textContent; copyBtn.textContent = '✓';
       setTimeout(() => copyBtn.textContent = orig, 1200);
     });
   });
@@ -11160,82 +11543,54 @@ function initHoldPad() {
     closePad();
   });
 
-  // ── Window drag (move pad around) ──
-  let dragging = false, ox = 0, oy = 0, px = 0, py = 0;
+  // ── Window drag ──
+  let dragging = false, ox = 0, oy = 0;
   header.addEventListener('pointerdown', e => {
     if (e.target.closest('button')) return;
     dragging = true;
     const rect = pad.getBoundingClientRect();
-    px = rect.left; py = rect.top;
-    ox = e.clientX - px; oy = e.clientY - py;
+    ox = e.clientX - rect.left; oy = e.clientY - rect.top;
     pad.style.right = 'auto';
-    pad.style.left = px + 'px';
-    pad.style.top = py + 'px';
-    header.setPointerCapture(e.pointerId);
-    e.preventDefault();
+    pad.style.left = rect.left + 'px'; pad.style.top = rect.top + 'px';
+    header.setPointerCapture(e.pointerId); e.preventDefault();
   });
   header.addEventListener('pointermove', e => {
     if (!dragging) return;
-    const nx = e.clientX - ox;
-    const ny = e.clientY - oy;
-    pad.style.left = Math.max(0, Math.min(nx, window.innerWidth - pad.offsetWidth)) + 'px';
-    pad.style.top  = Math.max(0, Math.min(ny, window.innerHeight - pad.offsetHeight)) + 'px';
+    pad.style.left = Math.max(0, Math.min(e.clientX - ox, window.innerWidth - pad.offsetWidth)) + 'px';
+    pad.style.top  = Math.max(0, Math.min(e.clientY - oy, window.innerHeight - pad.offsetHeight)) + 'px';
   });
-  header.addEventListener('pointerup', () => { dragging = false; });
+  header.addEventListener('pointerup',     () => { dragging = false; });
   header.addEventListener('pointercancel', () => { dragging = false; });
 
-  // ── Receive drags from srcText / tgtOut ──
-  ['dragover', 'dragenter'].forEach(evt => {
-    pad.addEventListener(evt, e => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'copy';
-      pad.classList.add('drag-over');
-    });
-  });
-  pad.addEventListener('dragleave', e => {
-    if (!pad.contains(e.relatedTarget)) pad.classList.remove('drag-over');
-  });
+  // ── Drag receive ──
+  ['dragover','dragenter'].forEach(evt => pad.addEventListener(evt, e => {
+    e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; pad.classList.add('drag-over');
+  }));
+  pad.addEventListener('dragleave', e => { if (!pad.contains(e.relatedTarget)) pad.classList.remove('drag-over'); });
   pad.addEventListener('drop', e => {
-    e.preventDefault();
-    pad.classList.remove('drag-over');
+    e.preventDefault(); pad.classList.remove('drag-over');
     const text = e.dataTransfer.getData('text/plain') || '';
     if (!text) return;
-    const cur = textarea.value;
-    const sel = textarea.selectionStart;
-    // Insert at cursor or append
+    const cur = textarea.value, sel = textarea.selectionStart;
     if (document.activeElement === textarea) {
-      textarea.value = cur.slice(0, sel) + (cur.slice(0, sel).length && !cur.slice(0, sel).endsWith('\n') ? '\n' : '') + text + '\n' + cur.slice(sel);
+      textarea.value = cur.slice(0, sel) + (cur.slice(0,sel) && !cur.slice(0,sel).endsWith('\n') ? '\n':'') + text + '\n' + cur.slice(sel);
     } else {
-      textarea.value = cur ? cur + (cur.endsWith('\n') ? '' : '\n') + text + '\n' : text + '\n';
+      textarea.value = cur ? cur + (cur.endsWith('\n')?'':'\n') + text + '\n' : text + '\n';
     }
-    updateCount();
-    scheduleSave();
-    textarea.focus();
+    padContents[currentPad-1] = textarea.value;
+    updateCount(); scheduleSave(); textarea.focus();
   });
 
-  // ── Make srcText and tgtOut draggable into pad ──
-  function makeDraggableIntoHoldPad(el, getTextFn) {
-    if (!el) return;
-    el.setAttribute('draggable', 'true');
-    el.addEventListener('dragstart', e => {
-      const sel = window.getSelection ? window.getSelection().toString().trim() : '';
-      const text = sel || getTextFn();
-      if (text) e.dataTransfer.setData('text/plain', text);
-    });
-  }
-  // srcText: drag selected or full content
+  // ── Drag srcText/tgtOut ──
   const srcTextEl = document.getElementById('srcText');
-  if (srcTextEl) {
-    srcTextEl.addEventListener('dragstart', e => {
-      const s = srcTextEl.selectionStart, en = srcTextEl.selectionEnd;
-      const sel = s !== en ? srcTextEl.value.slice(s, en) : srcTextEl.value;
-      if (sel) e.dataTransfer.setData('text/plain', sel);
-    });
-  }
-  // tgtOut: drag selected or full text
+  if (srcTextEl) srcTextEl.addEventListener('dragstart', e => {
+    const s = srcTextEl.selectionStart, en = srcTextEl.selectionEnd;
+    const sel = s !== en ? srcTextEl.value.slice(s, en) : srcTextEl.value;
+    if (sel) e.dataTransfer.setData('text/plain', sel);
+  });
   const tgtOutEl = document.getElementById('tgtOut');
   if (tgtOutEl) {
-    tgtOutEl.setAttribute('draggable', 'true');
+    tgtOutEl.setAttribute('draggable','true');
     tgtOutEl.addEventListener('dragstart', e => {
       const sel = window.getSelection ? window.getSelection().toString().trim() : '';
       const text = sel || tgtOutEl.textContent.trim();
@@ -11243,22 +11598,639 @@ function initHoldPad() {
     });
   }
 
-  // ── Double-click in textarea → internal search ──
+  // ── Dblclick → search ──
   textarea.addEventListener('dblclick', () => {
-    const sel = window.getSelection ? window.getSelection().toString().trim() : '';
-    // Also check textarea selection
     const ts = textarea.selectionStart, te = textarea.selectionEnd;
-    const taSel = ts !== te ? textarea.value.slice(ts, te).trim() : '';
-    const query = taSel || sel;
-    if (query && typeof iwinOpen === 'function') {
-      iwinOpen(query, { mode: (typeof iwinState !== 'undefined' && iwinState.mode) ? iwinState.mode : 'general' });
+    const query = (ts !== te ? textarea.value.slice(ts, te) : (window.getSelection ? window.getSelection().toString() : '')).trim();
+    if (query && typeof iwinOpen === 'function') iwinOpen(query, { mode: (typeof iwinState!=='undefined'&&iwinState.mode)?iwinState.mode:'general' });
+  });
+
+  const openFileBtn  = document.getElementById('holdPadOpenFileBtn');
+  const saveBtn_     = document.getElementById('holdPadSaveBtn');
+  const saveAsBtn    = document.getElementById('holdPadSaveAsBtn');
+
+  // File handles stored per pad (File System Access API)
+  const FILE_PATH_KEYS = ['holdpad_filepath_1', 'holdpad_filepath_2'];
+  let fileHandles = [null, null]; // FileSystemFileHandle[]
+
+  // Load last file path name from IndexedDB (just name for display; actual handle needs re-pick)
+  async function loadFileInfo() {
+    const name = await getAppSetting(FILE_PATH_KEYS[currentPad - 1]).catch(() => null);
+    if (saveBtn_ && name) saveBtn_.title = `上書き保存: ${name}`;
+  }
+
+  // ── New (detach from file, keep content as copy) ──
+  const newBtn = document.getElementById('holdPadNewBtn');
+  if (newBtn) newBtn.addEventListener('click', () => {
+    // Keep current text content (copy), detach file handle
+    fileHandles[currentPad - 1] = null;
+    // Clear stored file path for this pad
+    setAppSetting(FILE_PATH_KEYS[currentPad - 1], '').catch(() => {});
+    if (saveBtn_) saveBtn_.title = '上書き保存';
+    textarea.focus();
+    // Flash button to confirm
+    newBtn.style.color = 'var(--accent)';
+    setTimeout(() => newBtn.style.color = '', 800);
+  });
+
+  // ── Open file ──
+  if (openFileBtn) openFileBtn.addEventListener('click', async () => {
+    if (window.showOpenFilePicker) {
+      try {
+        const [handle] = await window.showOpenFilePicker({ types: [{ description: 'Text files', accept: { 'text/plain': ['.txt', '.md', '.csv'] } }] });
+        fileHandles[currentPad - 1] = handle;
+        await setAppSetting(FILE_PATH_KEYS[currentPad - 1], handle.name).catch(() => {});
+        const file = await handle.getFile();
+        const text = await file.text();
+        textarea.value = text;
+        padContents[currentPad - 1] = text;
+        updateCount(); scheduleSave();
+        if (saveBtn_) saveBtn_.title = `上書き保存: ${handle.name}`;
+      } catch (e) { if (e.name !== 'AbortError') alert('ファイルを開けませんでした: ' + e.message); }
+    } else {
+      // Fallback: input[type=file]
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = '.txt,.md,.csv,text/plain';
+      input.onchange = async () => {
+        const file = input.files[0]; if (!file) return;
+        const text = await file.text();
+        textarea.value = text;
+        padContents[currentPad - 1] = text;
+        updateCount(); scheduleSave();
+        await setAppSetting(FILE_PATH_KEYS[currentPad - 1], file.name).catch(() => {});
+        if (saveBtn_) saveBtn_.title = `上書き保存: ${file.name}`;
+      };
+      input.click();
     }
   });
 
-  // ── Load saved content ──
-  loadSaved();
-  updateCount();
+  // ── Overwrite save ──
+  if (saveBtn_) saveBtn_.addEventListener('click', async () => {
+    const handle = fileHandles[currentPad - 1];
+    if (!handle) {
+      // No handle yet — do save-as
+      if (saveAsBtn) saveAsBtn.click();
+      return;
+    }
+    try {
+      const writable = await handle.createWritable();
+      await writable.write(textarea.value);
+      await writable.close();
+      const orig = saveBtn_.innerHTML;
+      saveBtn_.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#30d158" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+      setTimeout(() => saveBtn_.innerHTML = orig, 1200);
+    } catch (e) { alert('保存に失敗しました: ' + e.message); }
+  });
+
+  // ── Save as ──
+  if (saveAsBtn) saveAsBtn.addEventListener('click', async () => {
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({ suggestedName: `pad${currentPad}.txt`, types: [{ description: 'Text file', accept: { 'text/plain': ['.txt'] } }] });
+        fileHandles[currentPad - 1] = handle;
+        await setAppSetting(FILE_PATH_KEYS[currentPad - 1], handle.name).catch(() => {});
+        const writable = await handle.createWritable();
+        await writable.write(textarea.value);
+        await writable.close();
+        if (saveBtn_) saveBtn_.title = `上書き保存: ${handle.name}`;
+      } catch (e) { if (e.name !== 'AbortError') alert('保存に失敗しました: ' + e.message); }
+    } else {
+      // Fallback: Blob download
+      const blob = new Blob([textarea.value], { type: 'text/plain' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `pad${currentPad}.txt`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+  });
+
+  loadAll();
+  updatePadNum();
+  loadFileInfo();
 }
+
+// ── WB Fullscreen Modal ──────────────────────────────────────────────────────
+// ── WB Fullscreen: draggable loop mini-panel ─────────────────────────────────
+function attachFsLoopPanel(modal, fsItems, onClose) {
+  document.querySelectorAll('.wbfs-loop-panel').forEach(p => p.remove());
+
+  // ── State ──
+  let fsLoopActive = false;
+  let fsLoopMode   = null;
+  let fsLoopToken  = 0;
+  let selModeOn    = false;   // 選択ボタンのON/OFF
+  let loopScope    = 'all';  // 'all' | 'selected'
+
+  // ── Build panel HTML ──
+  const panel = document.createElement('div');
+  panel.className = 'wbfs-loop-panel';
+  panel.innerHTML = `
+    <div class="wbfs-loop-handle" id="wbfsLoopHandle">
+      <span class="wbfs-loop-title">ループ再生</span>
+      <button class="wbfs-sel-toggle" id="wbfsSelToggle" type="button">選択</button>
+    </div>
+    <div class="wbfs-scope-row" id="wbfsScopeRow">
+      <button class="wbfs-scope-btn" data-scope="selected">選択</button>
+      <button class="wbfs-scope-btn active" data-scope="all">すべて</button>
+    </div>
+    <div class="wbfs-loop-btns">
+      <button class="wbfs-loop-btn" data-lmode="source">原文</button>
+      <button class="wbfs-loop-btn" data-lmode="target">訳語</button>
+      <button class="wbfs-loop-btn" data-lmode="alternate">交互</button>
+    </div>`;
+  document.body.appendChild(panel);
+
+  const selToggleBtn = panel.querySelector('#wbfsSelToggle');
+  const scopeRow     = panel.querySelector('#wbfsScopeRow');
+  const scopeBtns    = panel.querySelectorAll('.wbfs-scope-btn');
+  const loopBtns     = panel.querySelectorAll('.wbfs-loop-btn');
+  const fsBody       = modal.querySelector('#wbFsBody');
+
+  // ── Helpers ──
+  function getCheckedItems() {
+    if (!fsBody) return [];
+    return Array.from(fsBody.querySelectorAll('.wb-fs-cb:checked')).map(cb => {
+      const idx = Number(cb.dataset.fsiCb);
+      return fsItems[idx];
+    }).filter(Boolean);
+  }
+
+  function getLoopItems() {
+    if (loopScope === 'selected') {
+      const checked = getCheckedItems();
+      if (checked.length > 0) return checked;
+    }
+    return fsItems.slice();
+  }
+
+  function syncLoopBtns() {
+    loopBtns.forEach(btn => {
+      const mode = btn.dataset.lmode;
+      const on   = fsLoopActive && fsLoopMode === mode;
+      btn.classList.toggle('playing', on);
+      btn.textContent = on ? '■ 停止'
+        : { source:'原文', target:'訳語', alternate:'交互' }[mode];
+    });
+  }
+
+  // ── Select-mode toggle ──
+  selToggleBtn.addEventListener('click', () => {
+    selModeOn = !selModeOn;
+    selToggleBtn.classList.toggle('active', selModeOn);
+    scopeRow.classList.toggle('visible', selModeOn);
+    if (fsBody) fsBody.classList.toggle('fs-select-mode', selModeOn);
+
+    if (!selModeOn) {
+      // Turn off select mode: uncheck all, reset scope to all
+      fsBody && fsBody.querySelectorAll('.wb-fs-cb').forEach(cb => {
+        cb.checked = false;
+        const card = cb.closest('.wb-fs-item');
+        if (card) card.classList.remove('fs-selected');
+      });
+      loopScope = 'all';
+      scopeBtns.forEach(b => b.classList.toggle('active', b.dataset.scope === 'all'));
+      if (fsLoopActive) { stopLoop(); }
+    }
+  });
+
+  // ── Scope buttons (選択 / すべて) ──
+  scopeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      scopeBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      loopScope = btn.dataset.scope;
+      if (fsLoopActive) {
+        const m = fsLoopMode;
+        stopLoop();
+        startLoop(m);
+      }
+    });
+  });
+
+  // ── Checkbox: clicking check-col or checkbox ──
+  if (fsBody) {
+    fsBody.addEventListener('change', e => {
+      const cb = e.target.closest('.wb-fs-cb');
+      if (!cb) return;
+      const card = cb.closest('.wb-fs-item');
+      if (card) card.classList.toggle('fs-selected', cb.checked);
+      // Auto-switch scope to "selected" when checking
+      if (cb.checked && loopScope !== 'selected') {
+        loopScope = 'selected';
+        scopeBtns.forEach(b => b.classList.toggle('active', b.dataset.scope === 'selected'));
+      }
+      if (fsLoopActive) { const m = fsLoopMode; stopLoop(); startLoop(m); }
+    });
+
+    // Click on check-col label selects card without propagating to speak
+    fsBody.addEventListener('click', e => {
+      const col = e.target.closest('.wb-fs-check-col');
+      if (!col || !selModeOn) return;
+      // label wraps checkbox so click is handled by browser natively
+      // Just stop cell speak from firing
+      e.stopPropagation();
+    }, true);
+  }
+
+  // ── Independent speak loop ──
+  function speak(text, lang, cb) {
+    if (!window.speechSynthesis) { cb(); return; }
+    window.speechSynthesis.cancel();
+    const u   = new SpeechSynthesisUtterance(text);
+    const bcp = (typeof LANG_BCP !== 'undefined' && LANG_BCP[lang]) || lang || 'en';
+    u.lang    = bcp; u.rate = 0.9;
+    const vs  = window.speechSynthesis.getVoices();
+    const v   = vs.find(v => v.lang === bcp) || vs.find(v => (v.lang||'').startsWith(bcp.split('-')[0]));
+    if (v) u.voice = v;
+    u.onend = cb; u.onerror = cb;
+    window.speechSynthesis.speak(u);
+  }
+
+  function runLoop(items, idx, token) {
+    if (!fsLoopActive || token !== fsLoopToken || !items.length) return;
+    const item = items[idx % items.length];
+    const mode = fsLoopMode;
+    function next() {
+      if (!fsLoopActive || token !== fsLoopToken) return;
+      setTimeout(() => runLoop(items, (idx + 1) % items.length, token), 450);
+    }
+    if (mode === 'source') {
+      speak(item.sourceText || '', item.srcLang || 'en', next);
+    } else if (mode === 'target') {
+      speak(item.translatedText || '', item.tgtLang || 'ja', next);
+    } else {
+      speak(item.sourceText || '', item.srcLang || 'en', () => {
+        if (!fsLoopActive || token !== fsLoopToken) return;
+        setTimeout(() => speak(item.translatedText || '', item.tgtLang || 'ja', next), 350);
+      });
+    }
+  }
+
+  function startLoop(mode) {
+    const items = getLoopItems();
+    if (!items.length) { alert('再生できる項目がありません。'); return; }
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    if (typeof stopWordBookLoopPlayback === 'function') stopWordBookLoopPlayback(false);
+    fsLoopActive = true; fsLoopMode = mode; fsLoopToken += 1;
+    syncLoopBtns();
+    runLoop(items, 0, fsLoopToken);
+  }
+
+  function stopLoop() {
+    fsLoopActive = false; fsLoopMode = null; fsLoopToken += 1;
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    syncLoopBtns();
+  }
+
+  // ── Loop play buttons ──
+  loopBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.lmode;
+      if (fsLoopActive && fsLoopMode === mode) stopLoop();
+      else startLoop(mode);
+    });
+  });
+
+  // ── Draggable ──
+  const handle = panel.querySelector('#wbfsLoopHandle');
+  let dragging = false, ox = 0, oy = 0;
+  handle.addEventListener('pointerdown', e => {
+    if (e.target.closest('button')) return;
+    dragging = true;
+    const r = panel.getBoundingClientRect();
+    ox = e.clientX - r.left; oy = e.clientY - r.top;
+    panel.style.right = 'auto'; panel.style.bottom = 'auto';
+    panel.style.left  = r.left + 'px'; panel.style.top = r.top + 'px';
+    handle.setPointerCapture(e.pointerId); e.preventDefault();
+  });
+  handle.addEventListener('pointermove', e => {
+    if (!dragging) return;
+    panel.style.left = Math.max(0, Math.min(e.clientX - ox, window.innerWidth  - panel.offsetWidth))  + 'px';
+    panel.style.top  = Math.max(0, Math.min(e.clientY - oy, window.innerHeight - panel.offsetHeight)) + 'px';
+  });
+  handle.addEventListener('pointerup',     () => { dragging = false; });
+  handle.addEventListener('pointercancel', () => { dragging = false; });
+
+  return stopLoop;
+}
+
+
+// ── WB Fullscreen: right-click edit context menu ─────────────────────────────
+function showFsEditMenu(cell, mx, my, fsItems, bookId, bodyEl, bindCells, bindDrag) {
+  // Remove any existing menu
+  document.querySelectorAll('.wb-fs-ctx-menu').forEach(m => m.remove());
+
+  const isSrc = cell.classList.contains('wb-fs-src');
+  const itemEl = cell.closest('.wb-fs-item');
+  const idx = itemEl ? Number(itemEl.dataset.fsi) : -1;
+  if (idx < 0 || !fsItems[idx]) return;
+
+  const menu = document.createElement('div');
+  menu.className = 'wb-fs-ctx-menu';
+  menu.style.cssText = `
+    position:fixed; z-index:2200;
+    left:${mx}px; top:${my}px;
+    background:var(--surface); border:1px solid var(--line);
+    border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,.16);
+    padding:6px; min-width:180px; font-size:13px;
+  `;
+
+  const item = fsItems[idx];
+  const side = isSrc ? 'sourceText' : 'translatedText';
+  const sideLabel = isSrc ? '原文' : '訳語';
+
+  menu.innerHTML = `
+    <div class="wb-fs-ctx-item" data-action="edit" style="padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--ink);display:flex;align-items:center;gap:8px">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+      ${sideLabel}を編集
+    </div>
+    <div class="wb-fs-ctx-item" data-action="copy" style="padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--ink);display:flex;align-items:center;gap:8px">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      テキストをコピー
+    </div>
+    <div class="wb-fs-ctx-item" data-action="search" style="padding:8px 12px;border-radius:8px;cursor:pointer;color:var(--ink);display:flex;align-items:center;gap:8px">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      内部検索
+    </div>
+  `;
+
+  // Hover styles
+  menu.querySelectorAll('.wb-fs-ctx-item').forEach(it => {
+    it.addEventListener('mouseenter', () => it.style.background = 'var(--panel-r)');
+    it.addEventListener('mouseleave', () => it.style.background = '');
+  });
+
+  document.body.appendChild(menu);
+
+  // Close on outside click
+  const closeMenu = () => { menu.remove(); document.removeEventListener('click', closeMenu, true); };
+  setTimeout(() => document.addEventListener('click', closeMenu, true), 10);
+
+  // Keep menu inside viewport
+  requestAnimationFrame(() => {
+    const r = menu.getBoundingClientRect();
+    if (r.right  > window.innerWidth)  menu.style.left = (mx - r.width)  + 'px';
+    if (r.bottom > window.innerHeight) menu.style.top  = (my - r.height) + 'px';
+  });
+
+  menu.addEventListener('click', async e => {
+    const action = e.target.closest('[data-action]')?.dataset?.action;
+    if (!action) return;
+    closeMenu();
+
+    const text = cell.textContent.trim();
+
+    if (action === 'copy') {
+      if (text) navigator.clipboard.writeText(text).catch(() => {});
+      return;
+    }
+
+    if (action === 'search') {
+      const shell = document.getElementById('iwinShell') || document.querySelector('.iwin-shell');
+      if (shell) shell.style.zIndex = '2100';
+      if (typeof iwinOpen === 'function') iwinOpen(text, { mode:'general' });
+      return;
+    }
+
+    if (action === 'edit') {
+      // Inline edit: replace cell content with input
+      const current = item[side] || '';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = current;
+      input.style.cssText = `
+        width:100%; border:none; outline:none; background:transparent;
+        font:inherit; font-size:inherit; color:var(--ink);
+        padding:0; margin:0;
+      `;
+      cell.textContent = '';
+      cell.appendChild(input);
+      cell.style.outline = '2px solid var(--accent)';
+      cell.style.outlineOffset = '-2px';
+      input.focus();
+      input.select();
+
+      const commit = async () => {
+        const newVal = input.value.trim();
+        cell.style.outline = '';
+        cell.textContent = newVal || current;
+        if (newVal === current) return;
+        // Update in-memory
+        fsItems[idx] = Object.assign({}, fsItems[idx], { [side]: newVal });
+        // Persist to DB
+        try {
+          const books = await getAllWordBooks();
+          const book  = books.find(b => String(b.id) === String(bookId));
+          if (book && Array.isArray(book.items)) {
+            const newItems = book.items.slice();
+            // Find by matching old content
+            const dbIdx = newItems.findIndex(it =>
+              String(it.sourceText||'') === String(item.sourceText||'') &&
+              String(it.translatedText||'') === String(item.translatedText||'')
+            );
+            if (dbIdx >= 0) {
+              newItems[dbIdx] = Object.assign({}, newItems[dbIdx], { [side]: newVal });
+              await updateWordBookItems(Number(bookId), newItems);
+            }
+          }
+        } catch(_) {}
+      };
+
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', e2 => {
+        if (e2.key === 'Enter')  { input.blur(); }
+        if (e2.key === 'Escape') { input.value = current; input.blur(); }
+      });
+    }
+  });
+}
+
+function openWbFullscreen(bookId, book, items) {
+  let modal = document.getElementById('wbFullscreenModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'wbFullscreenModal';
+    modal.className = 'wb-fullscreen-modal';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-label', 'Word Book 全画面');
+    document.body.appendChild(modal);
+  }
+
+  let cols = 2; // default: 2-column layout (each item is 2-cell: src+tgt)
+  // items list (mutable for drag reorder)
+  let fsItems = items.slice();
+
+  function buildBody() {
+    if (!fsItems.length) {
+      return '<div style="color:var(--ink3);font-size:13px;padding:32px;text-align:center;grid-column:1/-1">アイテムがありません</div>';
+    }
+    return fsItems.map((item, i) => {
+      const raw     = (item && item.item) ? item.item : item;
+      const src     = String(raw.sourceText      || '');
+      const tgt     = String(raw.translatedText  || '');
+      const srcLang = String(raw.srcLang         || 'en');
+      const tgtLang = String(raw.tgtLang         || 'ja');
+      return `<div class="wb-fs-item" draggable="true" data-fsi="${i}"
+                data-srclang="${srcLang}" data-tgtlang="${tgtLang}">
+        <label class="wb-fs-check-col" title="選択">
+          <input type="checkbox" class="wb-fs-cb" data-fsi-cb="${i}" aria-label="選択">
+        </label>
+        <div class="wb-fs-cell wb-fs-src" data-lang="${srcLang}" title="クリックで発音 / ダブルクリックで検索">${esc(src)}</div>
+        <div class="wb-fs-cell wb-fs-tgt" data-lang="${tgtLang}" title="クリックで発音 / ダブルクリックで検索">${esc(tgt)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function setColClass(bodyEl, n) {
+    bodyEl.classList.remove('wbfs-col-1','wbfs-col-2','wbfs-col-3');
+    bodyEl.classList.add('wbfs-col-' + n);
+    bodyEl.style.setProperty('--wbfs-cols', String(n));
+    cols = n;
+    // update buttons
+    modal.querySelectorAll('.wb-fs-col-btn').forEach(btn => {
+      btn.classList.toggle('active', Number(btn.dataset.cols) === n);
+    });
+  }
+
+  const bookLabel = esc(book.name || '無題') + (book.langPair ? ` <span style="font-size:13px;color:var(--ink3);font-weight:500">· ${esc(book.langPair)}</span>` : '');
+
+  modal.innerHTML = `
+    <div class="wb-fullscreen-inner">
+      <div class="wb-fullscreen-head">
+        <div class="wb-fullscreen-title">${bookLabel}</div>
+        <div class="wb-fullscreen-toolbar">
+          <span style="font-size:11px;color:var(--ink3);margin-right:4px">${fsItems.length} items</span>
+          <button class="wb-fs-col-btn active" data-cols="1" title="1列表示">1</button>
+          <button class="wb-fs-col-btn" data-cols="2" title="2列表示">2</button>
+          <button class="wb-fs-col-btn" data-cols="3" title="3列表示">3</button>
+          <button class="wb-fullscreen-close" id="wbFsCloseBtn" title="閉じる (Esc)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="wb-fullscreen-body wbfs-col-1" id="wbFsBody" style="--wbfs-cols:1">${buildBody()}</div>
+    </div>`;
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  const bodyEl = modal.querySelector('#wbFsBody');
+
+  // ── Column toggle ──
+  modal.querySelectorAll('.wb-fs-col-btn').forEach(btn => {
+    btn.addEventListener('click', () => setColClass(bodyEl, Number(btn.dataset.cols)));
+  });
+  // Default: 1 column
+  setColClass(bodyEl, 1);
+
+  // ── Close ──
+  modal.querySelector('#wbFsCloseBtn').addEventListener('click', closeFs);
+
+  // ── Speak + search on cells ──
+  function bindCells() {
+    bodyEl.querySelectorAll('.wb-fs-cell').forEach(cell => {
+
+      // Single click → speak
+      cell.addEventListener('click', e => {
+        if (e.detail > 1) return; // ignore click from dblclick
+        const text = cell.textContent.trim();
+        if (!text) return;
+        const lang  = cell.dataset.lang || 'en';
+        const isSrc = cell.classList.contains('wb-fs-src');
+        if (isSrc) { if (typeof speakCurrentSource === 'function') speakCurrentSource(text, lang); }
+        else        { if (typeof speakCurrentTarget === 'function') speakCurrentTarget(text, lang); }
+      });
+
+      // Double click → internal search (raise iwinShell above fullscreen modal)
+      cell.addEventListener('dblclick', e => {
+        e.stopPropagation();
+        const text = cell.textContent.trim();
+        if (!text) return;
+        if (typeof iwinOpen !== 'function') return;
+        // Temporarily raise iwinShell above the fullscreen modal (z-index 2000)
+        const shell = document.getElementById('iwinShell') || document.querySelector('.iwin-shell');
+        if (shell) { shell.style.zIndex = '2100'; }
+        iwinOpen(text, { mode: (typeof iwinState!=='undefined'&&iwinState.mode)?iwinState.mode:'general' });
+      });
+
+      // Right click → edit context menu
+      cell.addEventListener('contextmenu', e => {
+        e.preventDefault();
+        e.stopPropagation();
+        showFsEditMenu(cell, e.clientX, e.clientY, fsItems, bookId, bodyEl, bindCells, bindDrag);
+      });
+    });
+  }
+  bindCells();
+
+  // ── Drag reorder ──
+  let dragSrc = null;
+  function bindDrag() {
+    bodyEl.querySelectorAll('.wb-fs-item').forEach(el => {
+      el.addEventListener('dragstart', e => {
+        dragSrc = el;
+        el.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', el.dataset.fsi);
+      });
+      el.addEventListener('dragend', () => {
+        dragSrc = null;
+        bodyEl.querySelectorAll('.wb-fs-item').forEach(x => x.classList.remove('dragging','drag-over'));
+      });
+      el.addEventListener('dragover', e => {
+        if (!dragSrc || dragSrc === el) return;
+        e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+        bodyEl.querySelectorAll('.wb-fs-item').forEach(x => x.classList.remove('drag-over'));
+        el.classList.add('drag-over');
+      });
+      el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
+      el.addEventListener('drop', async e => {
+        e.preventDefault();
+        if (!dragSrc || dragSrc === el) return;
+        el.classList.remove('drag-over');
+        const fromI = Number(dragSrc.dataset.fsi);
+        const toI   = Number(el.dataset.fsi);
+        // Reorder in-memory list
+        const [moved] = fsItems.splice(fromI, 1);
+        fsItems.splice(toI > fromI ? toI - 1 : toI, 0, moved);
+        // Persist to DB
+        try {
+          await updateWordBookItems(Number(bookId), fsItems);
+        } catch(_) {}
+        // Re-render
+        bodyEl.innerHTML = buildBody();
+        bindCells(); bindDrag();
+      });
+    });
+  }
+  bindDrag();
+
+  let fsStopLoop = null;
+
+  function closeFs() {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    // Reset iwinShell z-index back to default
+    const shell = document.getElementById('iwinShell') || document.querySelector('.iwin-shell');
+    if (shell) shell.style.zIndex = '';
+    // Stop fullscreen loop and remove panel
+    if (typeof fsStopLoop === 'function') fsStopLoop();
+    document.querySelectorAll('.wbfs-loop-panel').forEach(p => p.remove());
+  }
+
+  // ── Attach loop panel ──
+  fsStopLoop = attachFsLoopPanel(modal, fsItems, closeFs);
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('wbFullscreenModal');
+    if (modal && modal.style.display !== 'none') {
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+  }
+});
 
 // Call initHoldPad after full DOM is available
 if (document.readyState === 'loading') {
@@ -11328,26 +12300,63 @@ openHistoryDB().then(async () => {
 <div class="holdpad" id="holdPad" role="dialog" aria-label="保持パッド">
   <div class="holdpad-header" id="holdPadHeader">
     <div class="holdpad-title">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
-      保持パッド
+      保持パッド <span class="holdpad-pad-num" id="holdPadPadNum">1</span>
     </div>
     <div class="holdpad-header-right">
-      <button class="holdpad-btn" id="holdPadClearBtn" title="全消去">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+      <!-- Switch pad -->
+      <button class="holdpad-btn" id="holdPadSwitchBtn" title="パッドを切替（1 ⇄ 2）">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><line x1="12" y1="8" x2="12" y2="16"/><polyline points="9 11 12 8 15 11"/><polyline points="9 13 12 16 15 13"/></svg>
       </button>
+      <!-- New (copy content + detach file) -->
+      <button class="holdpad-btn" id="holdPadNewBtn" title="新規作成（現在の内容をコピーしてファイルとの連携を解除）">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-left:-4px;margin-top:-6px"><line x1="18" y1="6" x2="6" y2="18"/></svg>
+      </button>
+      <!-- Open file -->
+      <button class="holdpad-btn" id="holdPadOpenFileBtn" title="テキストファイルを開く">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+      </button>
+      <!-- Overwrite save -->
+      <button class="holdpad-btn" id="holdPadSaveBtn" title="上書き保存">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      </button>
+      <!-- Save as -->
+      <button class="holdpad-btn" id="holdPadSaveAsBtn" title="名前を付けて保存">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+      <!-- Clear -->
+      <button class="holdpad-btn" id="holdPadClearBtn" title="全消去">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      </button>
+      <!-- Fullscreen -->
+      <button class="holdpad-btn" id="holdPadExpandBtn" title="全画面表示">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </button>
+      <!-- Close -->
       <button class="holdpad-btn" id="holdPadCloseBtn" title="閉じる">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
   </div>
-  <div class="holdpad-drop-hint" id="holdPadDropHint">
-    ここに原文・訳文をドラッグ
-  </div>
+  <div class="holdpad-drop-hint" id="holdPadDropHint">ここに原文・訳文をドラッグ</div>
   <textarea class="holdpad-textarea" id="holdPadText" placeholder="テキストを入力・ペースト&#10;または原文・訳文をここにドラッグ…" spellcheck="false"></textarea>
   <div class="holdpad-footer">
     <span class="holdpad-count" id="holdPadCount">0 文字</span>
     <button class="holdpad-action-btn" id="holdPadCopyBtn" title="コピー">コピー</button>
     <button class="holdpad-action-btn" id="holdPadSendBtn" title="原文に送る">原文に送る</button>
+  </div>
+</div>
+
+<!-- WB Fullscreen Modal -->
+<div class="wb-fullscreen-modal" id="wbFullscreenModal" style="display:none" role="dialog" aria-label="Word Book 全画面">
+  <div class="wb-fullscreen-inner">
+    <div class="wb-fullscreen-head">
+      <div class="wb-fullscreen-title" id="wbFullscreenTitle">Word Book</div>
+      <button class="wb-fullscreen-close" id="wbFullscreenClose" title="閉じる">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="wb-fullscreen-body" id="wbFullscreenBody"></div>
   </div>
 </div>
 
