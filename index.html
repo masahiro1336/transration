@@ -161,7 +161,6 @@
 }
 
 /* Cards and surfaces */
-[data-theme="dark"] .card,
 [data-theme="dark"] .history-card,
 [data-theme="dark"] .wb-sidebar,
 [data-theme="dark"] .search-card,
@@ -175,13 +174,22 @@
   color: var(--ink);
   box-shadow: 0 8px 40px rgba(0,5,30,.35), inset 0 1px 0 rgba(120,160,255,.08);
 }
+/* 翻訳カード: 夜空が透けるよう極薄ガラス */
+[data-theme="dark"] .card {
+  background: rgba(8,16,48,.18);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid rgba(100,140,220,.18);
+  color: var(--ink);
+  box-shadow: 0 8px 40px rgba(0,5,30,.28), inset 0 1px 0 rgba(120,160,255,.08);
+}
 [data-theme="dark"] .footers,
 [data-theme="dark"] .voice-panel,
 [data-theme="dark"] .holdpad {
-  background: rgba(8,16,48,.30);
+  background: rgba(8,16,48,.22);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(100,140,220,.18);
+  border: 1px solid rgba(100,140,220,.15);
   color: var(--ink);
 }
 /* ヘッダー類は透明にして背景の空を見せる */
@@ -279,7 +287,7 @@
 [data-theme="dark"] .swap-btn:hover { background: var(--surf3); }
 [data-theme="dark"] .cc { color: var(--ink3); }
 [data-theme="dark"] .progress-bar-wrap { background: var(--line); }
-[data-theme="dark"] .translate-dest { background: rgba(15,18,35,.30); }
+[data-theme="dark"] .translate-dest { background: transparent; }
 [data-theme="dark"] .tgt-wrap { background: rgba(15,18,35,.30); }
 [data-theme="dark"] .save-destination-select { background: rgba(15,18,35,.30); color: var(--ink); border-color: rgba(255,255,255,.1); }
 
@@ -478,9 +486,11 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   min-height: 320px;
+  background: transparent;
 }
-.panel { position: relative; display: flex; flex-direction: column; }
+.panel { position: relative; display: flex; flex-direction: column; background: transparent; }
 .panel:first-child { border-right: 1px solid var(--line); }
+[data-theme="dark"] .panel:first-child { border-right-color: rgba(100,140,220,.18); }
 
 .src-ta {
   flex: 1; width: 100%; min-height: 320px;
@@ -495,9 +505,10 @@ body {
 .tgt-out {
   flex: 1; padding: 20px; min-height: 320px;
   font-size: 16px; line-height: 1.7;
-  color: var(--ink); background: var(--panel-r);
+  color: var(--ink); background: transparent;
   white-space: pre-wrap; word-break: break-word;
 }
+[data-theme="dark"] .tgt-out { background: transparent; color: #ffffff; }
 .ph  { color: #c7c7cc; font-style: normal; }
 .err { color: var(--red); font-size: 13px; }
 
@@ -1467,33 +1478,39 @@ body {
 /* Popup — anchors to .fp-right, opens UPWARD */
 .save-dest-popup {
   display: none;
-  position: absolute;
+  position: fixed;   /* fixedで画面に対して絶対位置 */
   z-index: 1400;
-  bottom: calc(100% + 8px);  /* above the .fp-right */
-  right: 0;
-  background: rgba(255,255,255,.30);
+  background: rgba(255,255,255,.88);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
   border: 1px solid var(--line);
   border-radius: 14px;
-  box-shadow: 0 -4px 32px rgba(0,0,0,.15), 0 2px 8px rgba(0,0,0,.06);
-  overflow: visible;
+  box-shadow: 0 8px 40px rgba(0,0,0,.18), 0 2px 8px rgba(0,0,0,.08);
+  overflow: hidden;
+  max-width: calc(100vw - 24px);  /* 画面幅を超えない */
+}
+[data-theme="dark"] .save-dest-popup {
+  background: rgba(12,22,62,.92);
+  border-color: rgba(100,140,220,.28);
 }
 .save-dest-popup.open { display: flex; flex-direction: row; }
 
 /* Main column */
 .save-dest-col {
   display: flex; flex-direction: column;
-  width: 200px; max-height: 320px;
+  width: 200px;
+  /* 高さは動的にJSで制御 */
   overflow-y: auto; padding: 6px;
   border-right: 1px solid var(--line);
+  min-height: 60px;
 }
 .save-dest-col:last-child { border-right: none; }
 
 /* Sub column */
 .save-dest-col-sub {
-  width: 190px; max-height: 320px;
+  width: 190px;
   overflow-y: auto; padding: 6px;
-  background: rgba(255,255,255,.30);
   border-radius: 0 14px 14px 0;
+  min-height: 60px;
 }
 
 .save-dest-item {
@@ -1672,8 +1689,8 @@ body {
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  border-bottom: 1px solid var(--line);
-  background: rgba(255,255,255,.30);
+  border-bottom: 1px solid rgba(255,255,255,.35);
+  background: rgba(255,255,255,.22);
 }
 .wb-panel-color {
   width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
@@ -1724,9 +1741,10 @@ body {
 .wb-panel-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 99px; }
 
 .wb-item {
-  border: 1px solid var(--line);
+  border: 1px solid rgba(255,255,255,.42);
   border-radius: 10px;
-  background: rgba(255,255,255,.30);
+  background: rgba(255,255,255,.28);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   overflow: hidden;
   cursor: grab;
   transition: border-color .12s, box-shadow .12s;
@@ -1743,10 +1761,11 @@ body {
 }
 .wb-item-col {
   padding: 9px 10px;
+  background: transparent;   /* ライトモードの矩形感を解消 */
   transition: background .1s;
 }
-.wb-item-col:first-child { border-right: 1px solid var(--line); }
-.wb-item-col:hover { background: #fafafe; }
+.wb-item-col:first-child { border-right: 1px solid rgba(255,255,255,.35); }
+.wb-item-col:hover { background: rgba(26,79,168,.05); }  /* ライトモードの白矩形解消 */
 /* labels hidden */
 .wb-item-label { display: none; }
 .wb-item-text {
@@ -4473,16 +4492,19 @@ body {
   background: transparent;
   display: flex; flex-direction: column;
   animation: wbfs-in .18s ease;
-  overflow: hidden; /* プロキシcanvasのはみ出し防止 */
+  overflow: hidden;
 }
 @keyframes wbfs-in { from{opacity:0;transform:scale(.98)} to{opacity:1;transform:scale(1)} }
 .wb-fullscreen-inner {
   display: flex; flex-direction: column;
-  width: 100%; height: 100%;
+  width: 100%;
+  flex: 1;           /* 親flex(modal)の残り高さを全部使う */
+  min-height: 0;     /* flexアイテムの縮小を許可 */
   max-width: 1280px; margin: 0 auto;
   padding: 0 20px 24px;
   background: transparent;
-  position: relative; z-index: 1; /* プロキシcanvas(z-index:0)より前面 */
+  position: relative; z-index: 1;
+  overflow: hidden;  /* inner内でスクロール管理 */
 }
 .wb-fullscreen-head {
   display: flex; align-items: center; justify-content: space-between;
@@ -4520,13 +4542,16 @@ body {
 
 /* Body: each row is one word card (src + tgt) */
 .wb-fullscreen-body {
-  flex: 1; overflow-y: auto;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;     /* flex子要素でoverflowを正しく機能させる */
   display: grid;
   gap: 8px; align-content: start;
   padding-top: 4px;
+  padding-bottom: 16px;
   /* columns set by JS via --wbfs-cols */
   grid-template-columns: repeat(var(--wbfs-cols, 2), 1fr);
-  background: transparent; /* 空が透けて見えるように */
+  background: transparent;
 }
 
 /* Selected card in fullscreen loop */
@@ -4716,31 +4741,7 @@ body {
 .wb-fullscreen-body.img-mode .wb-fs-check-col { display:none !important; }
 
 /* Always side-by-side inside each card */
-.wb-fs-item {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  border: 1px solid var(--line);
-  border-radius: 12px; overflow: hidden;
-  background: rgba(255,255,255,.30);
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-  transition: box-shadow .15s, border-color .15s;
-  cursor: default;
-  user-select: none;
-  min-width: 0;
-  /* 文字重なり防止 */
-  position: relative; z-index: 1;
-}
-.wb-fs-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); border-color: rgba(26,79,168,.3); }
-.wb-fs-item.dragging { opacity: .45; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
-.wb-fs-item.drag-over { border-color: var(--accent); background: rgba(26,79,168,.04); }
-
-/* Dark mode */
-[data-theme="dark"] .wb-fullscreen-modal { background: transparent; }
-[data-theme="dark"] .wb-fs-item { background: rgba(8,16,48,.35); border-color: rgba(100,140,220,.20); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-[data-theme="dark"] .wb-fs-src  { color: #ffffff; background: rgba(12,22,62,.28); border-right-color: rgba(100,140,220,.18); }
-[data-theme="dark"] .wb-fs-tgt  { color: rgba(255,255,255,.82); background: rgba(8,16,48,.22); }
-[data-theme="dark"] .wb-fs-src:hover { background: rgba(26,79,168,.18); }
-[data-theme="dark"] .wb-fs-tgt:hover { background: rgba(26,79,168,.12); }
+/* wb-fs-item: 下の定義に統合 */
 
 /* holdpad pad-num badge */
 .holdpad-pad-num {
@@ -4835,14 +4836,16 @@ body {
   box-shadow: 0 8px 32px rgba(0,0,0,.5);
 }
 
-/* ── Fullscreen card checkbox ── */
-/* Checkbox col hidden by default, shown in fs-select-mode */
+/* ── Fullscreen card ── */
+[data-theme="dark"] .wb-fullscreen-modal { background: transparent; }
+
 .wb-fs-item {
   display: grid;
   grid-template-columns: 1fr 1fr;
   border: 1px solid var(--line);
   border-radius: 12px; overflow: hidden;
   background: rgba(255,255,255,.30);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   transition: box-shadow .15s, border-color .15s, grid-template-columns .15s;
   cursor: default;
   user-select: none;
@@ -4851,6 +4854,13 @@ body {
 .wb-fs-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); border-color: rgba(26,79,168,.3); }
 .wb-fs-item.dragging { opacity: .45; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
 .wb-fs-item.drag-over { border-color: var(--accent); background: rgba(26,79,168,.04); }
+
+/* ダークモード */
+[data-theme="dark"] .wb-fs-item { background: rgba(8,16,48,.35); border-color: rgba(100,140,220,.20); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+[data-theme="dark"] .wb-fs-src  { color: #ffffff !important; background: rgba(12,22,62,.28); border-right-color: rgba(100,140,220,.18); }
+[data-theme="dark"] .wb-fs-tgt  { color: rgba(255,255,255,.88) !important; background: rgba(8,16,48,.22); }
+[data-theme="dark"] .wb-fs-src:hover { background: rgba(26,79,168,.18); }
+[data-theme="dark"] .wb-fs-tgt:hover { background: rgba(26,79,168,.12); }
 
 /* Checkbox column */
 .wb-fs-check-col {
@@ -4968,22 +4978,131 @@ body {
 
 /* ── Cloud card ── */
 .wbg-cloud {
-  position:absolute; min-width:200px; min-height:120px;
-  background: rgba(255,255,255,.30);
-  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-  border: 1.5px solid rgba(255,255,255,.55);
-  box-shadow: 0 6px 28px rgba(30,80,180,.12), 0 1px 4px rgba(0,0,0,.04),
-              inset 0 1px 0 rgba(255,255,255,.80);
-  padding: 0; cursor: move; user-select:none;
-  display:flex; flex-direction:column; align-items:stretch;
-  transition: box-shadow .18s;
-  z-index: 2; overflow: hidden;
+  position: absolute;
+  min-width: 180px; min-height: 100px;
+  /* 写真品質の積雲: 複数の円形ぼかしを重ねてメタボール的に融合 */
+  background: radial-gradient(ellipse 88% 72% at 50% 60%,
+    rgba(255,255,255,.82) 0%,
+    rgba(245,250,255,.70) 40%,
+    rgba(230,242,255,.50) 70%,
+    rgba(215,235,255,0) 100%);
+  /* 上部の盛り上がり: puffを追加の円で表現 */
+  box-shadow:
+    /* 左の膨らみ */
+    -28% -8%  0 8%  rgba(255,255,255,.55),
+    /* 右の膨らみ */
+     30% -10% 0 6%  rgba(255,255,255,.50),
+    /* 頂部中央 */
+     0   -22% 0 10% rgba(255,255,255,.60),
+    /* 底の影 */
+     0    18% 8px 0 rgba(140,175,215,.20),
+    /* 全体の影 */
+     0   12px 32px rgba(30,80,180,.12);
+  border: none;
+  border-radius: 52% 48% 58% 42% / 45% 42% 58% 55%;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  padding: 0; cursor: move; user-select: none;
+  display: flex; flex-direction: column; align-items: stretch;
+  transition: box-shadow .22s, filter .18s;
+  z-index: 2;
+  overflow: visible;
 }
+/* ダークモード: 夜空の雲（青白い半透明） */
 [data-theme="dark"] .wbg-cloud {
-  background: rgba(8,16,48,.35);
-  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-  border-color: rgba(100,140,220,.25);
-  box-shadow: 0 6px 28px rgba(0,5,30,.45), inset 0 1px 0 rgba(120,160,255,.12);
+  background: radial-gradient(ellipse 88% 72% at 50% 60%,
+    rgba(160,195,240,.28) 0%,
+    rgba(130,170,220,.20) 40%,
+    rgba(100,145,205,.12) 70%,
+    rgba(80,125,195,0) 100%);
+  box-shadow:
+    -28% -8%  0 8%  rgba(140,180,230,.22),
+     30% -10% 0 6%  rgba(130,175,225,.18),
+     0   -22% 0 10% rgba(150,188,235,.25),
+     0    18% 8px 0 rgba(20,40,100,.30),
+     0   12px 36px rgba(0,10,60,.35);
+  border: 1px solid rgba(120,165,220,.22);
+}
+/* コンテンツ */
+.wbg-cloud-head,
+.wbg-cloud-words,
+.wbg-cloud-loop {
+  position: relative; z-index: 1;
+}
+/* 積雲らしい上部の盛り上がり: ::before で追加puff */
+.wbg-cloud::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 45% 55% at 28% 35%,
+      rgba(255,255,255,.65) 0%, rgba(255,255,255,0) 68%),
+    radial-gradient(ellipse 40% 50% at 72% 30%,
+      rgba(255,255,255,.58) 0%, rgba(255,255,255,0) 65%),
+    radial-gradient(ellipse 35% 42% at 50% 18%,
+      rgba(255,255,255,.60) 0%, rgba(255,255,255,0) 62%);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+}
+[data-theme="dark"] .wbg-cloud::before {
+  background:
+    radial-gradient(ellipse 45% 55% at 28% 35%,
+      rgba(160,200,245,.22) 0%, rgba(130,175,230,0) 68%),
+    radial-gradient(ellipse 40% 50% at 72% 30%,
+      rgba(155,195,240,.18) 0%, rgba(125,170,225,0) 65%),
+    radial-gradient(ellipse 35% 42% at 50% 18%,
+      rgba(165,205,248,.20) 0%, rgba(140,185,235,0) 62%);
+}
+/* 底面の青灰色の影（写真の積雲の特徴） */
+.wbg-cloud::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 8%; width: 84%; height: 38%;
+  background: radial-gradient(ellipse at 50% 100%,
+    rgba(125,165,210,.22) 0%,
+    rgba(110,155,200,.10) 50%,
+    rgba(100,148,198,0) 100%);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 0 0 50% 50%;
+}
+[data-theme="dark"] .wbg-cloud::after {
+  background: radial-gradient(ellipse at 50% 100%,
+    rgba(20,45,100,.35) 0%,
+    rgba(15,38,90,.18) 50%,
+    rgba(10,30,80,0) 100%);
+}
+.wbg-cloud:hover {
+  box-shadow:
+    -28% -8%  0 8%  rgba(255,255,255,.62),
+     30% -10% 0 6%  rgba(255,255,255,.57),
+     0   -22% 0 10% rgba(255,255,255,.68),
+     0    18% 8px 0 rgba(140,175,215,.24),
+     0   16px 40px rgba(30,80,180,.18);
+  filter: none;
+}
+[data-theme="dark"] .wbg-cloud:hover {
+  box-shadow:
+    -28% -8%  0 8%  rgba(140,180,230,.28),
+     30% -10% 0 6%  rgba(130,175,225,.22),
+     0   -22% 0 10% rgba(150,188,235,.30),
+     0    18% 8px 0 rgba(20,40,100,.38),
+     0   16px 40px rgba(0,10,60,.45);
+}
+.wbg-cloud.dragging-cloud { opacity: .60; z-index: 200; }
+.wbg-cloud.drop-active {
+  box-shadow:
+    -28% -8%  0 8%  rgba(255,255,255,.68),
+     30% -10% 0 6%  rgba(255,255,255,.62),
+     0   -22% 0 10% rgba(255,255,255,.72),
+     0 0 0 3px rgba(26,79,168,.55),
+     0   16px 40px rgba(30,80,180,.25);
+}
+/* transform モード: バウンディングボックス */
+.wbg-cloud.transform-mode {
+  outline: 2px dashed rgba(26,79,168,.75);
+  outline-offset: 6px;
+  cursor: default;
 }
 .wbg-cloud.dragging-cloud { opacity:.55; z-index:200; box-shadow:0 14px 44px rgba(26,79,168,.35); }
 .wbg-cloud.drop-active {
@@ -4994,8 +5113,8 @@ body {
 
 /* Cloud header bar */
 .wbg-cloud-head {
-  display:flex; align-items:center; justify-content:center;
-  padding: 10px 36px 7px;
+  display: flex; align-items: center; justify-content: center;
+  padding: 12px 40px 8px;
   flex-shrink:0; position:relative;
 }
 .wbg-cloud-name {
@@ -5003,15 +5122,19 @@ body {
   text-transform:uppercase; letter-spacing:.06em;
   outline:none; text-align:center; cursor:default;
 }
-[data-theme="dark"] .wbg-cloud-name { color:#6896cc; }
+[data-theme="dark"] .wbg-cloud-name { color: rgba(160,200,255,.92); text-shadow: 0 1px 8px rgba(0,10,50,.5); }
 .wbg-cloud-name[contenteditable="true"] {
   border-bottom: 1px dashed var(--accent); cursor:text;
 }
 .wbg-cloud-actions {
   position:absolute; right:8px; top:8px;
-  display:flex; gap:2px; opacity:0; transition:opacity .15s;
+  display:flex; gap:4px;
+  opacity: 0;       /* デフォルト非表示 */
+  transition:opacity .20s;
+  z-index: 10;
 }
-.wbg-cloud:hover .wbg-cloud-actions { opacity:1; }
+.wbg-cloud:hover .wbg-cloud-actions,
+.wbg-cloud:focus-within .wbg-cloud-actions { opacity:1; } /* hover時のみ表示 */
 .wbg-cloud-btn {
   width:20px; height:20px; border-radius:5px; border:none;
   background:rgba(100,140,200,.1); color:var(--ink3);
@@ -5023,9 +5146,12 @@ body {
 
 /* Word cards inside cloud — centered */
 .wbg-cloud-words {
-  display:flex; flex-wrap:wrap; gap:6px;
-  padding:0 14px 12px; flex:1; min-height:40px;
-  align-content:flex-start; justify-content:center;
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 6px 16px 16px;
+  flex: 1; min-height: 40px;
+  align-content: flex-start;
+  justify-content: center;
+  overflow: visible;
 }
 .wbg-cloud-word {
   display:flex; flex-direction:row; align-items:center; gap:5px;
@@ -5047,17 +5173,32 @@ body {
 
 /* ── Photoshop-style transform handles ── */
 .wbg-transform-overlay {
-  display:none; position:absolute; inset:-1px; pointer-events:none; z-index:50;
+  display: none;
+  position: absolute;
+  inset: -8px;
+  pointer-events: none;
+  z-index: 60;
+  border-radius: inherit;
 }
-.wbg-cloud.transform-mode .wbg-transform-overlay { display:block; }
-.wbg-cloud.transform-mode { cursor:default; }
+.wbg-cloud.transform-mode .wbg-transform-overlay {
+  display: block;
+  pointer-events: none; /* overlayはnone、ハンドルはall */
+}
+.wbg-cloud.transform-mode {
+  cursor: default;
+  outline: 2px dashed rgba(26,79,168,.80);
+  outline-offset: 8px;
+}
 /* 8 edge/corner handles */
 .wbg-th {
-  position:absolute; width:10px; height:10px;
-  background: rgba(255,255,255,.30); border:1.5px solid var(--accent);
-  border-radius:2px; pointer-events:all; box-shadow:0 1px 4px rgba(0,0,0,.2);
+  position: absolute; width: 12px; height: 12px;
+  background: #fff; border: 2px solid var(--accent);
+  border-radius: 3px; pointer-events: all;
+  box-shadow: 0 2px 6px rgba(0,0,0,.28);
+  z-index: 70; cursor: inherit;
+  transition: background .12s, transform .12s;
 }
-.wbg-th:hover { background:var(--accent); transform:scale(1.3); }
+.wbg-th:hover { background: var(--accent); transform: scale(1.25); }
 /* positions */
 .wbg-th[data-h="nw"] { top:-5px;  left:-5px;  cursor:nwse-resize; }
 .wbg-th[data-h="n"]  { top:-5px;  left:50%; transform:translateX(-50%); cursor:ns-resize; }
@@ -5069,12 +5210,14 @@ body {
 .wbg-th[data-h="w"]  { top:50%;   left:-5px;  transform:translateY(-50%); cursor:ew-resize; }
 /* 4 border-radius warp handles — shown inside corners */
 .wbg-rh {
-  position:absolute; width:9px; height:9px;
-  background:rgba(26,79,168,.7); border:1.5px solid #fff;
-  border-radius:50%; pointer-events:all; box-shadow:0 1px 3px rgba(0,0,0,.25);
-  cursor:crosshair;
+  position: absolute; width: 11px; height: 11px;
+  background: rgba(26,79,168,.85); border: 2px solid #fff;
+  border-radius: 50%; pointer-events: all;
+  box-shadow: 0 2px 6px rgba(0,0,0,.30);
+  cursor: crosshair; z-index: 70;
+  transition: background .12s, transform .12s;
 }
-.wbg-rh:hover { background:var(--accent); transform:scale(1.4); }
+.wbg-rh:hover { background: var(--accent); transform: scale(1.35); }
 .wbg-rh[data-r="tl"] { top:14px;  left:14px; }
 .wbg-rh[data-r="tr"] { top:14px;  right:14px; }
 .wbg-rh[data-r="br"] { bottom:14px; right:14px; }
@@ -5086,9 +5229,15 @@ body {
 .wbg-right {
   width: 260px; flex-shrink: 0;
   display: flex; flex-direction: column; overflow: hidden;
-  background: var(--surface); border-left: 1px solid var(--line);
+  background: rgba(255,255,255,.22);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  border-left: 1px solid rgba(255,255,255,.35);
   transition: width .22s cubic-bezier(.4,0,.2,1);
   position: relative;
+}
+[data-theme="dark"] .wbg-right {
+  background: rgba(6,14,40,.35);
+  border-left-color: rgba(100,140,220,.20);
 }
 .wbg-right.collapsed { width: 28px; min-width: 28px; }
 .wbg-right.collapsed .wbg-right-header,
@@ -5096,8 +5245,15 @@ body {
 .wbg-right.collapsed .wbg-global-loop { opacity: 0; pointer-events: none; }
 .wbg-right-header {
   display:flex; align-items:center; justify-content:space-between;
-  padding:10px 14px 8px; border-bottom:1px solid var(--line); flex-shrink:0;
+  padding:10px 14px 8px;
+  border-bottom:1px solid rgba(255,255,255,.30);
+  background: rgba(255,255,255,.15);
+  flex-shrink:0;
   transition: opacity .15s;
+}
+[data-theme="dark"] .wbg-right-header {
+  border-bottom-color: rgba(100,140,220,.18);
+  background: rgba(255,255,255,.04);
 }
 .wbg-right-title { font-size:11px; font-weight:800; color:var(--ink3); text-transform:uppercase; letter-spacing:.07em; }
 .wbg-right-count { font-size:11px; color:var(--ink3); font-family:'DM Mono',monospace; }
@@ -5105,13 +5261,19 @@ body {
 .wbg-right-toggle {
   position: absolute; left: -14px; top: 50%; transform: translateY(-50%);
   width: 14px; height: 44px;
-  background: var(--surface); border: 1px solid var(--line); border-right: none;
+  background: rgba(255,255,255,.28);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,.40); border-right: none;
   border-radius: 6px 0 0 6px;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
   font-size: 9px; color: var(--ink3); z-index: 10;
   transition: background .12s, color .12s;
 }
-.wbg-right-toggle:hover { background: var(--panel-r); color: var(--accent); }
+[data-theme="dark"] .wbg-right-toggle {
+  background: rgba(6,14,40,.35);
+  border-color: rgba(100,140,220,.20);
+}
+.wbg-right-toggle:hover { background: rgba(255,255,255,.48); color: var(--accent); }
 .wbg-right.collapsed .wbg-right-toggle { left: -14px; }
 .wbg-right-list {
   flex:1; overflow-y:auto; padding:8px;
@@ -5121,8 +5283,15 @@ body {
 .wbg-right-list.drop-active { background:rgba(26,79,168,.04); outline:2px dashed rgba(26,79,168,.3); outline-offset:-4px; border-radius:8px; }
 .wbg-right-item {
   display:flex; align-items:center; gap:8px; padding:7px 10px;
-  border-radius:9px; border:1px solid var(--line); background:var(--panel-r);
+  border-radius:9px;
+  border:1px solid rgba(255,255,255,.40);
+  background: rgba(255,255,255,.28);
+  backdrop-filter: blur(8px);
   cursor:grab; user-select:none; transition:.14s;
+}
+[data-theme="dark"] .wbg-right-item {
+  border-color: rgba(100,140,220,.20);
+  background: rgba(10,20,58,.35);
 }
 .wbg-right-item:hover { border-color:var(--accent); transform:translateX(-2px); box-shadow:2px 0 8px rgba(26,79,168,.1); }
 .wbg-right-item.dragging { opacity:.3; pointer-events:none; }
@@ -5184,9 +5353,11 @@ body {
   padding:7px 10px; border-radius:9px; border:none;
   background:rgba(255,69,58,.08); color:var(--red);
   font:inherit; font-size:11px; font-weight:700; cursor:pointer; transition:.14s;
-  display:none;
+  display:block; /* 常時表示 */
+  opacity:.5;
 }
-.wbg-global-loop-stop.visible { display:block; }
+.wbg-global-loop-stop.visible,
+.wbg-global-loop-stop:hover { opacity:1; }
 .wbg-global-loop-stop:hover { background:rgba(255,69,58,.18); }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -6322,6 +6493,128 @@ kbd {
   transform: translateY(-2px);
 }
 
+
+/* ── WBタブバー ─────────────────────────────────────── */
+.wb-right-area {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+.wb-tabbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  padding: 0 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex-shrink: 0;
+  border-bottom: 1.5px solid rgba(255,255,255,.30);
+  background: rgba(255,255,255,.10);
+  backdrop-filter: blur(10px);
+  min-height: 34px;
+}
+[data-theme="dark"] .wb-tabbar {
+  border-bottom-color: rgba(100,140,220,.20);
+  background: rgba(8,16,48,.18);
+}
+.wb-tabbar::-webkit-scrollbar { display: none; }
+
+.wb-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px 5px;
+  border-radius: 8px 8px 0 0;
+  border: 1.5px solid transparent;
+  border-bottom: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  max-width: 140px;
+  color: rgba(20,60,140,.50);
+  background: transparent;
+  transition: all .13s;
+  flex-shrink: 0;
+  position: relative;
+  bottom: -1.5px;
+  user-select: none;
+  font-family: inherit;
+}
+[data-theme="dark"] .wb-tab { color: rgba(160,200,255,.45); }
+.wb-tab:hover {
+  color: rgba(20,60,140,.80);
+  background: rgba(255,255,255,.30);
+  border-color: rgba(255,255,255,.40);
+}
+[data-theme="dark"] .wb-tab:hover {
+  color: rgba(200,225,255,.80);
+  background: rgba(100,140,220,.10);
+  border-color: rgba(100,140,220,.20);
+}
+.wb-tab.active {
+  color: #0d2a6e;
+  background: rgba(255,255,255,.60);
+  border-color: rgba(255,255,255,.65);
+  box-shadow: 0 -2px 8px rgba(30,80,180,.07);
+}
+[data-theme="dark"] .wb-tab.active {
+  color: #c8e0ff;
+  background: rgba(8,16,48,.65);
+  border-color: rgba(100,140,220,.38);
+}
+.wb-tab-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.wb-tab-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+}
+.wb-tab-close {
+  width: 14px; height: 14px;
+  border-radius: 3px; border: none;
+  background: transparent; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; color: rgba(20,60,140,.30);
+  font-size: 10px; line-height: 1; transition: .12s; padding: 0;
+  font-family: inherit;
+}
+.wb-tab-close:hover { background: rgba(200,50,50,.12); color: rgba(180,30,30,.8); }
+[data-theme="dark"] .wb-tab-close { color: rgba(160,200,255,.30); }
+[data-theme="dark"] .wb-tab-close:hover { background: rgba(245,110,110,.15); color: rgba(255,130,130,.8); }
+
+/* パネルエリア: wb-right-area内でflexで残高を使う */
+#wbPanelsArea {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 0;
+  min-height: 120px;
+}
+
+/* パネル数で幅自動分配 */
+#wbPanelsArea > .wb-panel {
+  flex: 1 1 0;
+  min-width: 220px;
+  max-width: 100%;
+}
+
+/* 文字サイズ最適化 */
+#wbPanelsArea[data-cols="1"] .wb-item-text { font-size: 15px !important; }
+#wbPanelsArea[data-cols="1"] .wb-item-col  { padding: 11px 14px !important; }
+#wbPanelsArea[data-cols="2"] .wb-item-text { font-size: 13px !important; }
+#wbPanelsArea[data-cols="2"] .wb-item-col  { padding: 9px 11px !important; }
+#wbPanelsArea[data-cols="3"] .wb-item-text { font-size: 11px !important; }
+#wbPanelsArea[data-cols="3"] .wb-item-col  { padding: 7px 9px !important; }
+
 </style>
 </head>
 <body>
@@ -6822,7 +7115,8 @@ kbd {
         </div>
       </div>
       <!-- Word Book panels injected here by JS -->
-    </div>
+      </div><!-- /wbPanelsArea -->
+    </div><!-- /wb-right-area -->
 
   </div><!-- /wb-multi-root -->
 
@@ -6949,14 +7243,17 @@ kbd {
       </div>
     </div>
 
-    <!-- Right area: open book panels (+ optional history panel injected by JS) -->
-    <div class="wb-panels-area" id="wbPanelsArea">
+    <!-- Right area: tabbar + open book panels -->
+    <div class="wb-right-area">
+      <div class="wb-tabbar" id="wbTabbar" style="display:none"></div>
+      <div class="wb-panels-area" id="wbPanelsArea" data-cols="0">
       <div class="wb-panels-empty" id="wbPanelsEmpty">
         <div style="font-size:32px;margin-bottom:12px">📚</div>
         <div style="font-weight:700;font-size:15px;color:var(--ink);margin-bottom:6px">Word Bookを開く</div>
         <div style="font-size:13px;color:var(--ink3);line-height:1.7">左側のリストからBookをクリックして開いてください。<br>複数のBookを同時に開いて比較・移動ができます。</div>
       </div>
-    </div>
+      </div><!-- /wbPanelsArea -->
+    </div><!-- /wb-right-area -->
 
   </div><!-- /wb-multi-root -->
 
@@ -9564,7 +9861,53 @@ function updateTranslateSaveButtonTitle() {
     popup.classList.add('open');
     btn.classList.add('open');
     isOpen = true;
-    refreshPopup();   // no manual positioning needed — CSS handles it
+    refreshPopup();
+    // position:fixed で正確な位置を計算
+    positionPopup();
+  }
+
+  function positionPopup() {
+    const btnRect = btn.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const popW = Math.min(400, vw - 24); // メイン+サブの最大幅
+    const MARGIN = 8;
+
+    // 最大高さ: ボタンの上下どちらに開くか決定
+    const spaceAbove = btnRect.top - MARGIN;
+    const spaceBelow = vh - btnRect.bottom - MARGIN;
+    const maxH = Math.max(spaceAbove, spaceBelow, 200);
+
+    // colMainとcolSubに最大高さ適用
+    const colH = Math.min(maxH, 340);
+    if (colMain) colMain.style.maxHeight = colH + 'px';
+    if (colSub)  colSub.style.maxHeight  = colH + 'px';
+
+    // 上下方向: spaceAboveが十分あれば上へ、そうでなければ下へ
+    let top, bottom;
+    if (spaceAbove >= 200) {
+      // 上方向に開く
+      popup.style.bottom = '';
+      popup.style.top    = (btnRect.top - MARGIN - 10) + 'px'; // 仮置き
+      // 高さが確定後に再計算
+      requestAnimationFrame(() => {
+        const ph = popup.offsetHeight;
+        popup.style.top = Math.max(MARGIN, btnRect.top - ph - MARGIN) + 'px';
+      });
+    } else {
+      // 下方向に開く
+      popup.style.top = (btnRect.bottom + MARGIN) + 'px';
+    }
+
+    // 左右方向: 右端が画面外に出ないよう調整
+    const rightEdge = btnRect.right;
+    if (rightEdge - popW < MARGIN) {
+      popup.style.left  = MARGIN + 'px';
+      popup.style.right = '';
+    } else {
+      popup.style.left  = '';
+      popup.style.right = (vw - rightEdge) + 'px';
+    }
   }
 
   async function refreshPopup() {
@@ -9628,21 +9971,20 @@ function updateTranslateSaveButtonTitle() {
         folderBooks.forEach(b => {
           const val = 'wordbook:' + b.id;
           const bi = makeItem('📖', b.name||'無題', curVal === val, false, false);
-          bi.addEventListener('click', () => setDest(val, b.name||'無題', '📖'));
+          bi.addEventListener('click', (e) => { e.stopPropagation(); setDest(val, b.name||'無題', '📖'); });
           colSub.appendChild(bi);
         });
       }
       colSub.style.display = 'flex';
       colSub.style.flexDirection = 'column';
+      // サブカラム展開後に位置再計算
+      requestAnimationFrame(positionPopup);
     }
 
     folders.forEach(folder => {
       const folderBooks = books.filter(b => b.folderId === folder.id);
       const folderHasCur = folderBooks.some(b => curVal === 'wordbook:' + b.id);
       const item = makeItem('📁', folder.name||'フォルダ', false, true, true);
-      if (folderHasCur) { item.classList.add('active'); setTimeout(() => showSub(folder, folderBooks, item), 0); }
-      item.addEventListener('mouseenter', () => showSub(folder, folderBooks, item));
-      item.addEventListener('click',      () => showSub(folder, folderBooks, item));
       colMain.appendChild(item);
     });
 
@@ -10175,9 +10517,71 @@ function getWbColorHex(cls) {
   return map[cls] || '#8e8e93';
 }
 
+// ── WBタブ管理（3パネル制限・Excel型切り替え）──────────────────────
+const WB_MAX_VISIBLE = 3;
+let wbVisibleOrder = []; // 表示中bookId配列（最大3、左から順）
+
+function _wbUpdateCols() {
+  const area = document.getElementById('wbPanelsArea');
+  if (!area) return;
+  // 有効なvisible orderに絞る（閉じたものを除去）
+  wbVisibleOrder = wbVisibleOrder.filter(id => wbOpenBookIds.has(id));
+  const n = Math.max(0, Math.min(wbVisibleOrder.length, WB_MAX_VISIBLE));
+  area.dataset.cols = String(n);
+  // 表示/非表示を同期
+  wbOpenBookIds.forEach(id => {
+    const p = document.getElementById('wb-panel-' + id);
+    if (!p) return;
+    p.style.display = wbVisibleOrder.includes(id) ? '' : 'none';
+  });
+}
+
+function _wbUpdateTabbar() {
+  const tabbar = document.getElementById('wbTabbar');
+  if (!tabbar) return;
+  const openIds = Array.from(wbOpenBookIds);
+  // 2つ以上開いているときだけタブバーを表示
+  tabbar.style.display = openIds.length >= 2 ? 'flex' : 'none';
+  tabbar.innerHTML = '';
+  getAllWordBooks().then(books => {
+    openIds.forEach(id => {
+      const book = books.find(b => String(b.id) === id);
+      const name = book ? (book.name || '無題') : '…';
+      const colorHex = book ? getWbColorHex(wbGetColor(String(book.id))) : '#8e8e93';
+      const isVisible = wbVisibleOrder.includes(id);
+      const tab = document.createElement('button');
+      tab.className = 'wb-tab' + (isVisible ? ' active' : '');
+      tab.type = 'button';
+      tab.dataset.id = id;
+      tab.innerHTML =
+        `<span class="wb-tab-dot" style="background:${colorHex}"></span>` +
+        `<span class="wb-tab-name">${esc(name)}</span>` +
+        `<span class="wb-tab-close" role="button" tabindex="0" title="閉じる" data-close="${id}">✕</span>`;
+      // タブクリック → 表示切り替え
+      tab.addEventListener('click', e => {
+        const closeEl = e.target.closest('[data-close]');
+        if (closeEl) { e.stopPropagation(); wbClosePanel(closeEl.dataset.close); return; }
+        if (!wbVisibleOrder.includes(id)) {
+          // 非表示→表示へ: 溢れたら最古を非表示
+          if (wbVisibleOrder.length >= WB_MAX_VISIBLE) wbVisibleOrder.shift();
+          wbVisibleOrder.push(id);
+          _wbUpdateCols();
+          _wbUpdateTabbar();
+        }
+      });
+      tabbar.appendChild(tab);
+    });
+  });
+}
+
 function wbOpenPanel(bookId) {
   const id = String(bookId);
   wbOpenBookIds.add(id);
+  // 表示枠に追加（溢れたら最古を非表示）
+  if (!wbVisibleOrder.includes(id)) {
+    if (wbVisibleOrder.length >= WB_MAX_VISIBLE) wbVisibleOrder.shift();
+    wbVisibleOrder.push(id);
+  }
   if (wordBookSelect) wordBookSelect.value = id;
   getAllWordBooks().then(books => {
     renderWbSidebar(sortWordBooks(books, getWordBookBooksSortMode()));
@@ -10187,12 +10591,15 @@ function wbOpenPanel(bookId) {
     updateWordBookLoopButtons();
     const active = books.find(b => String(b.id) === id);
     if (wordBookNameChip && active) wordBookNameChip.textContent = active.name || '無題';
+    _wbUpdateCols();
+    _wbUpdateTabbar();
   });
 }
 
 function wbClosePanel(bookId) {
   const id = String(bookId);
   wbOpenBookIds.delete(id);
+  wbVisibleOrder = wbVisibleOrder.filter(x => x !== id);
   const panel = document.getElementById('wb-panel-' + id);
   if (panel) panel.remove();
   getAllWordBooks().then(books => {
@@ -10200,6 +10607,8 @@ function wbClosePanel(bookId) {
     updateWbPanelsEmpty();
     rebuildLoopItemsFromOpenPanels(books);
     updateWordBookLoopButtons();
+    _wbUpdateCols();
+    _wbUpdateTabbar();
   });
 }
 
@@ -17671,7 +18080,7 @@ function openWbFullscreen(bookId, book, items) {
           <button class="wbg-global-loop-btn" data-gmode="source">原文</button>
           <button class="wbg-global-loop-btn" data-gmode="target">訳語</button>
           <button class="wbg-global-loop-btn" data-gmode="alternate">交互</button>
-          <button class="wbg-global-loop-stop" id="wbgGlobalLoopStop">■ 停止</button>
+          <button class="wbg-global-loop-stop" id="wbgGlobalLoopStop" style="display:block">■ 停止</button>
         </div>
       </div>`;
 
@@ -17689,13 +18098,13 @@ function openWbFullscreen(bookId, book, items) {
   function buildCloudEl(g) {
     if (g.x == null) { g.x = 20 + Math.random() * 300; g.y = 60 + Math.random() * 200; }
     if (!g.w) g.w = 240; if (!g.h) g.h = 140;
-    if (!g.radii) g.radii = { tl:55, tr:42, br:58, bl:45 };
+    if (!g.radii) g.radii = { tl:52, tr:48, br:58, bl:42 }; // デフォルト積雲形
 
     const el = document.createElement('div');
     el.className = 'wbg-cloud';
     el.dataset.gid = g.id;
     el.style.cssText = `left:${g.x}px;top:${g.y}px;width:${g.w}px;min-height:${g.h}px;`;
-    applyRadii(el, g.radii);
+    applyRadii(el, g.radii); // 変形ハンドルで border-radius を変更
 
     const wordsHtml = (g.wordKeys || []).map(wk => {
       const it  = getItemByKey(wk);
@@ -17719,6 +18128,7 @@ function openWbFullscreen(bookId, book, items) {
       <div class="wbg-cloud-head">
         <span class="wbg-cloud-name" data-gid="${g.id}" title="ダブルクリックで名前変更">${esc(g.name || 'グループ')}</span>
         <div class="wbg-cloud-actions">
+          <button class="wbg-cloud-btn" title="名前変更" data-action="rename" data-gid="${g.id}">✎</button>
           <button class="wbg-cloud-btn del" title="削除" data-action="delete" data-gid="${g.id}">✕</button>
         </div>
       </div>
@@ -17733,8 +18143,161 @@ function openWbFullscreen(bookId, book, items) {
         ${['nw','n','ne','e','se','s','sw','w'].map(h => `<div class="wbg-th" data-h="${h}"></div>`).join('')}
         ${['tl','tr','br','bl'].map(r => `<div class="wbg-rh" data-r="${r}"></div>`).join('')}
       </div>`;
+
     return el;
   }
+
+  // ── リアル雲Canvas描画 ──────────────────────────────────────────
+  // 写真品質の積雲をオフスクリーンCanvasで生成し、グループ雲の背景に描画
+  function drawCloudCanvas(cloudEl, g) {
+    const cv = cloudEl.querySelector('.wbg-cloud-canvas');
+    if (!cv) return;
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const W = cloudEl.offsetWidth + 36;
+    const H = cloudEl.offsetHeight + 36;
+    if (!W || !H) return;
+    cv.width = W; cv.height = H;
+    const cx = cv.getContext('2d');
+
+    // ── puff配置（積雲の球の集合）──────────────────────────────
+    const cx2 = W / 2, cy2 = H * 0.55; // 中心（重心を下方へ）
+    const rBase = Math.min(W, H) * 0.32;
+
+    // 写真分析: 積雲は底辺に大きな球、上に向かって尖っていく
+    const puffs = [
+      // ベース層（底面・最大）
+      { ox:  0,        oy: rBase*0.15, r: rBase*0.88, layer:'base' },
+      { ox: -rBase*0.52, oy: rBase*0.08, r: rBase*0.62, layer:'base' },
+      { ox:  rBase*0.54, oy: rBase*0.06, r: rBase*0.58, layer:'base' },
+      // 中層
+      { ox: -rBase*0.28, oy:-rBase*0.22, r: rBase*0.52, layer:'mid' },
+      { ox:  rBase*0.26, oy:-rBase*0.25, r: rBase*0.48, layer:'mid' },
+      { ox:  0,        oy:-rBase*0.35, r: rBase*0.46, layer:'mid' },
+      { ox: -rBase*0.48, oy: rBase*0.18, r: rBase*0.38, layer:'base' },
+      { ox:  rBase*0.50, oy: rBase*0.20, r: rBase*0.35, layer:'base' },
+      // 上層（頂部）
+      { ox: -rBase*0.12, oy:-rBase*0.52, r: rBase*0.36, layer:'top' },
+      { ox:  rBase*0.15, oy:-rBase*0.55, r: rBase*0.32, layer:'top' },
+      { ox:  0,        oy:-rBase*0.65, r: rBase*0.28, layer:'top' },
+    ];
+
+    // ── ランダムな揺らぎを追加（雲らしい有機的な形）──────────
+    const seed = g.id % 997; // グループごとに固定のランダム
+    const rnd = (i) => ((Math.sin(seed * 9.301 + i * 7.239) * 43758.5453) % 1 + 1) % 1;
+    puffs.forEach((p, i) => {
+      p.ox += (rnd(i*3  ) - 0.5) * rBase * 0.18;
+      p.oy += (rnd(i*3+1) - 0.5) * rBase * 0.12;
+      p.r  *= 0.82 + rnd(i*3+2) * 0.36;
+    });
+
+    // puffをZ（奥）→手前の順で描画（base→mid→top）
+    const sorted = [...puffs].sort((a,b) => {
+      const order = { base:0, mid:1, top:2 };
+      return order[a.layer] - order[b.layer];
+    });
+
+    // ── ぼかし + 閾値処理でメタボール融合 ──────────────────────
+    const off = document.createElement('canvas');
+    off.width = W; off.height = H;
+    const oct = off.getContext('2d');
+
+    // ぼかしの量（puffサイズに比例）
+    const blurAmt = rBase * 0.12;
+    oct.filter = `blur(${blurAmt.toFixed(1)}px)`;
+
+    sorted.forEach(p => {
+      const px = cx2 + p.ox, py = cy2 + p.oy;
+      const grad = oct.createRadialGradient(px - p.r*0.2, py - p.r*0.25, p.r*0.05, px, py, p.r);
+      grad.addColorStop(0,   'rgba(255,255,255,0.96)');
+      grad.addColorStop(0.45,'rgba(255,255,255,0.88)');
+      grad.addColorStop(0.78,'rgba(255,255,255,0.62)');
+      grad.addColorStop(1,   'rgba(255,255,255,0)');
+      oct.beginPath(); oct.arc(px, py, p.r, 0, Math.PI*2);
+      oct.fillStyle = grad; oct.fill();
+    });
+    oct.filter = 'none';
+
+    // ── 閾値処理でエッジを引き締める（Photoshop雲ブラシ的効果）──
+    const imgData = oct.getImageData(0, 0, W, H);
+    const d = imgData.data;
+    for (let i = 0; i < d.length; i += 4) {
+      const a = d[i+3] / 255;
+      const na = a < 0.20 ? 0 : a < 0.52 ? Math.pow((a-0.20)/0.32, 1.7) : 1 - Math.pow((1-a)*0.55, 1.6);
+      d[i+3] = Math.min(255, na * 255 * 1.12) | 0;
+    }
+    oct.putImageData(imgData, 0, 0);
+
+    // ── 色付け（ライト/ダークで変える）──────────────────────────
+    const final = oct.getImageData(0, 0, W, H);
+    const fd = final.data;
+    for (let row = 0; row < H; row++) {
+      for (let col = 0; col < W; col++) {
+        const idx = (row * W + col) * 4;
+        const alpha = fd[idx+3] / 255;
+        if (alpha < 0.01) continue;
+        const yFrac = row / H; // 上=0, 下=1
+        const noise = ((Math.sin(col*0.18+row*0.12)*0.5+0.5) * 0.06);
+
+        if (isDark) {
+          // ダーク: 深い夜空の雲（青みがかった半透明）
+          const base = 0.62 + noise;
+          fd[idx  ] = (140 + noise*40) | 0; // R 青みがかった白
+          fd[idx+1] = (165 + noise*35) | 0; // G
+          fd[idx+2] = (210 + noise*25) | 0; // B
+          fd[idx+3] = Math.min(255, alpha * 185 * base) | 0;
+        } else {
+          // ライト: 写真品質の積雲シェーディング
+          // 上部: 純白、底面: 青灰色の影
+          const litR = 255, litG = 254, litB = 255;
+          const shadR = 185, shadG = 205, shadB = 235;
+          const t = Math.max(0, Math.min(1, yFrac * 1.5 - 0.25));
+          fd[idx  ] = (litR*(1-t) + shadR*t + noise*18) | 0;
+          fd[idx+1] = (litG*(1-t) + shadG*t + noise*14) | 0;
+          fd[idx+2] = (litB*(1-t) + shadB*t + noise*10) | 0;
+          fd[idx+3] = Math.min(255, alpha * 230) | 0;
+        }
+      }
+    }
+    oct.putImageData(final, 0, 0);
+
+    // ── メインCanvasに描画 ──────────────────────────────────────
+    cx.clearRect(0, 0, W, H);
+    cx.drawImage(off, 0, 0);
+
+    // ── 上部のハイライト（太陽光の反射）──────────────────────
+    if (!isDark) {
+      cx.save();
+      const hl = cx.createRadialGradient(cx2-rBase*0.08, cy2-rBase*0.55, rBase*0.05, cx2, cy2-rBase*0.35, rBase*0.75);
+      hl.addColorStop(0, 'rgba(255,255,255,0.38)');
+      hl.addColorStop(0.5,'rgba(255,255,255,0.12)');
+      hl.addColorStop(1, 'rgba(255,255,255,0)');
+      cx.fillStyle = hl;
+      cx.fillRect(0, 0, W, H);
+      cx.restore();
+    }
+
+    // ── ダーク時の星のような内部グロー ──────────────────────
+    if (isDark) {
+      cx.save();
+      const gl = cx.createRadialGradient(cx2, cy2*0.7, rBase*0.1, cx2, cy2*0.7, rBase*0.8);
+      gl.addColorStop(0, 'rgba(100,140,220,0.10)');
+      gl.addColorStop(1, 'rgba(80,120,200,0)');
+      cx.fillStyle = gl;
+      cx.fillRect(0, 0, W, H);
+      cx.restore();
+    }
+  }
+
+  // テーマ変更時や雲リサイズ後に再描画
+  window._redrawGroupClouds = function() {
+    document.querySelectorAll('.wbg-cloud').forEach(cloudEl => {
+      const gid = Number(cloudEl.dataset.gid);
+      const g = (typeof groups !== 'undefined') ? groups.find(gr => gr.id === gid) : null;
+      if (g) drawCloudCanvas(cloudEl, g);
+    });
+  };
+
+
 
   // Apply border-radius from radii object
   function applyRadii(el, radii) {
@@ -17744,9 +18307,16 @@ function openWbFullscreen(bookId, book, items) {
 
   // ── Cloud loop state (shared across all clouds in this modal) ──
   let cloudLoopState = { active: false, mode: null, cloudId: null, token: 0, items: [] };
+  let _cloudLoopTimer = null; // グループループ専用タイマー（停止時にclear）
+
+  function cloudLoopSetTimeout(fn, delay) {
+    if (_cloudLoopTimer) clearTimeout(_cloudLoopTimer);
+    _cloudLoopTimer = setTimeout(fn, delay);
+  }
 
   function stopAllCloudLoops() {
     cloudLoopState = { active: false, mode: null, cloudId: null, token: Date.now(), items: [] };
+    if (_cloudLoopTimer) { clearTimeout(_cloudLoopTimer); _cloudLoopTimer = null; }
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     // Reset all cloud play buttons to ▶
     const leftEl = modal.querySelector('.wbg-left');
@@ -17768,23 +18338,37 @@ function openWbFullscreen(bookId, book, items) {
     if (!item) { stopAllCloudLoops(); return; }
     const src = (item.sourceText || '').trim();
     const tgt = (item.translatedText || '').trim();
-    const next = () => {
-      setTimeout(() => runCloudLoopSequence(state, mode, items, idx + 1, token), 600);
+    // cloudLoopSetTimeout で next をラップ → 停止時に確実にクリア可能
+    const safeNext = () => {
+      if (!state.active || token !== state.token) return;
+      cloudLoopSetTimeout(() => runCloudLoopSequence(state, mode, items, idx + 1, token), 680);
+    };
+    // speak後のコールバックも必ずトークン確認
+    const speakAndNext = (text, lang, voice, provider) => {
+      if (!state.active || token !== state.token) return;
+      if (!text) { safeNext(); return; }
+      const prom = playSpeechChunk(state, text, lang, voice, provider, token);
+      if (prom && prom.then) {
+        prom.then(() => safeNext()).catch(() => safeNext());
+      } else {
+        safeNext();
+      }
     };
     if (mode === 'source') {
-      if (!src) { next(); return; }
-      speakLoopChunk(state, src, item.srcLang || 'en', voiceSrc, ttsProviderSrc, token, next);
+      speakAndNext(src, item.srcLang || 'en', voiceSrc, ttsProviderSrc);
     } else if (mode === 'target') {
-      if (!tgt) { next(); return; }
-      speakLoopChunk(state, tgt, item.tgtLang || 'ja', voiceTgt, ttsProviderTgt, token, next);
+      speakAndNext(tgt, item.tgtLang || 'ja', voiceTgt, ttsProviderTgt);
     } else { // alternate
-      if (!src && !tgt) { next(); return; }
-      if (!src) { speakLoopChunk(state, tgt, item.tgtLang || 'ja', voiceTgt, ttsProviderTgt, token, next); return; }
-      speakLoopChunk(state, src, item.srcLang || 'en', voiceSrc, ttsProviderSrc, token, () => {
+      if (!src && !tgt) { safeNext(); return; }
+      if (!src) { speakAndNext(tgt, item.tgtLang || 'ja', voiceTgt, ttsProviderTgt); return; }
+      if (!state.active || token !== state.token) return;
+      const prom = playSpeechChunk(state, src, item.srcLang || 'en', voiceSrc, ttsProviderSrc, token);
+      const afterSrc = () => {
         if (!state.active || token !== state.token) return;
-        if (!tgt) { next(); return; }
-        speakLoopChunk(state, tgt, item.tgtLang || 'ja', voiceTgt, ttsProviderTgt, token, next);
-      });
+        speakAndNext(tgt, item.tgtLang || 'ja', voiceTgt, ttsProviderTgt);
+      };
+      if (prom && prom.then) prom.then(afterSrc).catch(afterSrc);
+      else afterSrc();
     }
   }
 
@@ -17929,14 +18513,23 @@ function openWbFullscreen(bookId, book, items) {
         btn.addEventListener('click', e => {
           e.stopPropagation();
           const act = btn.dataset.action;
-          if (act === 'transform') {
+          if (act === 'rename') {
+            e.stopPropagation();
+            const newName = prompt('グループ名を変更:', g.name || 'グループ');
+            if (newName !== null && newName.trim()) {
+              g.name = newName.trim();
+              const nameEl2 = cloudEl.querySelector('.wbg-cloud-name');
+              if (nameEl2) nameEl2.textContent = g.name;
+              saveGroups();
+            }
+          } else if (act === 'transform') {
             transformMode = !transformMode;
             cloudEl.classList.toggle('transform-mode', transformMode);
             btn.classList.toggle('active', transformMode);
           } else if (act === 'delete') {
             if (!confirm('"' + g.name + '" を削除しますか？')) return;
             // Stop loop if running on this cloud
-            if (cloudLoopState.cloudId === gid) stopCloudLoop(cloudEl);
+            if (cloudLoopState.cloudId === gid) stopAllCloudLoops();
             groups = groups.filter(gr => gr.id !== gid);
             saveGroups(); renderGroupMode();
           }
